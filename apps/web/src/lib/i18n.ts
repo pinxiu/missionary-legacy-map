@@ -40,7 +40,7 @@ const UI = {
         "最近的遗迹距您 {d}。无论您在哪里，所有遗迹都会显示在地图上。"],
   foot: ["Historical records only, up to 1952.", "仅收录1952年以前的历史记录。"], how: ["How this is built", "项目说明"],
   translated: ["Chinese name translated by us, not yet found in a source", "中文名为本站翻译，尚未见于史料"],
-  addPhoto: ["Add a photo", "添加照片"],
+  addPhoto: ["Add photos", "添加照片"],
   firstPhoto: ["No photos yet. If you have visited this place, be the first to add one.", "还没有照片。如果您到过这里，欢迎成为第一位上传照片的人。"],
   needsPhoto: ["needs a photo", "待补照片"],
   photoCta: ["{n} sites still need photos. Visiting one? Add yours.", "还有 {n} 处遗迹缺少照片。路过时，欢迎拍一张上传。"],

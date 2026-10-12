@@ -157,3 +157,11 @@ h1 { font-family: var(--serif); font-size: 1.45rem; margin: 0; letter-spacing: 0
 .picker .hits { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; max-height: 160px; overflow-y: auto; }
 .picker .hits button { border: 0; border-radius: 0; width: 100%; text-align: left; padding: 8px 10px; font-size: 0.8rem; }
 .picker .hint { font-size: 0.78rem; color: var(--muted); margin: 0; }
+
+/* --- multi-photo upload --- */
+.upload .batch { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.upload .batch li { display: flex; gap: 10px; align-items: center; }
+.upload .batch img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; flex: none; }
+.upload .batch li > div { flex: 1; display: grid; gap: 4px; }
+.upload .batch button.link { border: 0; padding: 0; background: none; color: var(--muted); font-size: 0.78rem; text-align: left; text-decoration: underline; }
+.upload .pick.small { min-height: 48px; }

@@ -143,24 +143,42 @@ def apply_seed(proposal: dict, issue_url: str) -> list[Path]:
     return [target]
 
 
-def approve_photo(store, proposal: dict) -> str:
-    ph = proposal.get("photo") or {}
-    pid = ph.get("photo_id")
-    if not pid:
-        raise ProposalError("approve_photo needs photo.photo_id")
-    row = (store.select("photos", select="id,site_id,upload_path,status", id=f"eq.{pid}") or [None])[0]
-    if not row or not row.get("upload_path"):
-        raise ProposalError(f"Photo {pid} not found or has no upload.")
-    site = store.select("sites", select="slug", id=f"eq.{row['site_id']}")[0]
-    public_path = f"{site['slug']}/{pid}.jpg"
-    store.upload("site-photos", public_path, store.download("photo-uploads", row["upload_path"]))
-    store.update("photos", {"id": pid}, {
-        "status": "approved", "public_path": public_path,
-        "caption": ph.get("caption"), "caption_zh": ph.get("caption_zh"), "credit": ph.get("credit"),
-        "year_taken": ph.get("year_taken"), "moderation_note": "approved by owner",
-    })
-    store.remove("photo-uploads", [row["upload_path"]])
-    return public_path
+def photo_entries(proposal: dict) -> list[dict]:
+    """`photos` (a batch) or the older single `photo` form."""
+    return list(proposal.get("photos") or ([proposal["photo"]] if proposal.get("photo") else []))
+
+
+def approve_photos(store, proposal: dict) -> list[str]:
+    """Publish every listed photo and reject any in `reject_photo_ids`. All ids are checked before anything moves."""
+    entries = photo_entries(proposal)
+    reject_ids = list(proposal.get("reject_photo_ids") or [])
+    if not entries and not reject_ids:
+        raise ProposalError("approve_photo needs photos[].photo_id (or reject_photo_ids)")
+    rows = {}
+    for pid in [e.get("photo_id") for e in entries] + reject_ids:
+        if not pid:
+            raise ProposalError("every photo entry needs photo_id")
+        row = (store.select("photos", select="id,site_id,upload_path,status", id=f"eq.{pid}") or [None])[0]
+        if not row or not row.get("upload_path"):
+            raise ProposalError(f"Photo {pid} not found or has no upload.")
+        rows[pid] = row
+    published = []
+    for e in entries:
+        row = rows[e["photo_id"]]
+        site = store.select("sites", select="slug", id=f"eq.{row['site_id']}")[0]
+        public_path = f"{site['slug']}/{row['id']}.jpg"
+        store.upload("site-photos", public_path, store.download("photo-uploads", row["upload_path"]))
+        store.update("photos", {"id": row["id"]}, {
+            "status": "approved", "public_path": public_path,
+            "caption": e.get("caption"), "caption_zh": e.get("caption_zh"), "credit": e.get("credit"),
+            "year_taken": e.get("year_taken"), "moderation_note": "approved by owner",
+        })
+        store.remove("photo-uploads", [row["upload_path"]])
+        published.append(public_path)
+    for pid in reject_ids:
+        store.update("photos", {"id": pid}, {"status": "rejected", "moderation_note": "not approved by owner"})
+        store.remove("photo-uploads", [rows[pid]["upload_path"]])
+    return published
 
 
 def gh(*args: str) -> str:
@@ -172,15 +190,15 @@ def run(issue: int) -> None:
     try:
         proposal = extract_proposal(data["body"])
         files = apply_seed(proposal, data["url"])
-        photo = None
-        if proposal.get("action") == "approve_photo" or proposal.get("photo"):
+        photos: list[str] = []
+        if proposal.get("action") == "approve_photo" or photo_entries(proposal) or proposal.get("reject_photo_ids"):
             from .store import Store
-            photo = approve_photo(Store(), proposal)
+            photos = approve_photos(Store(), proposal)
     except ProposalError as e:
         gh("issue", "comment", str(issue), "--body", f"⚠️ Not applied: {e}\n\nEdit the proposal block and re-add `approved`.")
         gh("issue", "edit", str(issue), "--remove-label", "approved", "--add-label", "needs-approval")
         notice(f"apply #{issue}: rejected: {e}", "warning")
         raise SystemExit(1) from e
-    summary = ", ".join([f"updated {f.name}" for f in files] + ([f"published photo {photo}"] if photo else [])) or "no data change"
+    summary = ", ".join([f"updated {f.name}" for f in files] + ([f"published {len(photos)} photo(s)"] if photos else [])) or "no data change"
     Path("/tmp/apply-summary.txt").write_text(summary)
     notice(f"apply #{issue}: {summary}")

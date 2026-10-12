@@ -34,7 +34,7 @@ def ensure_labels() -> None:
         subprocess.run(["gh", "label", "create", name, "--color", color, "--force"], capture_output=True, text=True)
 
 
-def issue_body(sub: dict, site: dict | None, photo_url: str | None) -> str:
+def issue_body(sub: dict, site: dict | None, photo_urls: list[tuple[dict, str]]) -> str:
     p = sub.get("payload") or {}
     lines = [f"**Kind:** {sub['kind']}  ·  **Language:** {sub.get('lang') or '?'}  ·  **Submitted:** {sub['created_at'][:16]} UTC"]
     if site:
@@ -55,8 +55,11 @@ def issue_body(sub: dict, site: dict | None, photo_url: str | None) -> str:
         lines.append(f"**Caption:** {p['caption']}  ·  **Year taken:** {p.get('year_taken') or '?'}")
     if p.get("source"):
         lines.append(f"**Source given:** {p['source']}")
-    if photo_url:
-        lines += ["", f"![submitted photo]({photo_url})", "_(private preview link, valid 30 days)_"]
+    if photo_urls:
+        lines += ["", f"**Photos ({len(photo_urls)}):** _private preview links, valid 30 days_", ""]
+        for ph, url in photo_urls:
+            lines.append(f"- `{ph['photo_id']}`{' · ' + ph['caption'] if ph.get('caption') else ''}")
+            lines.append(f"  <img src=\"{url}\" width=\"320\">")
     if sub.get("contact"):
         lines.append(f"**Contact (private repo only):** {sub['contact']}")
     lines += ["", "<details><summary>Raw submission</summary>", "", "```json",
@@ -76,16 +79,20 @@ def sync(store: Store | None = None, limit: int = 20) -> int:
     made = 0
     for sub in subs:
         site = sites.get(sub.get("site_id"))
-        photo_url = None
-        if sub["kind"] == "photo" and (sub.get("payload") or {}).get("upload_path"):
-            try:
-                photo_url = store.sign_url("photo-uploads", sub["payload"]["upload_path"])
-            except Exception as e:  # noqa: BLE001
-                notice(f"could not sign photo URL: {e}", "warning")
+        photo_urls: list[tuple[dict, str]] = []
+        if sub["kind"] == "photo":
+            pl = sub.get("payload") or {}
+            batch = pl.get("photos") or ([{"photo_id": sub.get("photo_id"), "upload_path": pl["upload_path"],
+                                           "caption": pl.get("caption")}] if pl.get("upload_path") else [])
+            for ph in batch[:12]:
+                try:
+                    photo_urls.append((ph, store.sign_url("photo-uploads", ph["upload_path"])))
+                except Exception as e:  # noqa: BLE001
+                    notice(f"could not sign photo URL: {e}", "warning")
         p = sub.get("payload") or {}
         subject = (site or {}).get("name_en") or p.get("name") or str(p.get("text", ""))[:60] or sub["id"][:8]
         title = f"[{KIND_TITLE[sub['kind']][0]} {KIND_TITLE[sub['kind']][1]}] {subject}"[:200]
-        url = gh("issue", "create", "--title", title, "--body", issue_body(sub, site, photo_url),
+        url = gh("issue", "create", "--title", title, "--body", issue_body(sub, site, photo_urls),
                  "--label", "submission", "--label", f"kind:{sub['kind']}", "--label", "needs-triage")
         number = int(url.rstrip("/").split("/")[-1])
         store.update("submissions", {"id": sub["id"]}, {"issue_number": number})

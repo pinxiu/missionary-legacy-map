@@ -49,7 +49,10 @@ Nothing a visitor submits reaches the map without the owner's `approved` label. 
    ```
    ```
 8. Set labels: remove `needs-triage`; add `needs-approval` (or `needs-human` with a one-line reason). Never add `approved`.
-9. Feedback that isn't a data change: summarise it, use `"action": "none"`, label `needs-approval`.
+9. Photo batches: one submission can carry up to 12 photos (`payload.photos`). Look at each preview. List the good ones
+   under `photos` with a bilingual caption, and put any that show identifiable people at worship, are off-topic, blurry
+   duplicates or clearly not the visitor's to share under `reject_photo_ids`, saying why in the summary.
+10. Feedback that isn't a data change: summarise it, use `"action": "none"`, label `needs-approval`.
    Spam or abuse: comment one line and close it.
 
 ## Proposal format
@@ -71,7 +74,8 @@ Nothing a visitor submits reaches the map without the owner's `approved` label. 
                  "birth_year": 1850, "death_year": 1920, "mission_society": "...", "mission_society_zh": "...", "sources": ["key"] } ],
   "sources": [ { "key": "short-unique-key", "url": "https://...", "title": "...", "title_zh": "...",
                  "publisher": "...", "publisher_zh": "...", "language": "en|zh" } ],
-  "photo": { "photo_id": "uuid from the raw submission", "caption": "...", "caption_zh": "...", "credit": "uploader name or 'Visitor'", "year_taken": 2026 }
+  "photos": [ { "photo_id": "uuid from the raw submission", "caption": "...", "caption_zh": "...", "credit": "uploader name or 'Visitor'", "year_taken": 2026 } ],
+  "reject_photo_ids": [ "uuid of any photo in the batch that should not be published" ]
 }
 ```
 The apply worker rejects (and comments) if any event lacks a known source, any year is after 1952, Chinese fields are

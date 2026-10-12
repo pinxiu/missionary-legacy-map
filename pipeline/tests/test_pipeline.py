@@ -208,3 +208,34 @@ def test_audit_agreement_rules():
     assert not agrees(rec, [{"year_start": 1885}], {"found": True, "site_type": "hospital", "years": [1884]})[0]
     assert not agrees(rec, [], {"found": False})[0]
     assert not agrees(rec, [], {"found": True, "site_type": "school", "years": []})[0]
+
+
+def test_photo_batch_approval_and_issue_body():
+    from mlm import apply as ap
+    from mlm.submissions import issue_body
+
+    store = FakeStore()
+    site = store.insert("sites", [{"slug": "gulou-church"}])[0]
+    photos = store.insert("photos", [{"site_id": site["id"], "upload_path": f"pending/x/{i}.jpg", "status": "pending"} for i in range(3)])
+    store.files = {p["upload_path"]: b"jpg" for p in photos}
+    store.public = {}
+    store.download = lambda b, path: store.files[path]
+    store.upload = lambda b, path, data: store.public.__setitem__(path, data)
+    store.remove = lambda b, paths: [store.files.pop(x, None) for x in paths]
+    store.update = lambda t, m, v: [r.update(v) for r in store.rows[t] if all(r.get(k) == val for k, val in m.items())]
+
+    with pytest.raises(ap.ProposalError):  # unknown id blocks the whole batch: nothing moves
+        ap.approve_photos(store, {"photos": [{"photo_id": photos[0]["id"]}, {"photo_id": "nope"}]})
+    assert not store.public
+
+    out = ap.approve_photos(store, {"action": "approve_photo",
+                                    "photos": [{"photo_id": photos[0]["id"], "caption": "Front"}, {"photo_id": photos[1]["id"]}],
+                                    "reject_photo_ids": [photos[2]["id"]]})
+    assert len(out) == 2 and all(p.startswith("gulou-church/") for p in out)
+    assert [p["status"] for p in store.rows["photos"]] == ["approved", "approved", "rejected"] and not store.files
+
+    sub = {"id": "s", "kind": "photo", "site_id": site["id"], "photo_id": photos[0]["id"], "lang": "en",
+           "created_at": "2026-10-12T22:00:00", "contact": None,
+           "payload": {"photos": [{"photo_id": "a", "upload_path": "p/a.jpg", "caption": "Front"}, {"photo_id": "b", "upload_path": "p/b.jpg"}]}}
+    body = issue_body(sub, {"name_en": "Gulou Church", "name_zh": "鼓楼堂", "slug": "gulou-church"}, [(sub["payload"]["photos"][0], "u1"), (sub["payload"]["photos"][1], "u2")])
+    assert "**Photos (2):**" in body and body.count("<img") == 2
