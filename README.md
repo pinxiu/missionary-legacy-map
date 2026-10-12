@@ -16,7 +16,7 @@ sources.yaml ─▶ crawl ─▶ extract (Claude, tool-use) ─▶ policy filter
 
 | Piece | Where | Runs |
 |---|---|---|
-| Map app (PWA, installable on phones) | `apps/web` | Vercel, rebuilt on every push |
+| Map app (PWA, installable on phones) | `apps/web` | Vercel project `missionary-legacy-map`, deploys on every push to `main` |
 | Database (Postgres + PostGIS, RLS) | `supabase/` | Supabase project `missionary-legacy-map` |
 | Pipeline | `pipeline/mlm` | GitHub Actions, Mondays 09:17 UTC |
 | Source-scout agent | `.github/workflows/source-scout.yml` | Wednesdays, opens PRs |
