@@ -29,7 +29,7 @@ Historical records only (to 1952), no living people, and no present-day religiou
 GitHub → Settings → Secrets and variables → Actions:
 - Secret `ANTHROPIC_API_KEY` — extraction and agents
 - Secret `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API keys → `service_role`
-- Variable `SUPABASE_URL` — already set
+(`SUPABASE_URL` is set in the workflow; it is not secret.)
 
 ## Local development
 ```bash
