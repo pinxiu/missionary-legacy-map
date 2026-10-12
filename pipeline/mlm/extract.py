@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import ANTHROPIC_API_KEY, EXTRACT_MODEL, WORK_DIR
+from .config import ANTHROPIC_API_KEY, EXTRACT_MODEL, WORK_DIR, notice
 from .crawl import load_registry
 from .models import Extraction
 
@@ -67,18 +67,26 @@ def run(region: str) -> Path:
     out = WORK_DIR / "extracted" / region
     out.mkdir(parents=True, exist_ok=True)
     client = _client()
+    stats = {"pages": 0, "cached": 0, "irrelevant": 0, "extracted": 0, "failed": 0}
     for f in sorted(raw.glob("*.json")):
+        stats["pages"] += 1
         target = out / f.name
         if target.exists():
+            stats["cached"] += 1
             continue  # content-hash keyed: unchanged pages are not re-extracted
         page = json.loads(f.read_text())
         if page.get("kind") == "bibliography" or not relevant(page["text"], keywords):
+            stats["irrelevant"] += 1
             continue
         print(f"[extract] {page['url']}")
         try:
             ex = extract_page(page, client)
-        except Exception as e:  # keep the batch going; failures are re-tried next run
-            print(f"  ! {e}")
+        except Exception as e:  # noqa: BLE001 - keep the batch going; failures are re-tried next run
+            stats["failed"] += 1
+            if stats["failed"] <= 3:
+                notice(f"extract failed for {page['url']}: {type(e).__name__}: {str(e)[:300]}", "warning")
             continue
+        stats["extracted"] += 1
         target.write_text(ex.model_dump_json(indent=2))
+    notice(f"extract[{region}]: {stats}")
     return out

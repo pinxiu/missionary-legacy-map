@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 from urllib.parse import urlparse
 
-from .config import WORK_DIR
+from .config import WORK_DIR, notice
 from .geocode import geocode
 from .models import Extraction
 from .policy import apply as apply_policy
@@ -82,5 +82,5 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                         "subject_kind": "event", "subject_id": event["id"], "field": "event",
                         "value": e.model_dump(exclude={"evidence"}), "source_id": source["id"],
                         "excerpt": evd.excerpt[:300], "confidence": evd.confidence, "extracted_by": "llm"}])
-    print(json.dumps(stats, indent=2))
+    notice(f"load[{region}]: {json.dumps(stats)}")
     return stats

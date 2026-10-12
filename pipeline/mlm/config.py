@@ -26,3 +26,9 @@ HISTORICAL_CUTOFF_YEAR = int(os.environ.get("MLM_CUTOFF_YEAR", "1952"))
 # Review agent thresholds.
 AUTO_APPROVE_MIN_SOURCES = 2
 AUTO_APPROVE_MIN_CONFIDENCE = 0.8
+
+
+def notice(msg: str, level: str = "notice") -> None:
+    """Print a message; on GitHub Actions also surface it as a run annotation."""
+    import os as _os
+    print(f"::{level}::{msg}" if _os.environ.get("GITHUB_ACTIONS") else msg)

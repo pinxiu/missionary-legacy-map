@@ -21,7 +21,7 @@ import httpx
 import yaml
 from selectolax.lexbor import LexborHTMLParser as HTMLParser
 
-from .config import CRAWL_DELAY_S, USER_AGENT, WORK_DIR
+from .config import CRAWL_DELAY_S, USER_AGENT, WORK_DIR, notice
 
 SOURCES_FILE = Path(__file__).with_name("sources.yaml")
 
@@ -134,7 +134,9 @@ def run(region: str, out_dir: Path | None = None) -> Path:
     crawler = Crawler()
     for source in registry["sources"]:
         print(f"[crawl] {source['name']}")
-        for page in crawler.crawl_source(source):
+        pages = crawler.crawl_source(source)
+        notice(f"crawl[{region}] {source['name']}: {len(pages)} pages")
+        for page in pages:
             rec = page.__dict__ | {"content_hash": page.content_hash, "kind": source.get("kind", "web")}
             (out / f"{page.content_hash[:16]}.json").write_text(json.dumps(rec, ensure_ascii=False))
     return out
