@@ -44,3 +44,65 @@ regions:
         max_pages: 3
         language: en
         kind: journal
+
+  zhejiang:
+    # Province-wide crawl. Each extracted site is assigned to its city (prefecture) by the extractor.
+    keywords: [Zhejiang, Chekiang, 浙江, Hangzhou, Hangchow, 杭州, Ningbo, Ningpo, 宁波, 寧波, Wenzhou, Wenchow, 温州, 溫州,
+               Shaoxing, Shaohing, 绍兴, 紹興, Huzhou, Huchow, 湖州, Jiaxing, Kashing, 嘉兴, 嘉興, Taizhou, Taichow, 台州,
+               Jinhua, Kinhwa, 金华, 金華, Lishui, Chuchow, 丽水, 處州, Quzhou, 衢州, Zhoushan, Chusan, 舟山]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Zhejiang places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/zhejiang/
+          - https://www.bdcconline.net/zh-hans/places/hangzhou/
+          - https://www.bdcconline.net/zh-hans/places/ningbo/
+          - https://www.bdcconline.net/zh-hans/places/wenzhou/
+          - https://www.bdcconline.net/zh-hans/places/shaoxing/
+          - https://www.bdcconline.net/zh-hans/places/huzhou/
+          - https://www.bdcconline.net/zh-hans/places/jiaxing/
+          - https://www.bdcconline.net/zh-hans/places/taizhou/
+          - https://www.bdcconline.net/zh-hans/places/jinhua/
+          - https://www.bdcconline.net/zh-hans/places/lishui/
+          - https://www.bdcconline.net/zh-hans/places/quzhou/
+          - https://www.bdcconline.net/zh-hans/places/zhoushan/
+          - https://www.bdcconline.net/zh-hans/places/zhejiang/?page=1
+          - https://www.bdcconline.net/zh-hans/places/zhejiang/?page=2
+          - https://www.bdcconline.net/zh-hans/places/zhejiang/?page=3
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 250
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Zhejiang)
+        start_urls:
+          - https://www.bdcconline.net/en/places/zhejiang/
+          - https://www.bdcconline.net/en/places/ningbo/
+          - https://www.bdcconline.net/en/places/wenzhou/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 200
+        max_depth: 1
+        language: en
+      - name: Western Medicine in China (IU Indianapolis) — Zhejiang hospitals
+        start_urls:
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Hangchow%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Ningpo%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Wenchow%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Shaohing%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Huchow%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Kashing%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Taichow%22
+          - https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Kinhwa%22
+        follow: ['^https://library\.indianapolis\.iu\.edu/wmicproject/node/\d+$']
+        max_pages: 120
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Zhejiang mission institutions
+        start_urls:
+          - https://en.wikipedia.org/wiki/Hangchow_University
+          - https://en.wikipedia.org/wiki/The_First_Hospital_of_Jiaxing
+          - https://en.wikipedia.org/wiki/William_Edward_Soothill
+          - https://en.wikipedia.org/wiki/George_Stott_(missionary)
+          - https://en.wikipedia.org/wiki/Mary_Ann_Aldersey
+          - https://en.wikipedia.org/wiki/Divie_Bethune_McCartee
+        follow: []
+        max_pages: 20
+        language: en

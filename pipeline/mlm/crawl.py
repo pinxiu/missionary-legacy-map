@@ -104,11 +104,12 @@ class Crawler:
 
     def crawl_source(self, source: dict) -> list[Page]:
         follow = [re.compile(p) for p in source.get("follow", [])]
-        queue = deque(source["start_urls"])
+        max_depth = source.get("max_depth", 99)  # 1 = start pages plus the links they list
+        queue = deque((u, 0) for u in source["start_urls"])
         seen: set[str] = set()
         pages: list[Page] = []
         while queue and len(pages) < source.get("max_pages", 20):
-            url = queue.popleft()
+            url, depth = queue.popleft()
             if url in seen:
                 continue
             seen.add(url)
@@ -121,9 +122,11 @@ class Crawler:
             page = html_to_page(url, html, source["name"])
             pages.append(page)
             print(f"  + {url} ({len(page.text)} chars)")
+            if depth >= max_depth:
+                continue
             for link in page.links:
                 if link not in seen and any(p.match(link) for p in follow):
-                    queue.append(link)
+                    queue.append((link, depth + 1))
         return pages
 
 

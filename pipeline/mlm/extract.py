@@ -19,11 +19,16 @@ Rules:
 - Extract only what the text states. Never add facts from your own knowledge.
 - Every site, person and event needs evidence: the source URL and a short excerpt (under 300 characters) copied from the text.
 - Record places as written (place_text), including historical romanizations such as "Hangchow" or "Kwang-Chi".
-- Use Chinese names only if they appear in the text.
+- Sources may be English or Chinese. Fill name_zh (and summary_zh / description_zh) only with Simplified Chinese
+  actually written in the text (convert Traditional characters to Simplified). Leave them empty otherwise.
+- Set `city` to the Zhejiang prefecture the site is in (hangzhou, ningbo, wenzhou, shaoxing, huzhou, jiaxing, taizhou,
+  jinhua, lishui, quzhou, zhoushan). Historical spellings: Hangchow, Ningpo, Wenchow, Shaohing, Huchow, Kashing/Kiahsing,
+  Taichow, Kinhwa, Chuchow (處州 = lishui), Kuchow/Chüchow (衢州 = quzhou), Chusan/Tinghai (zhoushan). Use "other" if outside Zhejiang.
 - Historical scope only: skip anything after 1952 and anything about present-day religious workers or activity.
   A neutral note on current use ("now a university campus") is allowed in current_status.
 - Use confidence 0.9 for explicit statements, 0.6 for implied or approximate ones, 0.4 for vague ones.
-- If the text cites books, archives or articles with more detail, list them in citations_to_follow."""
+- If the text cites books, archives or articles with more detail, list them in citations_to_follow.
+- Always respond by calling the record_extraction tool exactly once, with empty lists if nothing qualifies."""
 
 MAX_CHARS = 60_000
 
@@ -47,13 +52,15 @@ def extract_page(page: dict, client=None) -> Extraction:
         max_tokens=8000,
         system=SYSTEM,
         tools=[{"name": "record_extraction", "description": "Record the extracted records.", "input_schema": schema}],
-        tool_choice={"type": "tool", "name": "record_extraction"},
+        tool_choice={"type": "auto"},  # forced tool choice is not supported by every model
         messages=[{
             "role": "user",
             "content": f"Source URL: {page['url']}\nTitle: {page['title']}\n\n<text>\n{page['text'][:MAX_CHARS]}\n</text>",
         }],
     )
-    block = next(b for b in resp.content if b.type == "tool_use")
+    block = next((b for b in resp.content if b.type == "tool_use"), None)
+    if block is None:  # the model found nothing to record
+        return Extraction(document_url=page["url"])
     data = dict(block.input)
     data["document_url"] = page["url"]
     return Extraction.model_validate(data)

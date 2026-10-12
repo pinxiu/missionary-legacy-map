@@ -1,6 +1,6 @@
 name: Data pipeline
 
-# Weekly: crawl registered sources -> Claude extraction -> load as pending -> review agent.
+# Weekly: crawl registered sources -> Claude extraction -> Chinese fill-in -> load as pending -> review agent.
 # Approved records appear on the site within an hour (ISR). Everything else lands in the
 # "Review queue" issue for a human.
 
@@ -11,11 +11,11 @@ on:
     inputs:
       region:
         description: Region slug from pipeline/mlm/sources.yaml
-        default: hangzhou
+        default: zhejiang
       stage:
         description: Stage to run
         type: choice
-        options: [all, crawl, extract, load, review]
+        options: [all, crawl, extract, translate, load, review]
         default: all
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      REGION: ${{ inputs.region || 'hangzhou' }}
+      REGION: ${{ inputs.region || 'zhejiang' }}
       STAGE: ${{ inputs.stage || 'all' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
@@ -75,6 +75,10 @@ jobs:
       - name: Extract
         if: (env.STAGE == 'all' || env.STAGE == 'extract') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
         run: mlm run --region "$REGION" --stage extract
+
+      - name: Translate (fill missing Chinese with Haiku)
+        if: (env.STAGE == 'all' || env.STAGE == 'translate') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
+        run: mlm run --region "$REGION" --stage translate
 
       - name: Load
         if: (env.STAGE == 'all' || env.STAGE == 'load') && steps.secrets.outputs.missing == ''

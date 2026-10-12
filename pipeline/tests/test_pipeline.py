@@ -53,14 +53,21 @@ def test_founding_conflicts():
     assert review.founding_conflicts(events) == {"s1": {1860, 1867}}
 
 
-def test_seed_is_cited_and_sql_builds():
-    data = seed.load_seed("hangzhou")
-    keys = {s["key"] for s in data["sources"]}
+def test_seed_is_cited_bilingual_and_sql_builds():
+    data = seed.load_all()
+    keys = set(data["sources"])
+    for p in data["persons"].values():
+        assert set(p.get("sources", [])) <= keys, p["slug"]
+        assert p.get("name_zh") and p.get("name_zh_status") in ("cited", "translated"), p["slug"]
     for site in data["sites"]:
+        assert site.get("name_zh") and site.get("name_zh_status") in ("cited", "translated"), site["slug"]
+        assert site.get("summary_zh"), site["slug"]
         for e in site["events"]:
             assert e["sources"] and set(e["sources"]) <= keys, site["slug"]
+            assert e.get("description_zh"), site["slug"]
             assert e.get("year_start") is None or e["year_start"] <= 1952
-    sql = seed.to_sql("hangzhou")
+            assert e.get("person") is None or e["person"] in data["persons"], (site["slug"], e["person"])
+    sql = seed.to_sql()
     assert sql.startswith("begin;") and sql.rstrip().endswith("commit;")
 
 
@@ -78,3 +85,70 @@ def test_store_rejects_publishable_and_accepts_secret_keys():
     h = auth_headers("https://x.supabase.co", "sb_secret_abc")
     assert h["apikey"] == "sb_secret_abc" and "Authorization" not in h
     assert auth_headers("https://x.supabase.co", "eyJlegacy")["Authorization"] == "Bearer eyJlegacy"
+
+
+class FakeStore:
+    def __init__(self):
+        self.rows: dict[str, list[dict]] = {}
+        self.n = 0
+
+    def _id(self):
+        self.n += 1
+        return f"00000000-0000-0000-0000-{self.n:012d}"
+
+    def upsert(self, table, rows, on_conflict):
+        out = []
+        for r in rows:
+            existing = next((x for x in self.rows.setdefault(table, []) if x[on_conflict] == r[on_conflict]), None)
+            if existing:
+                existing.update(r)
+                out.append(existing)
+            else:
+                rec = {"id": self._id(), **r}
+                self.rows[table].append(rec)
+                out.append(rec)
+        return out
+
+    def insert(self, table, rows):
+        recs = [{"id": self._id(), **r} for r in rows]
+        self.rows.setdefault(table, []).extend(recs)
+        return recs
+
+    def select(self, table, select="*", **params):
+        rows = self.rows.get(table, [])
+        for k, v in params.items():
+            rows = [r for r in rows if str(r.get(k)) == v.removeprefix("eq.")]
+        return rows
+
+    def delete(self, table, match):
+        self.rows[table] = [r for r in self.rows.get(table, []) if any(r.get(k) != v for k, v in match.items())]
+
+    def delete_in(self, table, column, values, extra=None):
+        extra = extra or {}
+        self.rows[table] = [r for r in self.rows.get(table, [])
+                            if not (r.get(column) in values and all(r.get(k) == v for k, v in extra.items()))]
+
+
+def test_seed_api_load_is_idempotent():
+    store = FakeStore()
+    first = seed.load_via_api(store)
+    counts = {t: len(r) for t, r in store.rows.items()}
+    seed.load_via_api(store)
+    assert {t: len(r) for t, r in store.rows.items()} == counts
+    assert first["sites"] == len(seed.load_all()["sites"])
+    assert all(c["source_id"] for c in store.rows["claims"])
+    assert any(s["status"] == "conflict" for s in store.rows["sites"])
+
+
+def test_translate_marks_status_and_keeps_cited_names():
+    from mlm.translate import apply_translations, missing_fields
+
+    ex = Extraction(document_url="u", sites=[
+        SiteMention(name_en="Blyth Hospital", summary="A hospital.", events=[EventMention(event_type="founded", description="Opened.")]),
+        SiteMention(name_en="Huayuan Lane Church", name_zh="花园巷教堂"),
+    ], persons=[PersonMention(name_en="George Stott", name_zh="曹雅直")])
+    fields = missing_fields(ex)
+    assert set(fields) == {"s0.name", "s0.summary", "s0.e0"}
+    out = apply_translations(ex, {"s0.name": "白累德医院", "s0.summary": "一所医院。", "s0.e0": "开办。"})
+    assert out.sites[0].name_zh_status == "translated" and out.sites[1].name_zh_status == "cited"
+    assert out.persons[0].name_zh_status == "cited" and out.translated

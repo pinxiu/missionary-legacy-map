@@ -1,0 +1,40 @@
+name: Seed sync
+
+# Pushes the editorial seed (data/seed/*.json) into Supabase whenever it changes on main.
+# Idempotent: upserts by slug/url and replaces the seed's own events and claims.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/seed/**"
+      - "pipeline/mlm/seed.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seed-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+      - run: mlm seed

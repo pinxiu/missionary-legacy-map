@@ -49,3 +49,12 @@ class Store:
         params = {k: f"eq.{v}" for k, v in match.items()}
         r = self.http.patch(f"/{table}", params=params, json=values)
         r.raise_for_status()
+
+    def delete(self, table: str, match: dict) -> None:
+        r = self.http.delete(f"/{table}", params={k: f"eq.{v}" for k, v in match.items()})
+        r.raise_for_status()
+
+    def delete_in(self, table: str, column: str, values: list[str], extra: dict | None = None) -> None:
+        params = {column: f"in.({','.join(values)})"} | {k: f"eq.{v}" for k, v in (extra or {}).items()}
+        r = self.http.delete(f"/{table}", params=params)
+        r.raise_for_status()

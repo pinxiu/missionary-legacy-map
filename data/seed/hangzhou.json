@@ -1,11 +1,12 @@
 {
   "region": "hangzhou",
-  "note": "Editorial seed for the Hangzhou pilot. Every fact cites a source key. Coordinates are approximate unless geo_precision is 'exact'; sites at 'city' precision still need geocoding. Conflicting claims are kept side by side, not resolved silently.",
+  "note": "Editorial seed for Hangzhou. Every fact cites a source key. name_zh_status: 'cited' = the Chinese name appears in a cited source; 'translated' = our translation (shown with 译). Coordinates are approximate unless geo_precision is 'exact'. Conflicting claims are kept side by side.",
   "sources": [
     {
       "key": "chsource-5sites",
       "url": "https://chsource.org/articles/take-a-tour-of-5-historic-christian-sites-in-hangzhou/",
       "title": "Take a Tour of 5 Historic Christian Sites in Hangzhou",
+      "title_zh": "杭州五处历史基督教遗址巡礼",
       "publisher": "ChinaSource",
       "language": "en"
     },
@@ -13,36 +14,73 @@
       "key": "wiki-hangchow-u",
       "url": "https://en.wikipedia.org/wiki/Hangchow_University",
       "title": "Hangchow University",
+      "title_zh": "之江大学",
       "publisher": "Wikipedia",
+      "publisher_zh": "维基百科",
       "language": "en"
     },
     {
       "key": "wiki-main",
       "url": "https://en.wikipedia.org/wiki/David_Duncan_Main",
       "title": "David Duncan Main",
+      "title_zh": "梅滕更",
       "publisher": "Wikipedia",
+      "publisher_zh": "维基百科",
       "language": "en"
     },
     {
       "key": "wiki-tianshui",
       "url": "https://en.wikipedia.org/wiki/Christ%27s_Church,_Tianshui_Subdistrict",
       "title": "Christ's Church, Tianshui Subdistrict",
+      "title_zh": "天水堂",
       "publisher": "Wikipedia",
+      "publisher_zh": "维基百科",
       "language": "en"
     },
     {
       "key": "bdcc-taylor",
       "url": "https://www.bdcconline.net/en/stories/taylor-james-hudson/",
       "title": "Taylor, James Hudson",
+      "title_zh": "戴德生",
       "publisher": "Biographical Dictionary of Chinese Christianity",
+      "publisher_zh": "华人基督教史人物辞典",
       "language": "en"
     },
     {
-      "key": "wiki-zju2",
-      "url": "https://en.wikipedia.org/wiki/Second_Affiliated_Hospital_of_Zhejiang_University_School_of_Medicine",
-      "title": "Second Affiliated Hospital of Zhejiang University School of Medicine",
-      "publisher": "Wikipedia",
-      "language": "en"
+      "key": "bdcc-taylor-zh",
+      "url": "https://www.bdcconline.net/zh-hans/stories/taylor-james-hudson/",
+      "title": "Hudson Taylor (Chinese edition)",
+      "title_zh": "戴德生",
+      "publisher": "Biographical Dictionary of Chinese Christianity",
+      "publisher_zh": "华人基督教史人物辞典",
+      "language": "zh"
+    },
+    {
+      "key": "bdcc-mei-zh",
+      "url": "https://www.bdcconline.net/zh-hans/stories/mei-tenggeng/",
+      "title": "David Duncan Main (Chinese edition)",
+      "title_zh": "梅滕更",
+      "publisher": "Biographical Dictionary of Chinese Christianity",
+      "publisher_zh": "华人基督教史人物辞典",
+      "language": "zh"
+    },
+    {
+      "key": "bdcc-sturton-zh",
+      "url": "https://www.bdcconline.net/zh-hans/stories/su-dali/",
+      "title": "Stephen Douglas Sturton (Chinese edition)",
+      "title_zh": "苏达立",
+      "publisher": "Biographical Dictionary of Chinese Christianity",
+      "publisher_zh": "华人基督教史人物辞典",
+      "language": "zh"
+    },
+    {
+      "key": "bdcc-hangzhou-zh",
+      "url": "https://bdcconline.net/zh-hans/places/hangzhou",
+      "title": "Hangzhou (place index)",
+      "title_zh": "杭州（地点索引）",
+      "publisher": "Biographical Dictionary of Chinese Christianity",
+      "publisher_zh": "华人基督教史人物辞典",
+      "language": "zh"
     }
   ],
   "persons": [
@@ -50,29 +88,50 @@
       "slug": "hudson-taylor",
       "name_en": "James Hudson Taylor",
       "name_zh": "戴德生",
+      "name_zh_status": "cited",
       "birth_year": 1832,
       "death_year": 1905,
       "mission_society": "China Inland Mission",
+      "mission_society_zh": "中国内地会",
       "sources": [
-        "bdcc-taylor"
+        "bdcc-taylor",
+        "bdcc-taylor-zh"
       ]
     },
     {
       "slug": "david-duncan-main",
       "name_en": "David Duncan Main",
       "name_zh": "梅滕更",
+      "name_zh_status": "cited",
       "birth_year": 1856,
       "death_year": 1934,
       "mission_society": "Church Missionary Society",
+      "mission_society_zh": "英国圣公会（英行教会）",
       "sources": [
-        "wiki-main"
+        "wiki-main",
+        "bdcc-mei-zh"
+      ]
+    },
+    {
+      "slug": "stephen-douglas-sturton",
+      "name_en": "Stephen Douglas Sturton",
+      "name_zh": "苏达立",
+      "name_zh_status": "cited",
+      "birth_year": 1896,
+      "death_year": 1970,
+      "mission_society": "Church Missionary Society",
+      "mission_society_zh": "英国圣公会",
+      "sources": [
+        "bdcc-sturton-zh"
       ]
     },
     {
       "slug": "martino-martini",
       "name_en": "Martino Martini",
       "name_zh": "卫匡国",
+      "name_zh_status": "translated",
       "mission_society": "Society of Jesus",
+      "mission_society_zh": "耶稣会",
       "sources": [
         "chsource-5sites"
       ]
@@ -81,7 +140,9 @@
       "slug": "john-leighton-stuart",
       "name_en": "John Leighton Stuart",
       "name_zh": "司徒雷登",
+      "name_zh_status": "translated",
       "mission_society": "Presbyterian Church in the U.S. (Southern)",
+      "mission_society_zh": "美南长老会",
       "sources": [
         "chsource-5sites"
       ]
@@ -89,17 +150,38 @@
     {
       "slug": "divie-bethune-mccartee",
       "name_en": "Divie Bethune McCartee",
+      "name_zh": "麦嘉缔",
+      "name_zh_status": "cited",
+      "birth_year": 1820,
+      "death_year": 1900,
       "mission_society": "Presbyterian Church in the U.S.A. (Northern)",
+      "mission_society_zh": "美北长老会",
       "sources": [
-        "wiki-hangchow-u"
+        "wiki-hangchow-u",
+        "bdcc-mccartee-zh"
       ]
     },
     {
       "slug": "kepler-van-evera",
       "name_en": "Kepler Van Evera",
+      "name_zh": "开普勒·范埃弗拉",
+      "name_zh_status": "translated",
       "mission_society": "Presbyterian Church in the U.S.A. (Northern)",
+      "mission_society_zh": "美北长老会",
       "sources": [
         "chsource-5sites"
+      ]
+    },
+    {
+      "slug": "wang-laijun",
+      "name_en": "Wang Laijun",
+      "name_zh": "王来君",
+      "name_zh_status": "cited",
+      "mission_society": "China Inland Mission",
+      "mission_society_zh": "中国内地会",
+      "sources": [
+        "bdcc-taylor",
+        "bdcc-taylor-zh"
       ]
     }
   ],
@@ -108,6 +190,7 @@
       "slug": "tianshui-church",
       "name_en": "Tianshui Church",
       "name_zh": "天水堂",
+      "name_zh_status": "cited",
       "alt_names": [
         "Christ's Church, Tianshui"
       ],
@@ -117,11 +200,13 @@
       "geo_precision": "district",
       "modern_address": "Tianshui Subdistrict, Gongshu District, Hangzhou",
       "summary": "Described as the oldest Protestant church in Hangzhou, built by Southern Presbyterian missionaries. John Leighton Stuart lived and worked here.",
+      "summary_zh": "被称为杭州最早的基督教新教教堂，由美南长老会传教士建造。司徒雷登曾在此生活和工作。",
       "events": [
         {
           "type": "founded",
           "year_start": 1860,
           "description": "Founded by missionaries of the Presbyterian Church in the United States.",
+          "description_zh": "由美国南长老会传教士创立。",
           "sources": [
             "wiki-tianshui"
           ]
@@ -130,6 +215,7 @@
           "type": "founded",
           "year_start": 1867,
           "description": "Founding year given as 1867 by a second source.",
+          "description_zh": "另一来源记载创立年份为1867年。",
           "sources": [
             "chsource-5sites"
           ],
@@ -139,6 +225,7 @@
           "type": "rebuilt",
           "year_start": 1875,
           "description": "Rebuilt after fundraising in 1874 led by John Leighton Stuart's father.",
+          "description_zh": "1874年由司徒雷登之父主持募款，次年重建。",
           "sources": [
             "wiki-tianshui"
           ]
@@ -147,6 +234,7 @@
           "type": "served",
           "person": "john-leighton-stuart",
           "description": "Lived and worked here.",
+          "description_zh": "曾在此生活和工作。",
           "sources": [
             "chsource-5sites"
           ]
@@ -157,17 +245,20 @@
       "slug": "hangzhou-cathedral",
       "name_en": "Hangzhou Catholic Cathedral",
       "name_zh": "杭州天主堂",
+      "name_zh_status": "translated",
       "site_type": "church",
       "lat": 30.2716,
       "lng": 120.1655,
       "geo_precision": "district",
       "summary": "Catholic church built by Italian Jesuit Martino Martini, about 200 m from Tianshui Church.",
+      "summary_zh": "意大利耶稣会士卫匡国所建的天主教堂，距天水堂约200米。",
       "events": [
         {
           "type": "built",
           "year_start": 1659,
           "person": "martino-martini",
           "description": "Built by Martino Martini.",
+          "description_zh": "由卫匡国建造。",
           "sources": [
             "chsource-5sites"
           ]
@@ -177,16 +268,20 @@
     {
       "slug": "dafangjing-cemetery",
       "name_en": "Dafangjing Missionary Cemetery",
+      "name_zh": "大方井传教士墓地",
+      "name_zh_status": "translated",
       "site_type": "cemetery",
       "lat": 30.2741,
       "lng": 120.1551,
       "geo_precision": "city",
       "summary": "Burial ground of about fifteen European Catholic missionaries from the Ming and Qing periods, including Martino Martini. Location needs geocoding.",
+      "summary_zh": "明清时期约十五位欧洲天主教传教士的安葬地，包括卫匡国。具体位置尚待确定。",
       "events": [
         {
           "type": "buried",
           "person": "martino-martini",
           "description": "Burial place of Martino Martini.",
+          "description_zh": "卫匡国安葬于此。",
           "sources": [
             "chsource-5sites"
           ]
@@ -197,17 +292,21 @@
       "slug": "gulou-church",
       "name_en": "Gulou Church",
       "name_zh": "鼓楼堂",
+      "name_zh_status": "translated",
       "site_type": "church",
       "lat": 30.2437,
       "lng": 120.1692,
       "geo_precision": "district",
       "current_status": "Active church; relocated to its current site in 1998.",
+      "current_status_zh": "现为教堂，1998年迁至现址。",
       "summary": "First built near Sishuifang on Huansha Road; rebuilt in Chinese palace style in 1931 with Northern Presbyterian funds.",
+      "summary_zh": "最初建于浣纱路四水坊附近；1931年以美北长老会资金重建为中国宫殿式建筑。",
       "events": [
         {
           "type": "built",
           "year_start": 1885,
           "description": "First church building.",
+          "description_zh": "首座教堂建成。",
           "sources": [
             "chsource-5sites"
           ]
@@ -217,6 +316,7 @@
           "year_start": 1931,
           "person": "kepler-van-evera",
           "description": "Rebuilt in Chinese palace style; construction overseen by Kepler Van Evera.",
+          "description_zh": "重建为中国宫殿式建筑，由开普勒·范埃弗拉监督施工。",
           "sources": [
             "chsource-5sites"
           ]
@@ -227,6 +327,7 @@
       "slug": "hangchow-university",
       "name_en": "Hangchow University (Zhijiang)",
       "name_zh": "之江大学",
+      "name_zh_status": "translated",
       "alt_names": [
         "Hangchow Presbyterian College",
         "Hangchow Christian College",
@@ -237,13 +338,16 @@
       "lng": 120.131,
       "geo_precision": "street",
       "current_status": "Zhijiang Campus, Zhejiang University",
+      "current_status_zh": "今浙江大学之江校区",
       "summary": "Began as the Ningpo Boys' Boarding School (1845), moved to Hangzhou in 1867, and settled on Qinwang Hill above the Qiantang River in 1911. Closed in the 1952 reorganisation.",
+      "summary_zh": "前身为1845年创办于宁波的男子寄宿学校，1867年迁至杭州，1911年迁到钱塘江畔的秦望山。1952年院系调整中停办。",
       "events": [
         {
           "type": "founded",
           "year_start": 1845,
           "person": "divie-bethune-mccartee",
           "description": "Founded in Ningbo as the Ningpo Boys' Boarding School.",
+          "description_zh": "创办于宁波，为男子寄宿学校。",
           "sources": [
             "wiki-hangchow-u"
           ]
@@ -252,6 +356,7 @@
           "type": "moved",
           "year_start": 1867,
           "description": "Moved to Hangzhou as Hangchow Presbyterian Boys' School.",
+          "description_zh": "迁至杭州，称长老会男子学堂。",
           "sources": [
             "wiki-hangchow-u"
           ]
@@ -260,6 +365,7 @@
           "type": "moved",
           "year_start": 1911,
           "description": "Moved to Qinwang Hill by the Qiantang River.",
+          "description_zh": "迁至钱塘江畔秦望山。",
           "sources": [
             "wiki-hangchow-u"
           ]
@@ -268,6 +374,7 @@
           "type": "served",
           "person": "john-leighton-stuart",
           "description": "Involved in founding the college.",
+          "description_zh": "参与创办学院。",
           "sources": [
             "chsource-5sites"
           ]
@@ -276,6 +383,7 @@
           "type": "closed",
           "year_start": 1952,
           "description": "Closed in the national reorganisation of higher education.",
+          "description_zh": "在全国高等院校院系调整中停办。",
           "sources": [
             "wiki-hangchow-u"
           ]
@@ -286,33 +394,156 @@
       "slug": "guangji-hospital",
       "name_en": "Hospital of Universal Benevolence (Kwang-Chi)",
       "name_zh": "广济医院",
+      "name_zh_status": "cited",
       "alt_names": [
         "Kwang-Chi Hospital",
-        "Guangji Hospital"
+        "Guangji Hospital",
+        "杭州广济医院"
       ],
       "site_type": "hospital",
       "lat": 30.2563,
       "lng": 120.1773,
       "geo_precision": "street",
+      "modern_address": "Mashi Street, Hangzhou (historic site)",
       "current_status": "Second Affiliated Hospital of Zhejiang University School of Medicine",
-      "summary": "Church Missionary Society hospital led for decades by David Duncan Main.",
+      "current_status_zh": "今浙江大学医学院附属第二医院",
+      "summary": "Church Missionary Society hospital on Mashi Street, led for decades by David Duncan Main. Its medical school trained Chinese doctors, pharmacists and midwives.",
+      "summary_zh": "英国圣公会在杭州马市街开办的医院，梅滕更主持数十年。附设的广济医校培养了中国医生、药剂师和助产士。",
       "events": [
-        {
-          "type": "founded",
-          "year_start": 1884,
-          "description": "Opened in May 1884.",
-          "sources": [
-            "wiki-main"
-          ]
-        },
         {
           "type": "served",
           "year_start": 1881,
           "year_end": 1926,
           "person": "david-duncan-main",
           "description": "Superintendent of the CMS medical mission in Hangzhou.",
+          "description_zh": "主持英国圣公会杭州医疗传教工作。",
           "sources": [
-            "wiki-main"
+            "wiki-main",
+            "bdcc-mei-zh"
+          ]
+        },
+        {
+          "type": "founded",
+          "year_start": 1884,
+          "description": "Opened in May 1884 on Mashi Street.",
+          "description_zh": "1884年5月于马市街开院。",
+          "sources": [
+            "wiki-main",
+            "bdcc-mei-zh"
+          ]
+        },
+        {
+          "type": "founded",
+          "year_start": 1885,
+          "description": "Guangji Medical School founded; later grew into schools of medicine, pharmacy and obstetrics.",
+          "description_zh": "创办广济医校，后发展出医科、药科和产科。",
+          "sources": [
+            "bdcc-mei-zh"
+          ]
+        },
+        {
+          "type": "founded",
+          "year_start": 1889,
+          "description": "Men's leprosy hospital opened beside the hospital; a women's ward followed in 1892.",
+          "description_zh": "医院旁设立男麻风病院，1892年增设女麻风病院。",
+          "sources": [
+            "bdcc-mei-zh"
+          ]
+        },
+        {
+          "type": "served",
+          "year_start": 1921,
+          "year_end": 1951,
+          "person": "stephen-douglas-sturton",
+          "description": "Arrived December 1921; director from 1928 until the hospital was leased to Zhejiang Hospital in 1951.",
+          "description_zh": "1921年12月到任，1928年起任院长，至1951年医院租给浙江医院。",
+          "sources": [
+            "bdcc-sturton-zh"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dafangbo-hospital",
+      "name_en": "Dafangbo Hospital (The Central Hospital)",
+      "name_zh": "大方伯医局",
+      "name_zh_status": "cited",
+      "site_type": "hospital",
+      "lat": 30.2741,
+      "lng": 120.1551,
+      "geo_precision": "city",
+      "modern_address": "Heng Dafangbo, Hangzhou (historic site)",
+      "summary": "Mission dispensary at Heng Dafangbo, the forerunner of the Guangji Hospital. Exact location needs geocoding.",
+      "summary_zh": "位于横大方伯的教会医局，广济医院的前身。具体位置尚待确定。",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1870,
+          "description": "Founded at Heng Dafangbo.",
+          "description_zh": "创办于横大方伯。",
+          "sources": [
+            "bdcc-mei-zh"
+          ]
+        },
+        {
+          "type": "served",
+          "year_start": 1881,
+          "person": "david-duncan-main",
+          "description": "David Duncan Main took over as director.",
+          "description_zh": "梅滕更接任主持。",
+          "sources": [
+            "bdcc-mei-zh"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "west-lake-sanatorium",
+      "name_en": "West Lake Tuberculosis Sanatorium",
+      "name_zh": "西湖肺病疗养所",
+      "name_zh_status": "cited",
+      "site_type": "hospital",
+      "lat": 30.2633,
+      "lng": 120.1462,
+      "geo_precision": "district",
+      "disputed": true,
+      "modern_address": "Baoshi Hill near Baochu Pagoda, Hangzhou",
+      "summary": "Tuberculosis sanatorium completed in 1899 on Baoshi Hill near the Baochu Pagoda. ChinaSource dates a 'Stone Mountain' leprosy hospital to the same year; the two accounts may describe the same place.",
+      "summary_zh": "1899年建成于宝石山保俶塔附近的肺病疗养所。ChinaSource记载同年有一所“石山”麻风病院，两种说法可能指同一处。",
+      "events": [
+        {
+          "type": "built",
+          "year_start": 1899,
+          "person": "david-duncan-main",
+          "description": "Completed on Baoshi Hill near the Baochu Pagoda.",
+          "description_zh": "于宝石山保俶塔附近建成。",
+          "sources": [
+            "bdcc-mei-zh"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "songmuchang-leprosy-hospital",
+      "name_en": "Guangji Hospital Songmuchang Branch (leprosy)",
+      "name_zh": "广济医院松木场分院",
+      "name_zh_status": "cited",
+      "site_type": "hospital",
+      "lat": 30.277,
+      "lng": 120.139,
+      "geo_precision": "district",
+      "modern_address": "Eastern foot of Baoyun Hill, Hangzhou",
+      "summary": "Branch of the Guangji Hospital with men's and women's leprosy wards, at the eastern foot of Baoyun Hill.",
+      "summary_zh": "广济医院分院，设男女麻风病院，位于宝云山东麓。",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1914,
+          "person": "david-duncan-main",
+          "description": "Established with men's and women's leprosy hospitals.",
+          "description_zh": "创办，设男女麻风病院。",
+          "sources": [
+            "bdcc-mei-zh"
           ]
         }
       ]
@@ -320,6 +551,8 @@
     {
       "slug": "stone-mountain-leprosy-hospital",
       "name_en": "Stone Mountain Leprosy Hospital",
+      "name_zh": "石山麻风病院",
+      "name_zh_status": "translated",
       "alt_names": [
         "Hangzhou Leper Hospital"
       ],
@@ -327,43 +560,56 @@
       "lat": 30.199,
       "lng": 120.1275,
       "geo_precision": "district",
-      "summary": "Leprosy hospital at the foot of Stone Mountain near the Liuhe Pagoda.",
+      "disputed": true,
+      "summary": "ChinaSource places a leprosy hospital founded in 1899 at the foot of Stone Mountain by the Liuhe Pagoda. The Biographical Dictionary instead dates Main's leprosy wards to 1889, 1892 and 1914, and puts an 1899 sanatorium on Baoshi ('precious stone') Hill.",
+      "summary_zh": "ChinaSource记载1899年在六和塔旁石山脚下建有麻风病院。《华人基督教史人物辞典》则记载梅滕更的麻风病院建于1889、1892和1914年，而1899年建成的是宝石山上的疗养所。",
       "events": [
         {
           "type": "founded",
           "year_start": 1899,
           "person": "david-duncan-main",
-          "description": "Founded by David Duncan Main.",
+          "description": "Founded by David Duncan Main (per ChinaSource).",
+          "description_zh": "由梅滕更创办（据ChinaSource）。",
           "sources": [
             "chsource-5sites"
-          ]
+          ],
+          "conflict_with": "west-lake-sanatorium"
         }
       ]
     },
     {
       "slug": "cim-first-headquarters",
       "name_en": "First China Inland Mission Headquarters",
+      "name_zh": "中国内地会杭州总部",
+      "name_zh_status": "translated",
       "site_type": "mission_station",
       "lat": 30.2741,
       "lng": 120.1551,
       "geo_precision": "city",
-      "summary": "Old building complex where the Lammermuir party set up the first CIM headquarters, with a chapel, clinic, printing room and office. Exact location needs geocoding.",
+      "modern_address": "No. 1 Xinjie Lane, Hangzhou (historic address)",
+      "summary": "Building complex at No. 1 Xinjie Lane where the Lammermuir party set up the first CIM headquarters, with a chapel, clinic, pharmacy, printing room and office. Exact location needs geocoding.",
+      "summary_zh": "兰茂密尔团体在杭州新街弄一号设立的中国内地会首个总部，设有礼拜堂、诊所、药房、印刷室和办公室。具体位置尚待确定。",
       "events": [
         {
           "type": "founded",
           "year_start": 1866,
           "person": "hudson-taylor",
-          "description": "Lammermuir party travelled from Shanghai by boat and set up the first CIM headquarters.",
+          "description": "The Lammermuir party travelled from Shanghai by boat and moved into No. 1 Xinjie Lane.",
+          "description_zh": "兰茂密尔团体从上海乘船来到杭州，迁入新街弄一号。",
           "sources": [
-            "bdcc-taylor"
+            "bdcc-taylor",
+            "bdcc-taylor-zh"
           ]
         },
         {
           "type": "baptism",
           "year_start": 1867,
+          "person": "wang-laijun",
           "description": "First baptisms in May 1867; Wang Laijun ordained pastor.",
+          "description_zh": "1867年5月首批信徒受洗；王来君被按立为牧师。",
           "sources": [
-            "bdcc-taylor"
+            "bdcc-taylor",
+            "bdcc-taylor-zh"
           ]
         }
       ]

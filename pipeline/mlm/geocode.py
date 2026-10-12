@@ -16,7 +16,13 @@ import yaml
 from .config import DATA_DIR, USER_AGENT
 from .resolve import normalize
 
-REGION_CENTROIDS = {"hangzhou": (30.2741, 120.1551), "zhejiang": (29.1832, 120.0934), "china": (35.8617, 104.1954)}
+REGION_CENTROIDS = {
+    "hangzhou": (30.2741, 120.1551), "ningbo": (29.8683, 121.5440), "wenzhou": (28.0006, 120.6994),
+    "shaoxing": (30.0303, 120.5800), "huzhou": (30.8930, 120.0868), "jiaxing": (30.7461, 120.7555),
+    "taizhou": (28.6564, 121.4208), "jinhua": (29.0790, 119.6474), "lishui": (28.4517, 119.9229),
+    "quzhou": (28.9701, 118.8593), "zhoushan": (29.9853, 122.2072),
+    "zhejiang": (29.1832, 120.0934), "china": (35.8617, 104.1954),
+}
 
 
 @lru_cache

@@ -17,7 +17,10 @@ ROMANIZATION = {
     "ningpo": "ningbo", "chekiang": "zhejiang", "kwang-chi": "guangji", "kwangchi": "guangji",
     "peking": "beijing", "peiping": "beijing", "canton": "guangzhou", "amoy": "xiamen",
     "foochow": "fuzhou", "soochow": "suzhou", "nanking": "nanjing", "tientsin": "tianjin",
-    "chefoo": "yantai", "hankow": "hankou", "tsingtao": "qingdao", "shantung": "shandong",
+    "chefoo": "yantai", "wenchow": "wenzhou", "shaohing": "shaoxing", "shaohsing": "shaoxing", "huchow": "huzhou",
+    "kashing": "jiaxing", "kiahsing": "jiaxing", "taichow": "taizhou", "kinhwa": "jinhua", "chusan": "zhoushan",
+    "tinghai": "dinghai", "chinhai": "zhenhai", "hsiaoshan": "xiaoshan",
+    "hankow": "hankou", "tsingtao": "qingdao", "shantung": "shandong",
     "szechwan": "sichuan", "kiangsu": "jiangsu", "chinkiang": "zhenjiang", "yangchow": "yangzhou",
 }
 _STOP = {"the", "of", "a", "an", "church", "hospital", "school", "college", "mission"}
@@ -46,8 +49,8 @@ def similarity(a: str, b: str) -> float:
 
 def same_entity(names_a: list[str], names_b: list[str], zh_a: str | None = None, zh_b: str | None = None,
                 threshold: float = 0.88) -> bool:
-    if zh_a and zh_b:
-        return zh_a == zh_b
+    if zh_a and zh_b and zh_a == zh_b:
+        return True
     return any(similarity(x, y) >= threshold for x in names_a for y in names_b)
 
 

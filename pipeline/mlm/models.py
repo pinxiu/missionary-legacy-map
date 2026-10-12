@@ -8,6 +8,11 @@ SiteType = Literal[
     "church", "hospital", "school", "residence", "cemetery", "mission_station", "press", "orphanage", "other"
 ]
 GeoPrecision = Literal["exact", "street", "district", "city", "province"]
+ZhStatus = Literal["cited", "translated"]
+City = Literal[
+    "hangzhou", "ningbo", "wenzhou", "shaoxing", "huzhou", "jiaxing", "taizhou", "jinhua", "lishui", "quzhou", "zhoushan",
+    "other",
+]
 
 
 class Evidence(BaseModel):
@@ -18,11 +23,13 @@ class Evidence(BaseModel):
 
 class PersonMention(BaseModel):
     name_en: str
-    name_zh: str | None = None
+    name_zh: str | None = Field(default=None, description="Simplified Chinese name, ONLY if written in the source text")
+    name_zh_status: ZhStatus | None = None  # set by the pipeline, not the extractor
     alt_names: list[str] = []
     birth_year: int | None = None
     death_year: int | None = None
     mission_society: str | None = None
+    mission_society_zh: str | None = None
     evidence: list[Evidence] = []
 
 
@@ -32,18 +39,23 @@ class EventMention(BaseModel):
     year_end: int | None = None
     person: str | None = None  # name_en of a PersonMention
     description: str = ""
+    description_zh: str | None = None
     evidence: list[Evidence] = []
 
 
 class SiteMention(BaseModel):
     name_en: str
-    name_zh: str | None = None
+    name_zh: str | None = Field(default=None, description="Simplified Chinese name, ONLY if written in the source text")
+    name_zh_status: ZhStatus | None = None  # set by the pipeline, not the extractor
     alt_names: list[str] = []
     site_type: SiteType = "other"
+    city: City = Field(default="other", description="Zhejiang city (prefecture) the site is in; 'other' if outside Zhejiang")
     place_text: str = Field(default="", description="Location as written in the source, e.g. 'outside the Qiantang Gate'")
     modern_address: str | None = None
     current_status: str | None = None
+    current_status_zh: str | None = None
     summary: str = ""
+    summary_zh: str | None = None
     events: list[EventMention] = []
     evidence: list[Evidence] = []
 
@@ -55,6 +67,7 @@ class Extraction(BaseModel):
     sites: list[SiteMention] = []
     persons: list[PersonMention] = []
     citations_to_follow: list[str] = Field(default=[], description="Books/archives the text cites that may hold more evidence")
+    translated: bool = False  # set once the translate stage has filled missing Chinese fields
 
 
 class ResolvedSite(SiteMention):

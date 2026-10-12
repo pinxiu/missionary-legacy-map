@@ -1,0 +1,127 @@
+{
+  "region": "zhejiang",
+  "note": "Editorial seed for Zhejiang outside Hangzhou. Each site's `region` is its city. Same rules as hangzhou.json: every fact cites a source key; name_zh_status marks cited vs translated Chinese names; 'city' precision pins still need geocoding.",
+  "sources": [
+    {"key": "bdcc-aldersey-zh", "url": "https://www.bdcconline.net/zh-hans/stories/a-dexi/", "title": "Mary Ann Aldersey (Chinese edition)", "title_zh": "阿德希", "publisher": "Biographical Dictionary of Chinese Christianity", "publisher_zh": "华人基督教史人物辞典", "language": "zh"},
+    {"key": "bdcc-mccartee-zh", "url": "https://www.bdcconline.net/zh-hans/stories/mccartee-divie-bethune/", "title": "Divie Bethune McCartee (Chinese edition)", "title_zh": "麦嘉缔", "publisher": "Biographical Dictionary of Chinese Christianity", "publisher_zh": "华人基督教史人物辞典", "language": "zh"},
+    {"key": "bdcc-maria-zh", "url": "https://www.bdcconline.net/zh-hans/stories/taylor-maria-dyer/", "title": "Maria Dyer Taylor (Chinese edition)", "title_zh": "玛丽亚", "publisher": "Biographical Dictionary of Chinese Christianity", "publisher_zh": "华人基督教史人物辞典", "language": "zh"},
+    {"key": "bdcc-stott-zh", "url": "https://www.bdcconline.net/zh-hans/stories/cai-yazhi/", "title": "George Stott (Chinese edition)", "title_zh": "曹雅直", "publisher": "Biographical Dictionary of Chinese Christianity", "publisher_zh": "华人基督教史人物辞典", "language": "zh"},
+    {"key": "bdcc-ningbo-zh", "url": "https://bdcconline.net/zh-hans/places/ningbo", "title": "Ningbo (place index)", "title_zh": "宁波（地点索引）", "publisher": "Biographical Dictionary of Chinese Christianity", "publisher_zh": "华人基督教史人物辞典", "language": "zh"},
+    {"key": "ubc-soothill", "url": "https://asian.library.ubc.ca/?p=3546", "title": "UBC Asian Library: talk on William Edward Soothill", "title_zh": "UBC亚洲图书馆：苏慧廉讲座", "publisher": "University of British Columbia Asian Library", "publisher_zh": "不列颠哥伦比亚大学亚洲图书馆", "language": "en"},
+    {"key": "wmic-wenchow", "url": "https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Wenchow%22", "title": "Western Medicine in China: Wenchow institutions", "title_zh": "西医在华数据库：温州医疗机构", "publisher": "IU Indianapolis University Library", "publisher_zh": "印第安纳大学印第安纳波利斯图书馆", "language": "en"},
+    {"key": "wmic-kashing", "url": "https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Kashing%22", "title": "Western Medicine in China: Kashing institutions", "title_zh": "西医在华数据库：嘉兴医疗机构", "publisher": "IU Indianapolis University Library", "publisher_zh": "印第安纳大学印第安纳波利斯图书馆", "language": "en"},
+    {"key": "wmic-huchow", "url": "https://library.indianapolis.iu.edu/wmicproject/search_institutions/results/field_city:%22Huchow%22", "title": "Western Medicine in China: Huchow institutions", "title_zh": "西医在华数据库：湖州医疗机构", "publisher": "IU Indianapolis University Library", "publisher_zh": "印第安纳大学印第安纳波利斯图书馆", "language": "en"},
+    {"key": "wiki-jiaxing1", "url": "https://en.wikipedia.org/wiki/The_First_Hospital_of_Jiaxing", "title": "The First Hospital of Jiaxing", "title_zh": "嘉兴市第一医院", "publisher": "Wikipedia", "publisher_zh": "维基百科", "language": "en"}
+  ],
+  "persons": [
+    {"slug": "mary-ann-aldersey", "name_en": "Mary Ann Aldersey", "name_zh": "阿德希", "name_zh_status": "cited", "birth_year": 1797, "death_year": 1868, "mission_society": "Independent", "mission_society_zh": "独立传教士", "sources": ["bdcc-aldersey-zh"]},
+    {"slug": "maria-dyer-taylor", "name_en": "Maria Jane Dyer Taylor", "name_zh": "玛丽亚", "name_zh_status": "cited", "birth_year": 1837, "death_year": 1870, "sources": ["bdcc-maria-zh"]},
+    {"slug": "george-stott", "name_en": "George Stott", "name_zh": "曹雅直", "name_zh_status": "cited", "birth_year": 1835, "death_year": 1889, "mission_society": "China Inland Mission", "mission_society_zh": "中国内地会", "sources": ["bdcc-stott-zh"]},
+    {"slug": "grace-stott", "name_en": "Grace Ciggie Stott", "name_zh": "曹明道", "name_zh_status": "cited", "mission_society": "China Inland Mission", "mission_society_zh": "中国内地会", "sources": ["bdcc-stott-zh"]},
+    {"slug": "cai-wencai", "name_en": "Cai Wencai", "name_zh": "蔡文才", "name_zh_status": "cited", "sources": ["bdcc-stott-zh"]},
+    {"slug": "william-edward-soothill", "name_en": "William Edward Soothill", "name_zh": "苏慧廉", "name_zh_status": "cited", "mission_society": "Methodist (United Methodist Free Church)", "mission_society_zh": "循道公会", "sources": ["ubc-soothill"]}
+  ],
+  "sites": [
+    {
+      "slug": "ningbo-girls-school", "region": "ningbo", "name_en": "Ningbo Boarding School for Girls", "name_zh": "宁波女塾", "name_zh_status": "cited",
+      "alt_names": ["宁波女校", "崇德女校", "Chongde Girls' School"], "site_type": "school", "lat": 29.8683, "lng": 121.544, "geo_precision": "city",
+      "summary": "Girls' boarding school founded by Mary Ann Aldersey, the first Protestant woman missionary to China, in a wooden house by the river outside the city. Exact location needs geocoding.",
+      "summary_zh": "由来华第一位基督教新教女传教士阿德希创办的女子寄宿学校，最初设在城外河边的一座木屋。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1844, "person": "mary-ann-aldersey", "description": "Founded in late 1844.", "description_zh": "1844年底创办。", "sources": ["bdcc-aldersey-zh"]},
+        {"type": "served", "year_start": 1852, "person": "maria-dyer-taylor", "description": "Maria Dyer came to teach here with her sister; she met Hudson Taylor in Ningbo.", "description_zh": "玛丽亚随姐姐来校任教，并在宁波与戴德生相识。", "sources": ["bdcc-maria-zh"]},
+        {"type": "renamed", "year_start": 1858, "description": "Transferred to the American Presbyterian mission and renamed Chongde Girls' School.", "description_zh": "移交美国长老会，改名崇德女校。", "sources": ["bdcc-aldersey-zh"]}
+      ]
+    },
+    {
+      "slug": "mccartee-clinic-ningbo", "region": "ningbo", "name_en": "McCartee's Clinic at Yousheng Temple", "name_zh": "佑圣观诊所", "name_zh_status": "translated",
+      "alt_names": ["佑圣观"], "site_type": "hospital", "lat": 29.8683, "lng": 121.544, "geo_precision": "city",
+      "modern_address": "Inside the North Gate, Ningbo (historic site)",
+      "summary": "Rooms rented at the Yousheng Temple inside Ningbo's North Gate, where Divie Bethune McCartee opened a clinic and helped start the Presbyterian mission station. Exact location needs geocoding.",
+      "summary_zh": "麦嘉缔在宁波北门内佑圣观租房开设诊所，并参与创建长老会宣教站。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1844, "person": "divie-bethune-mccartee", "description": "Clinic opened in December 1844.", "description_zh": "1844年12月开设诊所。", "sources": ["bdcc-mccartee-zh"]}
+      ]
+    },
+    {
+      "slug": "huayuan-lane-church", "region": "wenzhou", "name_en": "Huayuan Lane Church", "name_zh": "花园巷教堂", "name_zh_status": "cited",
+      "site_type": "church", "lat": 28.0006, "lng": 120.6994, "geo_precision": "city",
+      "summary": "China Inland Mission church in Wenzhou built under George Stott; burned in 1884 and rebuilt the next year. Exact location needs geocoding.",
+      "summary_zh": "曹雅直主持修建的中国内地会温州教堂，1884年被焚，次年重建。具体位置尚待确定。",
+      "events": [
+        {"type": "built", "year_start": 1877, "person": "george-stott", "description": "Church built.", "description_zh": "教堂建成。", "sources": ["bdcc-stott-zh"]},
+        {"type": "rebuilt", "year_start": 1885, "description": "Burned in 1884; rebuilt by March 1885.", "description_zh": "1884年被焚，1885年3月重建完成。", "sources": ["bdcc-stott-zh"]}
+      ]
+    },
+    {
+      "slug": "renai-school-wenzhou", "region": "wenzhou", "name_en": "Ren'ai Free School (later Chongzhen Primary School)", "name_zh": "仁爱义塾", "name_zh_status": "cited",
+      "alt_names": ["崇真小学"], "site_type": "school", "lat": 28.0006, "lng": 120.6994, "geo_precision": "city",
+      "summary": "Boys' school started by George Stott. Exact location needs geocoding.",
+      "summary_zh": "曹雅直创办的男子学塾。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1869, "person": "george-stott", "description": "Founded as a boys' school.", "description_zh": "创办男子学塾。", "sources": ["bdcc-stott-zh"]},
+        {"type": "renamed", "year_start": 1902, "description": "Renamed Chongzhen Primary School.", "description_zh": "改名崇真小学。", "sources": ["bdcc-stott-zh"]}
+      ]
+    },
+    {
+      "slug": "yude-girls-school-wenzhou", "region": "wenzhou", "name_en": "Yude Girls' School", "name_zh": "育德女学", "name_zh_status": "cited",
+      "site_type": "school", "lat": 28.0006, "lng": 120.6994, "geo_precision": "city",
+      "summary": "Girls' school begun by the Stotts' mission in Wenzhou. Exact location needs geocoding.",
+      "summary_zh": "曹雅直夫妇在温州开办的女子学校。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1872, "person": "grace-stott", "description": "Girls' school begun.", "description_zh": "女校开办。", "sources": ["bdcc-stott-zh"]},
+        {"type": "renamed", "year_start": 1902, "description": "Renamed Yude Girls' School.", "description_zh": "改名育德女学。", "sources": ["bdcc-stott-zh"]}
+      ]
+    },
+    {
+      "slug": "daying-church-wenzhou", "region": "wenzhou", "name_en": "Daying Shengren Yesu Church", "name_zh": "大英圣人耶稣教堂", "name_zh_status": "cited",
+      "site_type": "church", "lat": 28.0006, "lng": 120.6994, "geo_precision": "city",
+      "summary": "Church established in Wenzhou by George Stott together with Cai Wencai. Exact location needs geocoding.",
+      "summary_zh": "曹雅直与蔡文才在温州建立的教会。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1874, "person": "cai-wencai", "description": "Established by George Stott with Cai Wencai.", "description_zh": "曹雅直与蔡文才共同建立。", "sources": ["bdcc-stott-zh"]}
+      ]
+    },
+    {
+      "slug": "blyth-hospital-wenzhou", "region": "wenzhou", "name_en": "Blyth Hospital", "name_zh": "白累德医院", "name_zh_status": "translated",
+      "site_type": "hospital", "lat": 28.0006, "lng": 120.6994, "geo_precision": "city",
+      "summary": "Methodist Missionary Society (British) hospital in Wenzhou. Exact location needs geocoding.",
+      "summary_zh": "英国循道会（卫斯理会）在温州开办的医院。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1898, "description": "Founded by the Methodist Missionary Society (British).", "description_zh": "由英国卫斯理会创办。", "sources": ["wmic-wenchow"]}
+      ]
+    },
+    {
+      "slug": "jiaxing-shengxin-hospital", "region": "jiaxing", "name_en": "Shengxin (Sacred Heart) Hospital", "name_zh": "圣心医院", "name_zh_status": "cited",
+      "site_type": "hospital", "lat": 30.7461, "lng": 120.7555, "geo_precision": "city",
+      "current_status": "The First Hospital of Jiaxing (moved to a new site in 2011)", "current_status_zh": "今嘉兴市第一医院（2011年迁至新址）",
+      "summary": "Catholic church hospital founded by the French Catholic mission; merged into the Jiaxing Municipal Hospital in 1952. Exact location needs geocoding.",
+      "summary_zh": "法国天主教会创办的教会医院，1952年并入嘉兴市立医院。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1920, "description": "Founded by the French Catholic church.", "description_zh": "由法国天主教会创办。", "sources": ["wiki-jiaxing1"]},
+        {"type": "renamed", "year_start": 1952, "description": "Merged with the Jiaxing Medical Institute as the Jiaxing Municipal Hospital.", "description_zh": "与嘉兴医学院合并为嘉兴市立医院。", "sources": ["wiki-jiaxing1"]}
+      ]
+    },
+    {
+      "slug": "kashing-christian-hospital", "region": "jiaxing", "name_en": "Kashing Christian Hospital", "name_zh": "嘉兴基督教医院", "name_zh_status": "translated",
+      "site_type": "hospital", "lat": 30.7461, "lng": 120.7555, "geo_precision": "city",
+      "modern_address": "Yangliu Street, North Gate, Jiaxing (historic address)",
+      "summary": "Southern Presbyterian hospital on Yangliu Street by Jiaxing's North Gate. Exact location needs geocoding.",
+      "summary_zh": "美南长老会在嘉兴北门杨柳街开办的医院。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1900, "description": "Founded around 1900 by the Presbyterian Church in the U.S. (South).", "description_zh": "约1900年由美南长老会创办。", "sources": ["wmic-kashing"]}
+      ]
+    },
+    {
+      "slug": "huchow-general-hospital", "region": "huzhou", "name_en": "Huchow General Hospital, South Gate", "name_zh": "湖州南门医院", "name_zh_status": "translated",
+      "site_type": "hospital", "lat": 30.893, "lng": 120.0868, "geo_precision": "city",
+      "modern_address": "South Gate, Huzhou (historic address)",
+      "summary": "Hospital at Huzhou's South Gate sponsored by the Methodist Episcopal Church, South; run as a union hospital from 1918 to 1927. Exact location needs geocoding.",
+      "summary_zh": "位于湖州南门、由美国监理会资助的医院，1918至1927年为联合医院。具体位置尚待确定。",
+      "events": [
+        {"type": "founded", "year_start": 1912, "description": "Founded (1911 according to a 1932 medical directory).", "description_zh": "创办（1932年《医界指南》记为1911年）。", "sources": ["wmic-huchow"]},
+        {"type": "renamed", "year_start": 1918, "year_end": 1927, "description": "Operated as a union hospital until the union dissolved in 1927.", "description_zh": "改为联合医院，1927年联合解散。", "sources": ["wmic-huchow"]}
+      ]
+    }
+  ]
+}
