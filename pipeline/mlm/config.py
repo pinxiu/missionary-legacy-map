@@ -17,7 +17,8 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 EXTRACT_MODEL = os.environ.get("MLM_EXTRACT_MODEL", "claude-sonnet-5-5")
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+# New-style secret key (sb_secret_...). The legacy service_role JWT is still accepted as a fallback.
+SUPABASE_SECRET_KEY = os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
 # Publication policy (see policy.py). Nothing describing activity after this year is published.
 HISTORICAL_CUTOFF_YEAR = int(os.environ.get("MLM_CUTOFF_YEAR", "1952"))

@@ -1,21 +1,27 @@
-"""Thin Supabase (PostgREST) client using the service role key. Server-side only."""
+"""Thin Supabase (PostgREST) client using a secret key (sb_secret_...). Server-side only."""
 
 from __future__ import annotations
 
 import httpx
 
-from .config import SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL
+from .config import SUPABASE_SECRET_KEY, SUPABASE_URL
+
+
+def auth_headers(url: str | None, key: str | None) -> dict[str, str]:
+    if not url or not key:
+        raise SystemExit("SUPABASE_URL and SUPABASE_SECRET_KEY must be set to load data.")
+    if key.startswith("sb_publishable_"):
+        # Publishable keys ship in the public web bundle and run under RLS as `anon`; they must never write.
+        raise SystemExit("SUPABASE_SECRET_KEY is a publishable key. Use the sb_secret_ key from Supabase -> API keys.")
+    headers = {"apikey": key, "Content-Type": "application/json"}
+    if key.startswith("eyJ"):  # legacy service_role JWT also needs the Authorization header
+        headers["Authorization"] = f"Bearer {key}"
+    return headers
 
 
 class Store:
-    def __init__(self, url: str | None = SUPABASE_URL, key: str | None = SUPABASE_SERVICE_ROLE_KEY):
-        if not url or not key:
-            raise SystemExit("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set to load data.")
-        self.http = httpx.Client(
-            base_url=f"{url.rstrip('/')}/rest/v1",
-            headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            timeout=30,
-        )
+    def __init__(self, url: str | None = SUPABASE_URL, key: str | None = SUPABASE_SECRET_KEY):
+        self.http = httpx.Client(base_url=f"{(url or '').rstrip('/')}/rest/v1", headers=auth_headers(url, key), timeout=30)
 
     def upsert(self, table: str, rows: list[dict], on_conflict: str) -> list[dict]:
         if not rows:

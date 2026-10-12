@@ -1,9 +1,12 @@
 import json
 
+import pytest
+
 from mlm import policy, review, seed
 from mlm.crawl import html_to_page
 from mlm.models import EventMention, Extraction, PersonMention, SiteMention
 from mlm.resolve import normalize, same_entity, slugify
+from mlm.store import auth_headers
 
 
 def test_romanization_normalizes():
@@ -67,3 +70,11 @@ def test_html_to_page_strips_chrome():
     assert "menu" not in page.text and "Hangchow 1867" in page.text
     assert page.links == ["https://ex.org/x"] and page.lang == "en"
     json.dumps(page.__dict__)
+
+
+def test_store_rejects_publishable_and_accepts_secret_keys():
+    with pytest.raises(SystemExit):
+        auth_headers("https://x.supabase.co", "sb_publishable_abc")
+    h = auth_headers("https://x.supabase.co", "sb_secret_abc")
+    assert h["apikey"] == "sb_secret_abc" and "Authorization" not in h
+    assert auth_headers("https://x.supabase.co", "eyJlegacy")["Authorization"] == "Bearer eyJlegacy"

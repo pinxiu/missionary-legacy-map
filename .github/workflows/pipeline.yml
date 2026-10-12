@@ -35,7 +35,7 @@ jobs:
       STAGE: ${{ inputs.stage || 'all' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     defaults:
       run:
         working-directory: pipeline
@@ -53,7 +53,7 @@ jobs:
         run: |
           missing=""
           [ -z "$ANTHROPIC_API_KEY" ] && missing="$missing ANTHROPIC_API_KEY"
-          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="$missing SUPABASE_SERVICE_ROLE_KEY"
+          [ -z "$SUPABASE_SECRET_KEY" ] && missing="$missing SUPABASE_SECRET_KEY"
           [ -z "$SUPABASE_URL" ] && missing="$missing SUPABASE_URL(variable)"
           echo "missing=$missing" >> "$GITHUB_OUTPUT"
           if [ -n "$missing" ]; then echo "::warning::Missing:$missing. Crawl will run; extract/load/review will be skipped."; fi

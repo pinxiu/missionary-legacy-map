@@ -28,7 +28,7 @@ Historical records only (to 1952), no living people, and no present-day religiou
 ## Setup secrets (one time)
 GitHub → Settings → Secrets and variables → Actions:
 - Secret `ANTHROPIC_API_KEY` — extraction and agents
-- Secret `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API keys → `service_role`
+- Secret `SUPABASE_SECRET_KEY` — Supabase → Project Settings → API keys → create a secret key (`sb_secret_…`). Never use the publishable key here: it is public and the pipeline refuses it.
 (`SUPABASE_URL` is set in the workflow; it is not secret.)
 
 ## Local development
