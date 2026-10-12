@@ -12,7 +12,7 @@ import json
 from urllib.parse import urlparse
 
 from .config import WORK_DIR, notice
-from .geocode import REGION_CENTROIDS, geocode
+from .geocode import geocode
 from .models import Extraction
 from .policy import apply as apply_policy
 from .resolve import same_entity, slugify
@@ -31,7 +31,8 @@ def _unique_slug(base: str, taken: set[str]) -> str:
     return slug
 
 
-def load_extractions(region: str, store: Store | None = None, use_network: bool = True) -> dict:
+def load_extractions(region: str, store: Store | None = None, use_network: bool = True,
+                     unit: str | None = None, subregions: list[str] | None = None) -> dict:
     store = store or Store()
     stats = {"documents": 0, "skipped": 0, "new_sites": 0, "matched_sites": 0, "events": 0, "persons": 0, "dropped": 0}
 
@@ -45,8 +46,12 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
         raw = f.read_text()
         content_hash = hashlib.sha256(raw.encode()).hexdigest()
         ex, dropped = apply_policy(Extraction.model_validate_json(raw))
+        raw_page = WORK_DIR / "raw" / region / f.name  # same content-hash filename as the extraction
+        page_text = json.loads(raw_page.read_text()).get("text", "") if raw_page.exists() else ""
         if loaded.get(ex.document_url) == content_hash:
             stats["skipped"] += 1
+            if page_text:  # backfill archived text for documents loaded before text was stored
+                store.update("documents", {"url": ex.document_url}, {"text": page_text})
             continue
         stats["dropped"] += len(dropped)
         stats["documents"] += 1
@@ -73,9 +78,9 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                     "excerpt": ev.excerpt[:300], "confidence": ev.confidence, "extracted_by": "llm"}])
 
         for s in ex.sites:
-            city = s.city if s.city in REGION_CENTROIDS else region
-            if city == "other":
+            if s.city == "other":
                 continue  # outside the region being mapped
+            city = s.city if (subregions and s.city in subregions) else region
             match = next((e for e in existing_sites
                           if same_entity(_names(e), [s.name_en, *s.alt_names], e.get("name_zh"), s.name_zh)), None)
             if match:
@@ -87,7 +92,7 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                        "alt_names": s.alt_names, "site_type": s.site_type, "location": f"SRID=4326;POINT({lng} {lat})",
                        "geo_precision": precision, "modern_address": s.modern_address,
                        "current_status": s.current_status, "current_status_zh": s.current_status_zh,
-                       "summary": s.summary, "summary_zh": s.summary_zh}
+                       "summary": s.summary, "summary_zh": s.summary_zh, "unit": unit}
                 match = store.insert("sites", [row])[0]
                 existing_sites.append(match)
                 stats["new_sites"] += 1
@@ -107,6 +112,7 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                         "subject_kind": "event", "subject_id": event["id"], "field": "event",
                         "value": e.model_dump(exclude={"evidence"}), "source_id": source["id"],
                         "excerpt": evd.excerpt[:300], "confidence": evd.confidence, "extracted_by": "llm"}])
-        store.upsert("documents", [{"url": ex.document_url, "source_id": source["id"], "content_hash": content_hash}], "url")
+        store.upsert("documents", [{"url": ex.document_url, "source_id": source["id"], "content_hash": content_hash,
+                                    "text": page_text}], "url")
     notice(f"load[{region}]: {json.dumps(stats)}")
     return stats

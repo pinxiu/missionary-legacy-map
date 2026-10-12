@@ -1,0 +1,116 @@
+name: Coverage agents
+
+# Background workers for expanding coverage (coverage/catalog.yaml), ONE unit at a time, correctness first.
+#   1. Pick the active unit (in-progress, else next todo). No unit: stop. (free)
+#   2. If the unit has no sources yet, a source-scout agent proposes some; trusted code validates them.
+#   3. Crawl → extract → translate → load → trusted verifier → independent audit.
+#   4. Status job updates the unit issue and STATUS.md; when the gates are met the unit goes to needs-approval.
+# Nothing is published until the owner adds `approved` to the unit issue (handled by apply-approved.yml).
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      unit:
+        description: Unit id to work on (default = active unit)
+        default: ""
+
+permissions:
+  contents: write
+  issues: write
+  id-token: write
+
+concurrency:
+  group: coverage-agents
+  cancel-in-progress: false
+
+jobs:
+  work:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e "pipeline[dev]"
+
+      - name: Pick unit (no model call)
+        id: unit
+        run: |
+          u="${{ inputs.unit }}"
+          [ -z "$u" ] && u=$(mlm coverage next)
+          echo "id=$u" >> "$GITHUB_OUTPUT"
+          if [ -n "$u" ]; then
+            region=$(python3 -c "from mlm import coverage as c; print(c.unit('$u')['region'])")
+            has=$(python3 -c "from mlm.crawl import load_registry as r; print('yes' if '$region' in r()['regions'] else 'no')")
+            echo "region=$region" >> "$GITHUB_OUTPUT"; echo "has_sources=$has" >> "$GITHUB_OUTPUT"
+          fi
+          echo "### Coverage agents: unit '${u:-none}'" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Source scout (only when the unit has no sources yet)
+        if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --model claude-sonnet-5-5
+            --max-turns 60
+            --allowedTools "Read,Edit,WebSearch,WebFetch"
+          prompt: |
+            Follow .claude/agents/source-scout.md. Coverage unit ${{ steps.unit.outputs.id }}, region key `${{ steps.unit.outputs.region }}`.
+            Read coverage/catalog.yaml for the unit and its themes (all significant Christian movements, not only missions).
+            Add ONE new region entry `${{ steps.unit.outputs.region }}` to pipeline/mlm/sources.yaml with: name, extract_hint
+            (prefecture-level cities in pinyin and historical spellings), keywords (English, historical romanizations, Simplified
+            and Traditional Chinese), and 4-10 reputable sources with modest max_pages and max_depth: 1 where they list links.
+            Include at least one Chinese-language source. Check each start URL loads. Do not edit any other file.
+
+      - name: Validate scout output (trusted)
+        if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
+        run: |
+          python3 - <<'EOF'
+          import yaml, sys
+          from urllib.parse import urlparse
+          reg = yaml.safe_load(open("pipeline/mlm/sources.yaml"))["regions"]["${{ steps.unit.outputs.region }}"]
+          assert reg.get("keywords") and reg.get("sources"), "region needs keywords and sources"
+          for s in reg["sources"]:
+              assert s.get("name") and s.get("start_urls"), s
+              assert all(urlparse(u).scheme == "https" for u in s["start_urls"]), s["start_urls"]
+              assert int(s.get("max_pages", 20)) <= 300, "max_pages too high"
+          print("ok:", len(reg["sources"]), "sources")
+          EOF
+          git diff --stat -- pipeline/mlm/sources.yaml
+          [ -z "$(git status --porcelain -- . ':!pipeline/mlm/sources.yaml')" ] || { echo "scout edited other files"; git status --porcelain; exit 1; }
+          git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+          git add pipeline/mlm/sources.yaml && git commit -m "Sources for ${{ steps.unit.outputs.id }} (source scout)" && git push
+
+      - name: Restore crawl + extraction cache
+        if: steps.unit.outputs.id != ''
+        uses: actions/cache@v4
+        with:
+          path: .mlm-work
+          key: mlm-work-${{ steps.unit.outputs.region }}-${{ github.run_id }}
+          restore-keys: mlm-work-${{ steps.unit.outputs.region }}-
+
+      - name: Pipeline (crawl → extract → translate → load → verify → audit)
+        if: steps.unit.outputs.id != ''
+        run: mlm run --unit "${{ steps.unit.outputs.id }}"
+
+      - name: Status, gates and scoreboard (trusted)
+        if: always() && steps.unit.outputs.id != ''
+        run: |
+          mlm coverage status > /dev/null
+          if [ -n "$(git status --porcelain STATUS.md)" ]; then
+            git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+            git pull --rebase -q || true
+            git add STATUS.md && git commit -m "Coverage status" && git push
+          fi

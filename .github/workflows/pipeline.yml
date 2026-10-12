@@ -1,21 +1,22 @@
 name: Data pipeline
 
-# Weekly: crawl registered sources -> Claude extraction -> Chinese fill-in -> load as pending -> review agent.
+# Manual runs of the pipeline for one unit. Scheduled work happens in coverage-agents.yml.
 # Approved records appear on the site within an hour (ISR). Everything else lands in the
 # "Review queue" issue for a human.
 
 on:
-  schedule:
-    - cron: "17 9 * * 1"   # Mondays 09:17 UTC
   workflow_dispatch:
     inputs:
+      unit:
+        description: Coverage unit id (e.g. CN-ZJ). Scheduled work runs in coverage-agents.yml
+        default: CN-ZJ
       region:
         description: Region slug from pipeline/mlm/sources.yaml
         default: zhejiang
       stage:
         description: Stage to run
         type: choice
-        options: [all, crawl, extract, translate, load, review]
+        options: [all, crawl, extract, translate, load, verify, audit]
         default: all
 
 permissions:
@@ -31,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
+      UNIT: ${{ inputs.unit || 'CN-ZJ' }}
       REGION: ${{ inputs.region || 'zhejiang' }}
       STAGE: ${{ inputs.stage || 'all' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -68,39 +70,29 @@ jobs:
       - name: Crawl
         if: env.STAGE == 'all' || env.STAGE == 'crawl'
         run: |
-          mlm run --region "$REGION" --stage crawl
+          mlm run --unit "$UNIT" --region "$REGION" --stage crawl
           n=$(ls ../.mlm-work/raw/"$REGION" 2>/dev/null | wc -l)
           echo "### Crawl: $n pages cached for $REGION" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Extract
         if: (env.STAGE == 'all' || env.STAGE == 'extract') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
-        run: mlm run --region "$REGION" --stage extract
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage extract
 
       - name: Translate (fill missing Chinese with Haiku)
         if: (env.STAGE == 'all' || env.STAGE == 'translate') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
-        run: mlm run --region "$REGION" --stage translate
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage translate
 
       - name: Load
         if: (env.STAGE == 'all' || env.STAGE == 'load') && steps.secrets.outputs.missing == ''
-        run: mlm run --region "$REGION" --stage load
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage load
 
-      - name: Review agent
-        if: (env.STAGE == 'all' || env.STAGE == 'review') && steps.secrets.outputs.missing == ''
-        run: mlm run --region "$REGION" --stage review
+      - name: Verify (trusted)
+        if: (env.STAGE == 'all' || env.STAGE == 'verify') && steps.secrets.outputs.missing == ''
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage verify
 
-      - name: Update review-queue issue
-        if: hashFiles('.mlm-work/review-report.md') != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-        working-directory: .
-        run: |
-          num=$(gh issue list --label review-queue --state open --json number -q '.[0].number')
-          if [ -z "$num" ]; then
-            gh label create review-queue --color C2A878 --description "Pipeline items needing human review" 2>/dev/null || true
-            gh issue create --title "Review queue" --label review-queue --body-file .mlm-work/review-report.md
-          else
-            gh issue edit "$num" --body-file .mlm-work/review-report.md
-          fi
+      - name: Audit (independent model)
+        if: (env.STAGE == 'all' || env.STAGE == 'audit') && steps.secrets.outputs.missing == ''
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage audit
 
       - uses: actions/upload-artifact@v4
         if: always()

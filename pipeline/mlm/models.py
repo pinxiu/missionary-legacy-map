@@ -9,10 +9,6 @@ SiteType = Literal[
 ]
 GeoPrecision = Literal["exact", "street", "district", "city", "province"]
 ZhStatus = Literal["cited", "translated"]
-City = Literal[
-    "hangzhou", "ningbo", "wenzhou", "shaoxing", "huzhou", "jiaxing", "taizhou", "jinhua", "lishui", "quzhou", "zhoushan",
-    "other",
-]
 
 
 class Evidence(BaseModel):
@@ -49,7 +45,7 @@ class SiteMention(BaseModel):
     name_zh_status: ZhStatus | None = None  # set by the pipeline, not the extractor
     alt_names: list[str] = []
     site_type: SiteType = "other"
-    city: City = Field(default="other", description="Zhejiang city (prefecture) the site is in; 'other' if outside Zhejiang")
+    city: str = Field(default="other", description="Prefecture-level city in lowercase pinyin; 'other' if outside the mapped region")
     place_text: str = Field(default="", description="Location as written in the source, e.g. 'outside the Qiantang Gate'")
     modern_address: str | None = None
     current_status: str | None = None

@@ -46,7 +46,12 @@ regions:
         kind: journal
 
   zhejiang:
-    # Province-wide crawl. Each extracted site is assigned to its city (prefecture) by the extractor.
+    # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
+    name: Zhejiang 浙江
+    extract_hint: >-
+      Prefectures: hangzhou, ningbo, wenzhou, shaoxing, huzhou, jiaxing, taizhou, jinhua, lishui, quzhou, zhoushan.
+      Historical spellings: Hangchow, Ningpo, Wenchow, Shaohing, Huchow, Kashing/Kiahsing, Taichow, Kinhwa,
+      Chuchow (處州 = lishui), Kuchow/Chüchow (衢州 = quzhou), Chusan/Tinghai (zhoushan).
     keywords: [Zhejiang, Chekiang, 浙江, Hangzhou, Hangchow, 杭州, Ningbo, Ningpo, 宁波, 寧波, Wenzhou, Wenchow, 温州, 溫州,
                Shaoxing, Shaohing, 绍兴, 紹興, Huzhou, Huchow, 湖州, Jiaxing, Kashing, 嘉兴, 嘉興, Taizhou, Taichow, 台州,
                Jinhua, Kinhwa, 金华, 金華, Lishui, Chuchow, 丽水, 處州, Quzhou, 衢州, Zhoushan, Chusan, 舟山]

@@ -188,3 +188,23 @@ def test_apply_add_site_and_events(tmp_path, monkeypatch):
     ap.apply_seed({"action": "add_events", "site_slug": "gulou-church", "events": [
         {"type": "served", "year_start": 1900, "description": "x", "description_zh": "x", "sources": ["chsource-5sites"]}]}, "u/44")
     assert any(e.get("year_start") == 1900 for s in sd.load_all()["sites"] if s["slug"] == "gulou-church" for e in s["events"])
+
+
+def test_verifier_excerpt_matching():
+    from mlm.verify import excerpt_found
+
+    text = "In 1867 the school moved to Hangzhou, the capital of Zhejiang, and was renamed Hangchow Presbyterian Boys' School."
+    assert excerpt_found("the school moved to Hangzhou,  the capital of Zhejiang", text)
+    assert not excerpt_found("the school moved to Ningbo", text)
+    assert not excerpt_found("1867", text)  # too short to prove anything
+    assert excerpt_found("“在宁波北门内佑圣观租到一间房子”", "麦嘉缔正式在宁波北门内佑圣观租到一间房子，开办诊所。")
+
+
+def test_audit_agreement_rules():
+    from mlm.audit import agrees
+
+    rec = {"site_type": "hospital"}
+    assert agrees(rec, [{"year_start": 1884}], {"found": True, "site_type": "hospital", "years": [1884, 1926]})[0]
+    assert not agrees(rec, [{"year_start": 1885}], {"found": True, "site_type": "hospital", "years": [1884]})[0]
+    assert not agrees(rec, [], {"found": False})[0]
+    assert not agrees(rec, [], {"found": True, "site_type": "school", "years": []})[0]

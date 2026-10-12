@@ -16,6 +16,8 @@ CRAWL_DELAY_S = float(os.environ.get("MLM_CRAWL_DELAY_S", "2.0"))
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 EXTRACT_MODEL = os.environ.get("MLM_EXTRACT_MODEL", "claude-sonnet-5-5")
 TRANSLATE_MODEL = os.environ.get("MLM_TRANSLATE_MODEL", "claude-haiku-5-5")  # cheap model for zh fill-in
+VERIFY_MODEL = os.environ.get("MLM_VERIFY_MODEL", "claude-sonnet-5-5")       # support check in the trusted verifier
+AUDIT_MODEL = os.environ.get("MLM_AUDIT_MODEL", "claude-opus-5-5")           # independent auditor: a different, stronger model
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 # New-style secret key (sb_secret_...). The legacy service_role JWT is still accepted as a fallback.

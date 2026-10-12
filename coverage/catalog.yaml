@@ -1,0 +1,77 @@
+# Coverage catalog: the units of work for expanding the map.
+# One GitHub issue per unit (mlm coverage sync). Agent workers take ONE active unit at a time, in `order`.
+# Correctness over speed: a unit is only "done" when every published record passed the verifier,
+# the independent audit agrees >= 95%, and the owner approved the unit's batch.
+
+themes:   # every unit is researched across all of these, not only missionary work
+  - {id: church_of_the_east, en: "Church of the East (Jingjiao) and early Christianity", zh: "景教与早期基督教"}
+  - {id: catholic, en: "Catholic missions, parishes and religious orders", zh: "天主教传教、堂区与修会"}
+  - {id: protestant, en: "Protestant missions and churches", zh: "基督教新教差会与教会"}
+  - {id: orthodox, en: "Orthodox missions and churches", zh: "东正教传教与教堂"}
+  - {id: indigenous, en: "Indigenous and independent churches and movements", zh: "本土及自立教会与运动"}
+  - {id: revivals, en: "Revivals, evangelists and church leaders", zh: "复兴运动、布道家与教会领袖"}
+  - {id: education_medicine, en: "Schools, universities, hospitals and social work", zh: "学校、大学、医院与社会事业"}
+  - {id: translation_print, en: "Bible translation, presses and publishing", zh: "圣经翻译、印书馆与出版"}
+  - {id: martyrs_memorials, en: "Martyrs, cemeteries and memorials", zh: "殉道者、墓地与纪念地"}
+
+done_when:
+  min_sources: 3                # registered sources, at least one in Chinese for China units
+  verifier_pass_rate: 1.0       # every published record passed the verifier
+  min_audit_sample: 10          # audited records (or all, if fewer)
+  audit_agreement: 0.95
+  owner_approval: true          # the owner approves the unit's batch before anything is published
+
+phases:
+  - {phase: 1, en: "China", zh: "中国"}
+  - {phase: 2, en: "World", zh: "世界"}
+
+units:
+  # ---- Phase 1: China, provincial level ----
+  - {id: CN-ZJ, region: zhejiang, en: Zhejiang, zh: 浙江, phase: 1, order: 1,
+     subregions: [hangzhou, ningbo, wenzhou, shaoxing, huzhou, jiaxing, taizhou, jinhua, lishui, quzhou, zhoushan]}
+  - {id: CN-JS, region: jiangsu, en: Jiangsu, zh: 江苏, phase: 1, order: 2}
+  - {id: CN-SH, region: shanghai, en: Shanghai, zh: 上海, phase: 1, order: 3}
+  - {id: CN-FJ, region: fujian, en: Fujian, zh: 福建, phase: 1, order: 4}
+  - {id: CN-GD, region: guangdong, en: Guangdong, zh: 广东, phase: 1, order: 5}
+  - {id: CN-SD, region: shandong, en: Shandong, zh: 山东, phase: 1, order: 6}
+  - {id: CN-BJ, region: beijing, en: Beijing, zh: 北京, phase: 1, order: 7}
+  - {id: CN-TJ, region: tianjin, en: Tianjin, zh: 天津, phase: 1, order: 8}
+  - {id: CN-HE, region: hebei, en: Hebei, zh: 河北, phase: 1, order: 9}
+  - {id: CN-HA, region: henan, en: Henan, zh: 河南, phase: 1, order: 10}
+  - {id: CN-HB, region: hubei, en: Hubei, zh: 湖北, phase: 1, order: 11}
+  - {id: CN-HN, region: hunan, en: Hunan, zh: 湖南, phase: 1, order: 12}
+  - {id: CN-JX, region: jiangxi, en: Jiangxi, zh: 江西, phase: 1, order: 13}
+  - {id: CN-AH, region: anhui, en: Anhui, zh: 安徽, phase: 1, order: 14}
+  - {id: CN-SC, region: sichuan, en: Sichuan, zh: 四川, phase: 1, order: 15}
+  - {id: CN-CQ, region: chongqing, en: Chongqing, zh: 重庆, phase: 1, order: 16}
+  - {id: CN-YN, region: yunnan, en: Yunnan, zh: 云南, phase: 1, order: 17}
+  - {id: CN-GZ, region: guizhou, en: Guizhou, zh: 贵州, phase: 1, order: 18}
+  - {id: CN-GX, region: guangxi, en: Guangxi, zh: 广西, phase: 1, order: 19}
+  - {id: CN-SX, region: shanxi, en: Shanxi, zh: 山西, phase: 1, order: 20}
+  - {id: CN-SN, region: shaanxi, en: Shaanxi, zh: 陕西, phase: 1, order: 21}
+  - {id: CN-GS, region: gansu, en: Gansu, zh: 甘肃, phase: 1, order: 22}
+  - {id: CN-LN, region: liaoning, en: Liaoning, zh: 辽宁, phase: 1, order: 23}
+  - {id: CN-JL, region: jilin, en: Jilin, zh: 吉林, phase: 1, order: 24}
+  - {id: CN-HL, region: heilongjiang, en: Heilongjiang, zh: 黑龙江, phase: 1, order: 25}
+  - {id: CN-NM, region: inner-mongolia, en: Inner Mongolia, zh: 内蒙古, phase: 1, order: 26}
+  - {id: CN-NX, region: ningxia, en: Ningxia, zh: 宁夏, phase: 1, order: 27}
+  - {id: CN-QH, region: qinghai, en: Qinghai, zh: 青海, phase: 1, order: 28}
+  - {id: CN-XJ, region: xinjiang, en: Xinjiang, zh: 新疆, phase: 1, order: 29}
+  - {id: CN-XZ, region: tibet, en: Tibet, zh: 西藏, phase: 1, order: 30}
+  - {id: CN-HI, region: hainan, en: Hainan, zh: 海南, phase: 1, order: 31}
+  - {id: HK, region: hong-kong, en: Hong Kong, zh: 香港, phase: 1, order: 32}
+  - {id: MO, region: macau, en: Macau, zh: 澳门, phase: 1, order: 33}
+  - {id: TW, region: taiwan, en: Taiwan, zh: 台湾, phase: 1, order: 34}
+
+  # ---- Phase 2: World. Each block is split into country units when the phase starts. ----
+  - {id: W-EAS, region: east-asia, en: "East Asia (Korea, Japan, Mongolia)", zh: "东亚（朝鲜半岛、日本、蒙古）", phase: 2, order: 101}
+  - {id: W-SEA, region: southeast-asia, en: Southeast Asia, zh: 东南亚, phase: 2, order: 102}
+  - {id: W-SAS, region: south-asia, en: South Asia, zh: 南亚, phase: 2, order: 103}
+  - {id: W-CAS, region: central-asia, en: Central Asia, zh: 中亚, phase: 2, order: 104}
+  - {id: W-MEA, region: middle-east, en: Middle East and Holy Land, zh: 中东与圣地, phase: 2, order: 105}
+  - {id: W-NAF, region: north-africa, en: North Africa and Ethiopia, zh: 北非与埃塞俄比亚, phase: 2, order: 106}
+  - {id: W-SSA, region: sub-saharan-africa, en: Sub-Saharan Africa, zh: 撒哈拉以南非洲, phase: 2, order: 107}
+  - {id: W-EUR, region: europe, en: Europe, zh: 欧洲, phase: 2, order: 108}
+  - {id: W-NAM, region: north-america, en: North America, zh: 北美洲, phase: 2, order: 109}
+  - {id: W-LAM, region: latin-america, en: Latin America and the Caribbean, zh: 拉丁美洲与加勒比, phase: 2, order: 110}
+  - {id: W-OCE, region: oceania, en: Oceania, zh: 大洋洲, phase: 2, order: 111}

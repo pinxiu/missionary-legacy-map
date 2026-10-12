@@ -1,35 +1,41 @@
-# Legacy Map
+# Legacy Map 宣教遗迹地图
 
-A mobile-first map of historical Christian mission sites: churches, hospitals, schools, cemeteries and mission stations. It shows every site wherever you are, and **every fact links to its source**.
+A mobile-first, bilingual map of the history of Christianity: missions of every tradition, indigenous and independent
+churches, revivals, schools, hospitals, presses, cemeteries and memorials. It shows every site wherever you are, and
+**every fact links to its source**. Live: https://missionary-legacy-map-taupe.vercel.app
 
-Pilot: **Hangzhou**. Next: Zhejiang → China → worldwide.
+Now: **Zhejiang 浙江**. Next: all of China, then the world. Progress: [STATUS.md](STATUS.md).
 
-## How it works
+## How data gets in (and why you can trust it)
 
 ```
-sources.yaml ─▶ crawl ─▶ extract (Claude, tool-use) ─▶ policy filter ─▶ load (pending + claims)
-                                                                            │
-                         public map ◀── approved/conflict rows ◀── review agent (2+ sources)
-                                                                            │
-                                                     "Review queue" issue ◀─┘  (for humans)
+ coverage unit (catalog) ─▶ source scout ─▶ crawl ─▶ extract (Claude) ─▶ translate (Haiku) ─▶ load [pending]
+                                                                                       │
+                       trusted verifier: excerpt really in the source + supports the claim ─▶ [verified]
+                       independent audit (different model) on a random sample ─▶ gates in STATUS.md
+                                                                                       │
+                                owner adds `approved` on the unit issue ─▶ published [approved]
+
+ visitor card ─▶ submissions ─▶ GitHub issue ─▶ AI first pass (polish, translate, verify, cite, proposal)
+                                                     ─▶ owner adds `approved` ─▶ apply worker ─▶ published
 ```
 
-| Piece | Where | Runs |
+| Workflow | When | Model? |
 |---|---|---|
-| Map app (PWA, installable on phones) | `apps/web` | Vercel project `missionary-legacy-map`, deploys on every push to `main` |
-| Database (Postgres + PostGIS, RLS) | `supabase/` | Supabase project `missionary-legacy-map` |
-| Pipeline | `pipeline/mlm` | GitHub Actions, Mondays 09:17 UTC |
-| Source-scout agent | `.github/workflows/source-scout.yml` | Wednesdays, opens PRs |
-| Correction triage / `@claude` | `.github/workflows/claude.yml` | On issues and comments |
+| `coverage-agents.yml` | every 6 h, one unit at a time | Sonnet (scout, extract, verify), Haiku (translate), Opus (audit) |
+| `coverage-sync.yml` | on catalog change + daily | no |
+| `submissions-sync.yml` | every 15 min | no |
+| `feedback-agent.yml` | every 3 h, only if issues need triage | Sonnet |
+| `apply-approved.yml` | when the owner adds `approved` | no |
+| `seed-sync.yml` | when `data/seed` changes | no |
+| `ci.yml` | every push / PR | no |
 
 ## Publication policy
-Historical records only (to 1952), no living people, and no present-day religious activity. Conflicting sources are shown side by side, and approximate locations are labeled. See `CLAUDE.md` and `pipeline/mlm/policy.py`.
+Historical records only (to 1952), no living people, no present-day religious activity. Conflicting sources are shown
+side by side. Approximate locations are labeled. Chinese names we translated are marked 译. See `CLAUDE.md`.
 
-## Setup secrets (one time)
-GitHub → Settings → Secrets and variables → Actions:
-- Secret `ANTHROPIC_API_KEY` — extraction and agents
-- Secret `SUPABASE_SECRET_KEY` — Supabase → Project Settings → API keys → create a secret key (`sb_secret_…`). Never use the publishable key here: it is public and the pipeline refuses it.
-(`SUPABASE_URL` is set in the workflow; it is not secret.)
+## Setup (done)
+Actions secrets `ANTHROPIC_API_KEY`, `SUPABASE_SECRET_KEY`. Vercel env `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
 ## Local development
 ```bash

@@ -13,7 +13,9 @@ from .config import ANTHROPIC_API_KEY, EXTRACT_MODEL, WORK_DIR, notice
 from .crawl import load_registry
 from .models import Extraction
 
-SYSTEM = """You extract historical records of Christian mission work from source texts for a cited historical map.
+SYSTEM = """You extract historical records of Christian history from source texts for a cited historical map: missions of every
+tradition (Church of the East, Catholic, Protestant, Orthodox), indigenous and independent churches and movements,
+revivals and church leaders, schools, hospitals, presses, cemeteries and memorials.
 
 Rules:
 - Extract only what the text states. Never add facts from your own knowledge.
@@ -21,9 +23,8 @@ Rules:
 - Record places as written (place_text), including historical romanizations such as "Hangchow" or "Kwang-Chi".
 - Sources may be English or Chinese. Fill name_zh (and summary_zh / description_zh) only with Simplified Chinese
   actually written in the text (convert Traditional characters to Simplified). Leave them empty otherwise.
-- Set `city` to the Zhejiang prefecture the site is in (hangzhou, ningbo, wenzhou, shaoxing, huzhou, jiaxing, taizhou,
-  jinhua, lishui, quzhou, zhoushan). Historical spellings: Hangchow, Ningpo, Wenchow, Shaohing, Huchow, Kashing/Kiahsing,
-  Taichow, Kinhwa, Chuchow (處州 = lishui), Kuchow/Chüchow (衢州 = quzhou), Chusan/Tinghai (zhoushan). Use "other" if outside Zhejiang.
+- Set `city` to the prefecture-level city the site is in, in lowercase pinyin (e.g. "hangzhou", "ningbo"), using the
+  region notes below for historical spellings. Use "other" if the site is outside the region being mapped.
 - Historical scope only: skip anything after 1952 and anything about present-day religious workers or activity.
   A neutral note on current use ("now a university campus") is allowed in current_status.
 - Use confidence 0.9 for explicit statements, 0.6 for implied or approximate ones, 0.4 for vague ones.
@@ -44,13 +45,18 @@ def relevant(text: str, keywords: list[str]) -> bool:
     return any(k.lower() in lower for k in keywords)
 
 
-def extract_page(page: dict, client=None) -> Extraction:
+def system_prompt(region_cfg: dict) -> str:
+    note = region_cfg.get("extract_hint", "")
+    return SYSTEM + (f"\n\nRegion being mapped: {region_cfg.get('name', '')}\n{note}" if note or region_cfg.get("name") else "")
+
+
+def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:
     client = client or _client()
     schema = Extraction.model_json_schema()
     resp = client.messages.create(
         model=EXTRACT_MODEL,
         max_tokens=8000,
-        system=SYSTEM,
+        system=system,
         tools=[{"name": "record_extraction", "description": "Record the extracted records.", "input_schema": schema}],
         tool_choice={"type": "auto"},  # forced tool choice is not supported by every model
         messages=[{
@@ -69,7 +75,8 @@ def extract_page(page: dict, client=None) -> Extraction:
 def run(region: str) -> Path:
     if not ANTHROPIC_API_KEY:
         raise SystemExit("ANTHROPIC_API_KEY is not set; skipping extraction.")
-    keywords = load_registry()["regions"][region]["keywords"]
+    cfg = load_registry()["regions"][region]
+    keywords, system = cfg["keywords"], system_prompt(cfg)
     raw = WORK_DIR / "raw" / region
     out = WORK_DIR / "extracted" / region
     out.mkdir(parents=True, exist_ok=True)
@@ -87,7 +94,7 @@ def run(region: str) -> Path:
             continue
         print(f"[extract] {page['url']}")
         try:
-            ex = extract_page(page, client)
+            ex = extract_page(page, client, system)
         except Exception as e:  # noqa: BLE001 - keep the batch going; failures are re-tried next run
             stats["failed"] += 1
             if stats["failed"] <= 3:

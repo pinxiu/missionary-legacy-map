@@ -2,19 +2,21 @@ from __future__ import annotations
 
 import argparse
 
-STAGES = ["crawl", "extract", "translate", "load", "review"]
+STAGES = ["crawl", "extract", "translate", "load", "verify", "audit"]
 
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="mlm", description="Missionary Legacy Map pipeline")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    run = sub.add_parser("run", help="Run pipeline stages for a region")
-    run.add_argument("--region", default="zhejiang")
+    run = sub.add_parser("run", help="Run pipeline stages for a coverage unit (or a raw sources.yaml region)")
+    run.add_argument("--unit", default=None, help="Coverage unit id, e.g. CN-ZJ (sets region, subregions, unit tag)")
+    run.add_argument("--region", default=None, help="sources.yaml region key (default: the unit's region)")
     run.add_argument("--stage", choices=STAGES + ["all"], default="all")
     run.add_argument("--no-network-geocode", action="store_true")
+    run.add_argument("--audit-sample", type=int, default=10)
 
-    seed = sub.add_parser("seed", help="Load the editorial seed for a region")
+    seed = sub.add_parser("seed", help="Publish the editorial seed (data/seed) to Supabase")
     seed.add_argument("--region", default=None, help="One seed file (e.g. hangzhou); default: all files")
     seed.add_argument("--sql", action="store_true", help="Print SQL instead of writing via API")
 
@@ -22,8 +24,21 @@ def main(argv: list[str] | None = None) -> None:
     apl = sub.add_parser("apply", help="Apply the approved proposal in a GitHub issue")
     apl.add_argument("--issue", type=int, required=True)
 
+    cov = sub.add_parser("coverage", help="Coverage tracking")
+    cov.add_argument("action", choices=["sync", "status", "next", "publish", "report"])
+    cov.add_argument("--unit", default=None)
+
     args = ap.parse_args(argv)
 
+    if args.cmd == "seed":
+        from . import seed as seed_mod
+        if args.sql:
+            print(seed_mod.to_sql(args.region))
+        else:
+            from .config import notice
+            from .store import Store
+            notice(f"seed: {seed_mod.load_via_api(Store(), args.region)}")
+        return
     if args.cmd == "submissions":
         from . import submissions
         submissions.sync()
@@ -32,36 +47,56 @@ def main(argv: list[str] | None = None) -> None:
         from . import apply
         apply.run(args.issue)
         return
-
-    if args.cmd == "seed":
-        from . import seed as seed_mod
-
-        if args.sql:
-            print(seed_mod.to_sql(args.region))
+    if args.cmd == "coverage":
+        from . import coverage
+        if args.action == "sync":
+            coverage.sync_issues()
+        elif args.action == "next":
+            u = coverage.active_unit()
+            print(u["id"] if u else "")
         else:
-            from .config import notice
             from .store import Store
-            notice(f"seed: {seed_mod.load_via_api(Store(), args.region)}")
+            store = Store()
+            if args.action == "status":
+                print(coverage.status(store))
+            elif args.action == "publish":
+                coverage.publish(store, args.unit)
+            elif args.action == "report":
+                print(coverage.report(store, args.unit))
         return
+
+    unit = subregions = None
+    region = args.region
+    if args.unit:
+        from . import coverage
+        u = coverage.unit(args.unit)
+        unit, subregions, region = u["id"], u.get("subregions", []), region or u["region"]
+    region = region or "zhejiang"
 
     stages = STAGES if args.stage == "all" else [args.stage]
     for stage in stages:
-        print(f"=== {stage} ({args.region}) ===")
+        print(f"=== {stage} ({unit or region}) ===")
         if stage == "crawl":
             from . import crawl
-            crawl.run(args.region)
+            crawl.run(region)
         elif stage == "extract":
             from . import extract
-            extract.run(args.region)
+            extract.run(region)
         elif stage == "translate":
             from . import translate
-            translate.run(args.region)
+            translate.run(region)
         elif stage == "load":
             from . import load
-            load.load_extractions(args.region, use_network=not args.no_network_geocode)
-        elif stage == "review":
-            from . import review
-            review.run()
+            load.load_extractions(region, use_network=not args.no_network_geocode, unit=unit, subregions=subregions)
+        elif stage == "verify":
+            from . import verify
+            from .store import Store
+            verify.run(Store())
+        elif stage == "audit" and unit:
+            from . import audit
+            from . import coverage as cov_mod
+            from .store import Store
+            audit.run(Store(), unit, cov_mod.regions_of(cov_mod.unit(unit)), sample=args.audit_sample)
 
 
 if __name__ == "__main__":

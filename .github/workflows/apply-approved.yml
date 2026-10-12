@@ -1,7 +1,8 @@
 name: Apply approved
 
-# When the repo owner adds the `approved` label to a submission issue, apply its proposal:
-# validate, edit the seed and/or publish the photo, commit, publish to Supabase, close the issue.
+# The repo owner's `approved` label is the only path to production:
+#   * on a submission issue: validate the proposal, edit the seed and/or publish the photo, publish, close.
+#   * on a coverage unit issue: publish the unit's verified records (verified -> approved), mark the unit done.
 # Deterministic code only; no model runs here.
 
 on:
@@ -20,11 +21,13 @@ jobs:
   apply:
     if: github.event.label.name == 'approved' && github.event.sender.login == github.repository_owner
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       ISSUE: ${{ github.event.issue.number }}
+      IS_UNIT: ${{ contains(github.event.issue.labels.*.name, 'unit') }}
+      TITLE: ${{ github.event.issue.title }}
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
@@ -36,14 +39,31 @@ jobs:
           cache-dependency-path: pipeline/pyproject.toml
       - run: pip install -e "pipeline[dev]"
 
+      # ---- coverage unit ----
+      - name: Publish unit batch
+        if: env.IS_UNIT == 'true'
+        run: |
+          unit="${TITLE%% ·*}"
+          mlm coverage publish --unit "$unit"
+          mlm coverage status > /dev/null
+          git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+          if [ -n "$(git status --porcelain STATUS.md)" ]; then git add STATUS.md && git commit -m "Publish $unit" && git push; fi
+          gh issue comment "$ISSUE" --body "✅ Published the verified records for $unit. Live on the map within ~10 minutes."
+          gh issue edit "$ISSUE" --remove-label needs-approval --remove-label in-progress --add-label done
+          gh issue close "$ISSUE"
+
+      # ---- visitor submission ----
       - name: Apply proposal
+        if: env.IS_UNIT != 'true'
         run: mlm apply --issue "$ISSUE"
 
       - name: Validate seed
+        if: env.IS_UNIT != 'true'
         working-directory: pipeline
         run: pytest -q
 
       - name: Commit seed changes
+        if: env.IS_UNIT != 'true'
         run: |
           if [ -n "$(git status --porcelain data/seed)" ]; then
             git config user.name "legacy-map-bot"
@@ -55,9 +75,11 @@ jobs:
 
       # Pushes made with the workflow token don't trigger other workflows, so publish here.
       - name: Publish seed to Supabase
+        if: env.IS_UNIT != 'true'
         run: mlm seed
 
       - name: Close issue
+        if: env.IS_UNIT != 'true'
         run: |
           gh issue comment "$ISSUE" --body "✅ Applied: $(cat /tmp/apply-summary.txt). Live on the map within ~10 minutes."
           gh issue edit "$ISSUE" --remove-label needs-approval --add-label applied
