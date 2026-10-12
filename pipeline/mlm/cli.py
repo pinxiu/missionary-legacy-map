@@ -18,7 +18,20 @@ def main(argv: list[str] | None = None) -> None:
     seed.add_argument("--region", default=None, help="One seed file (e.g. hangzhou); default: all files")
     seed.add_argument("--sql", action="store_true", help="Print SQL instead of writing via API")
 
+    sub.add_parser("submissions", help="Turn new visitor submissions into GitHub issues (no model calls)")
+    apl = sub.add_parser("apply", help="Apply the approved proposal in a GitHub issue")
+    apl.add_argument("--issue", type=int, required=True)
+
     args = ap.parse_args(argv)
+
+    if args.cmd == "submissions":
+        from . import submissions
+        submissions.sync()
+        return
+    if args.cmd == "apply":
+        from . import apply
+        apply.run(args.issue)
+        return
 
     if args.cmd == "seed":
         from . import seed as seed_mod

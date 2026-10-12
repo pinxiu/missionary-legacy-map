@@ -1,6 +1,6 @@
 name: Correction or new source
 description: Report an error or suggest a source for a site on the map
-labels: [correction]
+labels: [correction, needs-triage]
 body:
   - type: input
     id: site

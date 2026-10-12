@@ -152,3 +152,39 @@ def test_translate_marks_status_and_keeps_cited_names():
     out = apply_translations(ex, {"s0.name": "白累德医院", "s0.summary": "一所医院。", "s0.e0": "开办。"})
     assert out.sites[0].name_zh_status == "translated" and out.sites[1].name_zh_status == "cited"
     assert out.persons[0].name_zh_status == "cited" and out.translated
+
+
+def test_apply_add_site_and_events(tmp_path, monkeypatch):
+    import shutil
+
+    from mlm import apply as ap
+    from mlm import seed as sd
+
+    for f in sd.SEED_DIR.glob("*.json"):
+        shutil.copy(f, tmp_path / f.name)
+    monkeypatch.setattr(sd, "SEED_DIR", tmp_path)
+    monkeypatch.setattr(ap, "SEED_DIR", tmp_path)
+
+    body = """Some text
+<!-- proposal -->
+```json
+{"action": "add_site", "seed_file": "zhejiang",
+ "site": {"slug": "test-chapel", "region": "ningbo", "name_en": "Test Chapel", "name_zh": "测试礼拜堂", "name_zh_status": "translated",
+          "site_type": "church", "lat": 29.87, "lng": 121.55, "geo_precision": "street",
+          "summary": "A chapel.", "summary_zh": "一座礼拜堂。",
+          "events": [{"type": "built", "year_start": 1890, "description": "Built.", "description_zh": "建成。",
+                      "sources": ["community-report"]}]}}
+```"""
+    files = ap.apply_seed(ap.extract_proposal(body), "https://github.com/x/y/issues/42")
+    data = sd.load_all()
+    site = next(s for s in data["sites"] if s["slug"] == "test-chapel")
+    assert site["events"][0]["sources"] == ["community-42"] and "community-42" in data["sources"]
+    assert files == [tmp_path / "zhejiang.json"]
+
+    import pytest as _pt
+    bad = body.replace("1890", "1990").replace("test-chapel", "test-chapel-2")
+    with _pt.raises(ap.ProposalError):
+        ap.apply_seed(ap.extract_proposal(bad), "https://github.com/x/y/issues/43")
+    ap.apply_seed({"action": "add_events", "site_slug": "gulou-church", "events": [
+        {"type": "served", "year_start": 1900, "description": "x", "description_zh": "x", "sources": ["chsource-5sites"]}]}, "u/44")
+    assert any(e.get("year_start") == 1900 for s in sd.load_all()["sites"] if s["slug"] == "gulou-church" for e in s["events"])

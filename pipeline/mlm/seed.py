@@ -165,6 +165,12 @@ def load_via_api(store, only: str | None = None) -> dict:
         keys = sorted({k for e in site["events"] for k in e.get("sources", [])})
         claims += claims_for("site", site_row["id"], keys, {"name_en": site["name_en"], "name_zh": site.get("name_zh")}, "approved")
         ids.append(site_row["id"])
+        if "photos" in site:  # openly licensed historical images curated in the seed
+            store.delete("photos", {"site_id": site_row["id"], "kind": "historical"})
+            store.insert("photos", [{
+                "site_id": site_row["id"], "kind": "historical", "status": "approved", "image_url": p["image_url"],
+                **{k: p.get(k) for k in ("caption", "caption_zh", "credit", "license", "source_url", "year_taken")},
+            } for p in site["photos"]])
         for e in site["events"]:
             disputed_event = e.get("conflict_with") or e["type"] in ("founded", "built")
             ev_status = "conflict" if (status == "conflict" and disputed_event) else "approved"

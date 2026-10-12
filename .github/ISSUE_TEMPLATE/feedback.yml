@@ -1,6 +1,6 @@
 name: Feedback 反馈
 description: Ideas, problems with the app, or anything else 想法、应用问题或其他
-labels: [feedback]
+labels: [feedback, needs-triage]
 body:
   - type: textarea
     id: feedback

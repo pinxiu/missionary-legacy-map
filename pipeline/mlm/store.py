@@ -58,3 +58,30 @@ class Store:
         params = {column: f"in.({','.join(values)})"} | {k: f"eq.{v}" for k, v in (extra or {}).items()}
         r = self.http.delete(f"/{table}", params=params)
         r.raise_for_status()
+
+    # --- storage (photos) ---
+    def _storage(self) -> httpx.Client:
+        base = str(self.http.base_url).replace("/rest/v1", "/storage/v1")
+        return httpx.Client(base_url=base, headers={k: v for k, v in self.http.headers.items() if k.lower() != "content-type"}, timeout=60)
+
+    def sign_url(self, bucket: str, path: str, expires_s: int = 30 * 24 * 3600) -> str:
+        with self._storage() as s:
+            r = s.post(f"/object/sign/{bucket}/{path}", json={"expiresIn": expires_s})
+            r.raise_for_status()
+            return str(s.base_url).rstrip("/") + r.json()["signedURL"].removeprefix("/storage/v1")
+
+    def download(self, bucket: str, path: str) -> bytes:
+        with self._storage() as s:
+            r = s.get(f"/object/{bucket}/{path}")
+            r.raise_for_status()
+            return r.content
+
+    def upload(self, bucket: str, path: str, data: bytes, content_type: str = "image/jpeg") -> None:
+        with self._storage() as s:
+            r = s.post(f"/object/{bucket}/{path}", content=data, headers={"Content-Type": content_type, "x-upsert": "true"})
+            r.raise_for_status()
+
+    def remove(self, bucket: str, paths: list[str]) -> None:
+        with self._storage() as s:
+            r = s.request("DELETE", f"/object/{bucket}", json={"prefixes": paths})
+            r.raise_for_status()
