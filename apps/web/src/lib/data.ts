@@ -1,82 +1,124 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import seed from "@/data/hangzhou.json";
-import type { LegacyEvent, Site, Source } from "./types";
+import hangzhou from "@/data/hangzhou.json";
+import zhejiang from "@/data/zhejiang.json";
+import type { LegacyEvent, Person, Photo, Region, Site, Source } from "./types";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-type SeedSource = { key: string; url: string; title: string; publisher: string };
+export const REGIONS: Region[] = [
+  { slug: "hangzhou", nameEn: "Hangzhou", nameZh: "杭州" }, { slug: "ningbo", nameEn: "Ningbo", nameZh: "宁波" },
+  { slug: "wenzhou", nameEn: "Wenzhou", nameZh: "温州" }, { slug: "shaoxing", nameEn: "Shaoxing", nameZh: "绍兴" },
+  { slug: "huzhou", nameEn: "Huzhou", nameZh: "湖州" }, { slug: "jiaxing", nameEn: "Jiaxing", nameZh: "嘉兴" },
+  { slug: "taizhou", nameEn: "Taizhou", nameZh: "台州" }, { slug: "jinhua", nameEn: "Jinhua", nameZh: "金华" },
+  { slug: "lishui", nameEn: "Lishui", nameZh: "丽水" }, { slug: "quzhou", nameEn: "Quzhou", nameZh: "衢州" },
+  { slug: "zhoushan", nameEn: "Zhoushan", nameZh: "舟山" },
+];
+
+/* ---------- offline seed (used when Supabase is not configured or unreachable) ---------- */
+
+type SeedSource = { key: string; url: string; title: string; title_zh?: string; publisher?: string; publisher_zh?: string };
+type SeedPerson = { slug: string; name_en: string; name_zh?: string; name_zh_status?: string };
 type SeedEvent = {
-  type: string; year_start?: number; year_end?: number; description?: string;
+  type: string; year_start?: number; year_end?: number; description?: string; description_zh?: string;
   person?: string; sources: string[]; conflict_with?: string;
 };
+type SeedPhoto = { image_url: string; caption?: string; caption_zh?: string; credit?: string; license?: string; source_url?: string; year_taken?: number };
+type SeedSite = {
+  slug: string; region?: string; name_en: string; name_zh?: string; name_zh_status?: string; alt_names?: string[];
+  site_type: string; lat: number; lng: number; geo_precision: string; current_status?: string; current_status_zh?: string;
+  summary?: string; summary_zh?: string; disputed?: boolean; events: SeedEvent[]; photos?: SeedPhoto[];
+};
+type SeedFile = { region: string; sources: SeedSource[]; persons: SeedPerson[]; sites: SeedSite[] };
 
 function fromSeed(): Site[] {
-  const src = new Map<string, Source>(
-    (seed.sources as SeedSource[]).map((s) => [s.key, { url: s.url, title: s.title, publisher: s.publisher }]),
-  );
-  const people = new Map(seed.persons.map((p) => [p.slug, { name_en: p.name_en, name_zh: (p as { name_zh?: string }).name_zh ?? null }]));
-  return seed.sites.map((s) => {
-    const raw = s.events as SeedEvent[];
-    const disputed = raw.some((e) => e.conflict_with);
-    const events: LegacyEvent[] = raw.map((e) => ({
-      type: e.type,
-      yearStart: e.year_start ?? null,
-      yearEnd: e.year_end ?? null,
-      description: e.description ?? null,
+  const files = [hangzhou, zhejiang] as unknown as SeedFile[];
+  const src = new Map<string, Source>();
+  const people = new Map<string, Person>();
+  for (const f of files) {
+    f.sources.forEach((s) => src.set(s.key, { url: s.url, title: s.title, titleZh: s.title_zh ?? null, publisher: s.publisher ?? null, publisherZh: s.publisher_zh ?? null }));
+    f.persons.forEach((p) => people.set(p.slug, { nameEn: p.name_en, nameZh: p.name_zh ?? null, nameZhTranslated: p.name_zh_status === "translated" }));
+  }
+  return files.flatMap((f) => f.sites.map((s): Site => {
+    const disputed = !!s.disputed || s.events.some((e) => e.conflict_with);
+    const events: LegacyEvent[] = s.events.map((e) => ({
+      type: e.type, yearStart: e.year_start ?? null, yearEnd: e.year_end ?? null,
+      description: e.description ?? null, descriptionZh: e.description_zh ?? null,
       person: e.person ? people.get(e.person) ?? null : null,
-      disputed: disputed && e.type === "founded",
-      sources: e.sources.map((k) => src.get(k)!).filter(Boolean),
+      disputed: disputed && (!!e.conflict_with || e.type === "founded" || e.type === "built"),
+      sources: e.sources.map((k) => src.get(k)).filter((x): x is Source => !!x),
     }));
     const years = events.map((e) => e.yearStart).filter((y): y is number => y != null);
-    const sources = [...new Map(events.flatMap((e) => e.sources).map((x) => [x.url, x])).values()];
-    const site = s as typeof s & { name_zh?: string; alt_names?: string[]; current_status?: string };
     return {
-      slug: s.slug, region: seed.region, nameEn: s.name_en, nameZh: site.name_zh ?? null,
-      altNames: site.alt_names ?? [], type: s.site_type as Site["type"], lat: s.lat, lng: s.lng,
-      precision: s.geo_precision as Site["precision"], currentStatus: site.current_status ?? null,
-      summary: s.summary ?? null, disputed, earliestYear: years.length ? Math.min(...years) : null,
-      events, sources,
+      id: null, slug: s.slug, region: s.region ?? f.region, nameEn: s.name_en, nameZh: s.name_zh ?? null,
+      nameZhTranslated: s.name_zh_status === "translated", altNames: s.alt_names ?? [], type: s.site_type as Site["type"],
+      lat: s.lat, lng: s.lng, precision: s.geo_precision as Site["precision"],
+      currentStatus: s.current_status ?? null, currentStatusZh: s.current_status_zh ?? null,
+      summary: s.summary ?? null, summaryZh: s.summary_zh ?? null, disputed,
+      earliestYear: years.length ? Math.min(...years) : null, events,
+      sources: [...new Map(events.flatMap((e) => e.sources).map((x) => [x.url, x])).values()],
+      photos: (s.photos ?? []).map((p, i) => ({
+        id: `${s.slug}-${i}`, url: p.image_url, kind: "historical", caption: p.caption ?? null, captionZh: p.caption_zh ?? null,
+        credit: p.credit ?? null, license: p.license ?? null, sourceUrl: p.source_url ?? null, yearTaken: p.year_taken ?? null,
+      })),
     };
-  });
+  }));
 }
+
+/* ---------- live data ---------- */
+
+type SourceRow = { url: string; title: string | null; title_zh: string | null; publisher: string | null; publisher_zh: string | null };
+const toSource = (s: SourceRow): Source => ({ url: s.url, title: s.title, titleZh: s.title_zh, publisher: s.publisher, publisherZh: s.publisher_zh });
 
 async function fromSupabase(): Promise<Site[]> {
   const db = createClient(url!, key!, { auth: { persistSession: false } });
-  const [sites, events, claims] = await Promise.all([
+  const [sites, events, claims, photos] = await Promise.all([
     db.from("public_sites").select("*"),
-    db.from("events").select("id,site_id,event_type,year_start,year_end,description,status,persons(name_en,name_zh)"),
-    db.from("claims").select("subject_kind,subject_id,sources(url,title,publisher)"),
+    db.from("events").select("id,site_id,event_type,year_start,year_end,description,description_zh,status,persons(name_en,name_zh,name_zh_status)"),
+    db.from("claims").select("subject_kind,subject_id,sources(url,title,title_zh,publisher,publisher_zh)"),
+    db.from("photos").select("id,site_id,kind,public_path,image_url,caption,caption_zh,credit,license,source_url,year_taken,created_at").order("created_at"),
   ]);
-  if (sites.error || events.error || claims.error) {
-    throw new Error(sites.error?.message ?? events.error?.message ?? claims.error?.message);
-  }
+  const err = sites.error ?? events.error ?? claims.error ?? photos.error;
+  if (err) throw new Error(err.message);
+
   const srcBy = new Map<string, Source[]>();
   for (const c of claims.data ?? []) {
-    const s = c.sources as unknown as Source | null;
+    const s = c.sources as unknown as SourceRow | null;
     if (!s) continue;
     const list = srcBy.get(c.subject_id) ?? [];
-    if (!list.some((x) => x.url === s.url)) list.push(s);
+    if (!list.some((x) => x.url === s.url)) list.push(toSource(s));
     srcBy.set(c.subject_id, list);
   }
   const evBy = new Map<string, LegacyEvent[]>();
   for (const e of events.data ?? []) {
+    const p = e.persons as unknown as { name_en: string; name_zh: string | null; name_zh_status: string | null } | null;
     const list = evBy.get(e.site_id) ?? [];
     list.push({
-      type: e.event_type, yearStart: e.year_start, yearEnd: e.year_end, description: e.description,
-      person: (e.persons as unknown as LegacyEvent["person"]) ?? null,
+      type: e.event_type, yearStart: e.year_start, yearEnd: e.year_end, description: e.description, descriptionZh: e.description_zh,
+      person: p ? { nameEn: p.name_en, nameZh: p.name_zh, nameZhTranslated: p.name_zh_status === "translated" } : null,
       disputed: e.status === "conflict", sources: srcBy.get(e.id) ?? [],
     });
     evBy.set(e.site_id, list);
   }
-  return (sites.data ?? []).filter((s) => s.lat != null).map((s) => {
+  const photoBy = new Map<string, Photo[]>();
+  for (const p of photos.data ?? []) {
+    const src = p.public_path ? `${url}/storage/v1/object/public/site-photos/${p.public_path}` : p.image_url;
+    if (!src) continue;
+    const list = photoBy.get(p.site_id) ?? [];
+    list.push({ id: p.id, url: src, kind: p.kind, caption: p.caption, captionZh: p.caption_zh, credit: p.credit,
+      license: p.license, sourceUrl: p.source_url, yearTaken: p.year_taken });
+    photoBy.set(p.site_id, list);
+  }
+  return (sites.data ?? []).filter((s) => s.lat != null).map((s): Site => {
     const evs = evBy.get(s.id) ?? [];
-    const sources = [...new Map([...(srcBy.get(s.id) ?? []), ...evs.flatMap((e) => e.sources)].map((x) => [x.url, x])).values()];
     return {
-      slug: s.slug, region: s.region, nameEn: s.name_en, nameZh: s.name_zh, altNames: s.alt_names ?? [],
-      type: s.site_type, lat: s.lat, lng: s.lng, precision: s.geo_precision, currentStatus: s.current_status,
-      summary: s.summary, disputed: s.status === "conflict", earliestYear: s.earliest_year, events: evs, sources,
+      id: s.id, slug: s.slug, region: s.region, nameEn: s.name_en, nameZh: s.name_zh,
+      nameZhTranslated: s.name_zh_status === "translated", altNames: s.alt_names ?? [], type: s.site_type,
+      lat: s.lat, lng: s.lng, precision: s.geo_precision, currentStatus: s.current_status, currentStatusZh: s.current_status_zh,
+      summary: s.summary, summaryZh: s.summary_zh, disputed: s.status === "conflict", earliestYear: s.earliest_year, events: evs,
+      sources: [...new Map([...(srcBy.get(s.id) ?? []), ...evs.flatMap((e) => e.sources)].map((x) => [x.url, x])).values()],
+      photos: photoBy.get(s.id) ?? [],
     };
   });
 }

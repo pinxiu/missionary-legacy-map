@@ -3,8 +3,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Legacy Map",
-  description: "Historical Christian mission sites, each one cited to its sources. Starting in Hangzhou.",
+  title: "Legacy Map 宣教遗迹地图",
+  description: "Historical Christian mission sites in Zhejiang, each cited to its sources. 浙江历史宣教遗迹，每条史实均注明出处。",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg", apple: "/icon.svg" },
   appleWebApp: { capable: true, title: "Legacy Map", statusBarStyle: "default" },

@@ -80,3 +80,80 @@ h1 { font-family: var(--serif); font-size: 1.45rem; margin: 0; letter-spacing: 0
 .sources li { margin-bottom: 6px; }
 .correct { display: inline-block; margin-top: 12px; font-size: 0.85rem; }
 .back { margin-top: 12px; }
+
+/* --- bilingual + photos --- */
+.actions .lang { font-weight: 600; min-width: 52px; }
+.chip.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.yi {
+  display: inline-block; margin-left: 6px; font-size: 0.62rem; line-height: 1; padding: 3px 4px; border-radius: 4px;
+  border: 1px solid var(--muted); color: var(--muted); text-decoration: none; vertical-align: middle; font-family: var(--sans);
+}
+.second { font-family: var(--serif); font-size: 1.08rem; margin: 2px 0 0; color: var(--muted); }
+.filters.cities button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.filters.cities { margin-bottom: 0; }
+.photo-banner { font-size: 0.85rem; background: var(--bg); border: 1px dashed var(--line); padding: 8px 10px; border-radius: 10px; }
+
+.list .mini { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: none; margin-right: 8px; background: var(--bg); }
+.list .mini.empty { display: grid; place-items: center; font-size: 1rem; border: 2px dashed; opacity: 0.55; }
+.list .name { display: flex; flex-direction: column; }
+.list .sub-name { font-family: var(--sans); font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+.gallery { display: flex; gap: 10px; overflow-x: auto; margin: 14px -2px 6px; padding: 2px; scroll-snap-type: x mandatory; }
+.gallery figure { margin: 0; flex: 0 0 78%; max-width: 320px; scroll-snap-align: start; }
+.gallery .thumb { padding: 0; border: 0; background: none; width: 100%; cursor: zoom-in; display: block; }
+.gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; }
+.gallery figcaption { font-size: 0.78rem; color: var(--muted); margin-top: 4px; line-height: 1.35; }
+.gallery .credit { opacity: 0.85; }
+
+.photo-cta {
+  display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; margin: 14px 0 4px; padding: 14px;
+  border: 2px dashed var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 7%, transparent); cursor: pointer;
+  font-size: 0.88rem; line-height: 1.4;
+}
+.photo-cta .cam { font-size: 1.8rem; }
+.add-photo { margin: 6px 0; border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; }
+
+.upload { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin: 14px 0; background: var(--bg); display: grid; gap: 10px; }
+.upload h3 { margin: 0; text-transform: none; letter-spacing: 0; color: var(--ink); font-size: 1rem; }
+.upload label { display: grid; gap: 4px; font-size: 0.82rem; color: var(--muted); }
+.upload input:not([type="checkbox"]):not([type="file"]) {
+  font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+.upload .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.upload .row > label { flex: 1 1 140px; }
+.upload .pick { border: 2px dashed var(--line); border-radius: 10px; min-height: 120px; display: grid; place-items: center; cursor: pointer; color: var(--ink); overflow: hidden; }
+.upload .pick input { display: none; }
+.upload .pick img { width: 100%; max-height: 240px; object-fit: cover; }
+.upload .consent { display: flex; gap: 8px; align-items: flex-start; color: var(--ink); }
+.upload .hint { font-size: 0.8rem; color: var(--muted); margin: 0; }
+.upload .err { color: #b3261e; font-size: 0.85rem; margin: 0; }
+.upload button { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+.upload button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.upload button:disabled { opacity: 0.5; cursor: default; }
+
+.lightbox { position: fixed; inset: 0; background: rgb(0 0 0 / 0.86); border: 0; display: grid; place-items: center; padding: 16px; z-index: 20; cursor: zoom-out; }
+.lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+/* --- contribution cards --- */
+.contribute { display: flex; gap: 8px; margin: 10px 0; }
+.contribute button { flex: 1; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 10px; cursor: pointer; font-size: 0.88rem; }
+.card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; background: var(--bg); display: grid; gap: 10px; }
+.card h3 { margin: 0; text-transform: none; letter-spacing: 0; color: var(--ink); font-size: 1.02rem; }
+.card label, .card .label { display: grid; gap: 4px; font-size: 0.82rem; color: var(--muted); }
+.card input, .card textarea, .card select, .picker input {
+  font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%;
+}
+.card textarea { resize: vertical; }
+.card .row, .picker .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.card button, .picker button { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-size: 0.85rem; }
+.card button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.card .hint { font-size: 0.8rem; color: var(--muted); margin: 0; }
+.card .err { color: #b3261e; font-size: 0.85rem; margin: 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.picker { display: grid; gap: 8px; margin-top: 4px; }
+.picker .row input { flex: 1 1 160px; width: auto; }
+.picker-map { height: 220px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.picker .hits { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; max-height: 160px; overflow-y: auto; }
+.picker .hits button { border: 0; border-radius: 0; width: 100%; text-align: left; padding: 8px 10px; font-size: 0.8rem; }
+.picker .hint { font-size: 0.78rem; color: var(--muted); margin: 0; }
