@@ -1,0 +1,10 @@
+{
+  "name": "Legacy Map",
+  "short_name": "Legacy Map",
+  "description": "Historical Christian mission sites, each one cited to its sources.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4efe6",
+  "theme_color": "#f4efe6",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

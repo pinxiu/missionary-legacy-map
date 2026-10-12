@@ -1,0 +1,46 @@
+# Source registry. The source-scout agent proposes additions here via pull request.
+# Each entry: where to start, which links to follow, and how far.
+# Respect robots.txt and terms of use; the crawler enforces robots.txt and a per-host delay.
+
+regions:
+  hangzhou:
+    keywords: [Hangzhou, Hangchow, 杭州, Hang-chow, Hangchau]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity
+        start_urls:
+          - https://www.bdcconline.net/en/stories/taylor-james-hudson/
+          - https://www.bdcconline.net/en/stories/main-david-duncan/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 150
+        language: en
+      - name: Wikipedia (EN)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Hangchow_University
+          - https://en.wikipedia.org/wiki/David_Duncan_Main
+          - https://en.wikipedia.org/wiki/Christ%27s_Church,_Tianshui_Subdistrict
+          - https://en.wikipedia.org/wiki/Church_Missionary_Society_in_China
+          - https://en.wikipedia.org/wiki/Second_Affiliated_Hospital_of_Zhejiang_University_School_of_Medicine
+        follow: []
+        max_pages: 20
+        language: en
+      - name: ChinaSource
+        start_urls:
+          - https://chsource.org/articles/take-a-tour-of-5-historic-christian-sites-in-hangzhou/
+        follow: []
+        max_pages: 5
+        language: en
+      - name: Ricci Roundtable bibliography (subject index)
+        start_urls:
+          - https://web.bc.edu/ricci/indexSubject.php?id=7208
+          - https://web.bc.edu/ricci/indexSubject.php?id=4092
+        follow: []
+        max_pages: 10
+        language: en
+        kind: bibliography   # yields citations to find, not facts to extract
+      - name: SOAS — CMS in Hangzhou and the Guangji Hospital
+        start_urls:
+          - https://eprints.soas.ac.uk/40655
+        follow: []
+        max_pages: 3
+        language: en
+        kind: journal

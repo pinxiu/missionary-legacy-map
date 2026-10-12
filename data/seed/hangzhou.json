@@ -1,0 +1,372 @@
+{
+  "region": "hangzhou",
+  "note": "Editorial seed for the Hangzhou pilot. Every fact cites a source key. Coordinates are approximate unless geo_precision is 'exact'; sites at 'city' precision still need geocoding. Conflicting claims are kept side by side, not resolved silently.",
+  "sources": [
+    {
+      "key": "chsource-5sites",
+      "url": "https://chsource.org/articles/take-a-tour-of-5-historic-christian-sites-in-hangzhou/",
+      "title": "Take a Tour of 5 Historic Christian Sites in Hangzhou",
+      "publisher": "ChinaSource",
+      "language": "en"
+    },
+    {
+      "key": "wiki-hangchow-u",
+      "url": "https://en.wikipedia.org/wiki/Hangchow_University",
+      "title": "Hangchow University",
+      "publisher": "Wikipedia",
+      "language": "en"
+    },
+    {
+      "key": "wiki-main",
+      "url": "https://en.wikipedia.org/wiki/David_Duncan_Main",
+      "title": "David Duncan Main",
+      "publisher": "Wikipedia",
+      "language": "en"
+    },
+    {
+      "key": "wiki-tianshui",
+      "url": "https://en.wikipedia.org/wiki/Christ%27s_Church,_Tianshui_Subdistrict",
+      "title": "Christ's Church, Tianshui Subdistrict",
+      "publisher": "Wikipedia",
+      "language": "en"
+    },
+    {
+      "key": "bdcc-taylor",
+      "url": "https://www.bdcconline.net/en/stories/taylor-james-hudson/",
+      "title": "Taylor, James Hudson",
+      "publisher": "Biographical Dictionary of Chinese Christianity",
+      "language": "en"
+    },
+    {
+      "key": "wiki-zju2",
+      "url": "https://en.wikipedia.org/wiki/Second_Affiliated_Hospital_of_Zhejiang_University_School_of_Medicine",
+      "title": "Second Affiliated Hospital of Zhejiang University School of Medicine",
+      "publisher": "Wikipedia",
+      "language": "en"
+    }
+  ],
+  "persons": [
+    {
+      "slug": "hudson-taylor",
+      "name_en": "James Hudson Taylor",
+      "name_zh": "戴德生",
+      "birth_year": 1832,
+      "death_year": 1905,
+      "mission_society": "China Inland Mission",
+      "sources": [
+        "bdcc-taylor"
+      ]
+    },
+    {
+      "slug": "david-duncan-main",
+      "name_en": "David Duncan Main",
+      "name_zh": "梅滕更",
+      "birth_year": 1856,
+      "death_year": 1934,
+      "mission_society": "Church Missionary Society",
+      "sources": [
+        "wiki-main"
+      ]
+    },
+    {
+      "slug": "martino-martini",
+      "name_en": "Martino Martini",
+      "name_zh": "卫匡国",
+      "mission_society": "Society of Jesus",
+      "sources": [
+        "chsource-5sites"
+      ]
+    },
+    {
+      "slug": "john-leighton-stuart",
+      "name_en": "John Leighton Stuart",
+      "name_zh": "司徒雷登",
+      "mission_society": "Presbyterian Church in the U.S. (Southern)",
+      "sources": [
+        "chsource-5sites"
+      ]
+    },
+    {
+      "slug": "divie-bethune-mccartee",
+      "name_en": "Divie Bethune McCartee",
+      "mission_society": "Presbyterian Church in the U.S.A. (Northern)",
+      "sources": [
+        "wiki-hangchow-u"
+      ]
+    },
+    {
+      "slug": "kepler-van-evera",
+      "name_en": "Kepler Van Evera",
+      "mission_society": "Presbyterian Church in the U.S.A. (Northern)",
+      "sources": [
+        "chsource-5sites"
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "slug": "tianshui-church",
+      "name_en": "Tianshui Church",
+      "name_zh": "天水堂",
+      "alt_names": [
+        "Christ's Church, Tianshui"
+      ],
+      "site_type": "church",
+      "lat": 30.2701,
+      "lng": 120.1648,
+      "geo_precision": "district",
+      "modern_address": "Tianshui Subdistrict, Gongshu District, Hangzhou",
+      "summary": "Described as the oldest Protestant church in Hangzhou, built by Southern Presbyterian missionaries. John Leighton Stuart lived and worked here.",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1860,
+          "description": "Founded by missionaries of the Presbyterian Church in the United States.",
+          "sources": [
+            "wiki-tianshui"
+          ]
+        },
+        {
+          "type": "founded",
+          "year_start": 1867,
+          "description": "Founding year given as 1867 by a second source.",
+          "sources": [
+            "chsource-5sites"
+          ],
+          "conflict_with": "1860"
+        },
+        {
+          "type": "rebuilt",
+          "year_start": 1875,
+          "description": "Rebuilt after fundraising in 1874 led by John Leighton Stuart's father.",
+          "sources": [
+            "wiki-tianshui"
+          ]
+        },
+        {
+          "type": "served",
+          "person": "john-leighton-stuart",
+          "description": "Lived and worked here.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hangzhou-cathedral",
+      "name_en": "Hangzhou Catholic Cathedral",
+      "name_zh": "杭州天主堂",
+      "site_type": "church",
+      "lat": 30.2716,
+      "lng": 120.1655,
+      "geo_precision": "district",
+      "summary": "Catholic church built by Italian Jesuit Martino Martini, about 200 m from Tianshui Church.",
+      "events": [
+        {
+          "type": "built",
+          "year_start": 1659,
+          "person": "martino-martini",
+          "description": "Built by Martino Martini.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dafangjing-cemetery",
+      "name_en": "Dafangjing Missionary Cemetery",
+      "site_type": "cemetery",
+      "lat": 30.2741,
+      "lng": 120.1551,
+      "geo_precision": "city",
+      "summary": "Burial ground of about fifteen European Catholic missionaries from the Ming and Qing periods, including Martino Martini. Location needs geocoding.",
+      "events": [
+        {
+          "type": "buried",
+          "person": "martino-martini",
+          "description": "Burial place of Martino Martini.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "gulou-church",
+      "name_en": "Gulou Church",
+      "name_zh": "鼓楼堂",
+      "site_type": "church",
+      "lat": 30.2437,
+      "lng": 120.1692,
+      "geo_precision": "district",
+      "current_status": "Active church; relocated to its current site in 1998.",
+      "summary": "First built near Sishuifang on Huansha Road; rebuilt in Chinese palace style in 1931 with Northern Presbyterian funds.",
+      "events": [
+        {
+          "type": "built",
+          "year_start": 1885,
+          "description": "First church building.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        },
+        {
+          "type": "rebuilt",
+          "year_start": 1931,
+          "person": "kepler-van-evera",
+          "description": "Rebuilt in Chinese palace style; construction overseen by Kepler Van Evera.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hangchow-university",
+      "name_en": "Hangchow University (Zhijiang)",
+      "name_zh": "之江大学",
+      "alt_names": [
+        "Hangchow Presbyterian College",
+        "Hangchow Christian College",
+        "Ningpo Boys' Boarding School"
+      ],
+      "site_type": "school",
+      "lat": 30.2005,
+      "lng": 120.131,
+      "geo_precision": "street",
+      "current_status": "Zhijiang Campus, Zhejiang University",
+      "summary": "Began as the Ningpo Boys' Boarding School (1845), moved to Hangzhou in 1867, and settled on Qinwang Hill above the Qiantang River in 1911. Closed in the 1952 reorganisation.",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1845,
+          "person": "divie-bethune-mccartee",
+          "description": "Founded in Ningbo as the Ningpo Boys' Boarding School.",
+          "sources": [
+            "wiki-hangchow-u"
+          ]
+        },
+        {
+          "type": "moved",
+          "year_start": 1867,
+          "description": "Moved to Hangzhou as Hangchow Presbyterian Boys' School.",
+          "sources": [
+            "wiki-hangchow-u"
+          ]
+        },
+        {
+          "type": "moved",
+          "year_start": 1911,
+          "description": "Moved to Qinwang Hill by the Qiantang River.",
+          "sources": [
+            "wiki-hangchow-u"
+          ]
+        },
+        {
+          "type": "served",
+          "person": "john-leighton-stuart",
+          "description": "Involved in founding the college.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        },
+        {
+          "type": "closed",
+          "year_start": 1952,
+          "description": "Closed in the national reorganisation of higher education.",
+          "sources": [
+            "wiki-hangchow-u"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "guangji-hospital",
+      "name_en": "Hospital of Universal Benevolence (Kwang-Chi)",
+      "name_zh": "广济医院",
+      "alt_names": [
+        "Kwang-Chi Hospital",
+        "Guangji Hospital"
+      ],
+      "site_type": "hospital",
+      "lat": 30.2563,
+      "lng": 120.1773,
+      "geo_precision": "street",
+      "current_status": "Second Affiliated Hospital of Zhejiang University School of Medicine",
+      "summary": "Church Missionary Society hospital led for decades by David Duncan Main.",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1884,
+          "description": "Opened in May 1884.",
+          "sources": [
+            "wiki-main"
+          ]
+        },
+        {
+          "type": "served",
+          "year_start": 1881,
+          "year_end": 1926,
+          "person": "david-duncan-main",
+          "description": "Superintendent of the CMS medical mission in Hangzhou.",
+          "sources": [
+            "wiki-main"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "stone-mountain-leprosy-hospital",
+      "name_en": "Stone Mountain Leprosy Hospital",
+      "alt_names": [
+        "Hangzhou Leper Hospital"
+      ],
+      "site_type": "hospital",
+      "lat": 30.199,
+      "lng": 120.1275,
+      "geo_precision": "district",
+      "summary": "Leprosy hospital at the foot of Stone Mountain near the Liuhe Pagoda.",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1899,
+          "person": "david-duncan-main",
+          "description": "Founded by David Duncan Main.",
+          "sources": [
+            "chsource-5sites"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cim-first-headquarters",
+      "name_en": "First China Inland Mission Headquarters",
+      "site_type": "mission_station",
+      "lat": 30.2741,
+      "lng": 120.1551,
+      "geo_precision": "city",
+      "summary": "Old building complex where the Lammermuir party set up the first CIM headquarters, with a chapel, clinic, printing room and office. Exact location needs geocoding.",
+      "events": [
+        {
+          "type": "founded",
+          "year_start": 1866,
+          "person": "hudson-taylor",
+          "description": "Lammermuir party travelled from Shanghai by boat and set up the first CIM headquarters.",
+          "sources": [
+            "bdcc-taylor"
+          ]
+        },
+        {
+          "type": "baptism",
+          "year_start": 1867,
+          "description": "First baptisms in May 1867; Wang Laijun ordained pastor.",
+          "sources": [
+            "bdcc-taylor"
+          ]
+        }
+      ]
+    }
+  ]
+}

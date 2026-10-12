@@ -1,0 +1,9 @@
+.mlm-work/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.env*
+!.env.example
+.DS_Store
+node_modules/

@@ -1,0 +1,22 @@
+# Historical place names -> coordinates for Hangzhou. Hand-checked entries only.
+# precision: exact | street | district | city
+- names: [Liuhe Pagoda, Six Harmonies Pagoda, 六和塔, Stone Mountain]
+  lat: 30.1985
+  lng: 120.1290
+  precision: district
+- names: [Qinwang Hill, Zhijiang Campus, 之江校区, Hangchow University, Hangchow Christian College]
+  lat: 30.2005
+  lng: 120.1310
+  precision: street
+- names: [Tianshui, 天水, Tianshui Subdistrict]
+  lat: 30.2701
+  lng: 120.1648
+  precision: district
+- names: [Jiefang Road 88, Second Affiliated Hospital of Zhejiang University, 浙大二院, Kwang-Chi Hospital, Hospital of Universal Benevolence]
+  lat: 30.2563
+  lng: 120.1773
+  precision: street
+- names: [West Lake, 西湖]
+  lat: 30.2460
+  lng: 120.1450
+  precision: district
