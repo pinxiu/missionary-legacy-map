@@ -4,3 +4,4 @@ src/data
 next-env.d.ts
 *.tsbuildinfo
 .vercel
+public/maplibre-gl-worker.mjs

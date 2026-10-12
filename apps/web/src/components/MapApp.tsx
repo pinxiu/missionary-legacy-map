@@ -1,6 +1,6 @@
 "use client";
 
-import { LngLatBounds, Map as MLMap, NavigationControl, type ExpressionSpecification, type GeoJSONSource } from "maplibre-gl";
+import { LngLatBounds, Map as MLMap, NavigationControl, setWorkerUrl, type ExpressionSpecification, type GeoJSONSource } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Site, SiteType } from "@/lib/types";
 
@@ -75,6 +75,7 @@ export default function MapApp({ sites, live }: { sites: Site[]; live: boolean }
 
   useEffect(() => {
     if (!mapEl.current || map.current) return;
+    setWorkerUrl("/maplibre-gl-worker.mjs");
     const m = new MLMap({
       container: mapEl.current,
       style: STYLE_URL,
@@ -82,6 +83,7 @@ export default function MapApp({ sites, live }: { sites: Site[]; live: boolean }
       zoom: 11.5,
       attributionControl: { compact: true },
     });
+    m.on("error", (e) => console.error("map error", e.error ?? e));
     m.addControl(new NavigationControl({ showCompass: false }), "top-right");
     m.on("load", () => {
       m.addSource("sites", { type: "geojson", data: geojson });
@@ -99,6 +101,16 @@ export default function MapApp({ sites, live }: { sites: Site[]; live: boolean }
           "circle-stroke-color": TYPE_COLOR,
         },
       });
+      // Frame every site in the part of the map not covered by the panel.
+      const desktop = window.innerWidth >= 820;
+      const b = new LngLatBounds();
+      sites.forEach((s) => b.extend([s.lng, s.lat]));
+      if (!b.isEmpty()) {
+        m.fitBounds(b, {
+          padding: desktop ? { top: 60, bottom: 60, left: 420, right: 60 } : { top: 70, bottom: window.innerHeight * 0.55, left: 40, right: 40 },
+          maxZoom: 14, duration: 0,
+        });
+      }
       m.on("click", "sites", (e) => {
         const slug = e.features?.[0]?.properties?.slug as string | undefined;
         if (slug) setSelected(slug);
@@ -117,7 +129,7 @@ export default function MapApp({ sites, live }: { sites: Site[]; live: boolean }
   }, [geojson]);
 
   useEffect(() => {
-    if (site && map.current) map.current.flyTo({ center: [site.lng, site.lat], zoom: Math.max(map.current.getZoom(), 13.5), padding: { bottom: 260, left: 0, right: 0, top: 0 } });
+    if (site && map.current) map.current.flyTo({ center: [site.lng, site.lat], zoom: Math.max(map.current.getZoom(), 13.5), padding: window.innerWidth >= 820 ? { left: 400, top: 0, right: 0, bottom: 0 } : { bottom: window.innerHeight * 0.55, left: 0, right: 0, top: 0 } });
   }, [site]);
 
   function locate() {
@@ -134,7 +146,7 @@ export default function MapApp({ sites, live }: { sites: Site[]; live: boolean }
     if (!map.current || !visible.length) return;
     const b = new LngLatBounds();
     visible.forEach((s) => b.extend([s.lng, s.lat]));
-    map.current.fitBounds(b, { padding: 60, maxZoom: 14 });
+    map.current.fitBounds(b, { padding: window.innerWidth >= 820 ? { top: 60, bottom: 60, left: 420, right: 60 } : { top: 70, bottom: window.innerHeight * 0.55, left: 40, right: 40 }, maxZoom: 14 });
     setSelected(null);
   }
 

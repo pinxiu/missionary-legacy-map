@@ -13,3 +13,11 @@ if (existsSync(src)) {
 } else {
   console.log("seed directory not found; using committed copy");
 }
+
+// MapLibre v6 loads its worker from a URL next to its own module, which bundlers rename.
+// Ship the worker as a stable public file and point MapLibre at it with setWorkerUrl().
+const worker = join(here, "../node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs");
+if (existsSync(worker)) {
+  copyFileSync(worker, join(here, "../public/maplibre-gl-worker.mjs"));
+  console.log("maplibre worker copied");
+}
