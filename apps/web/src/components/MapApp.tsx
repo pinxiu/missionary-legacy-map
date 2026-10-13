@@ -49,6 +49,14 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
   const map = useRef<MLMap | null>(null);
   const [lang, setLang] = useState<Lang>("en");
   const [selected, setSelected] = useState<string | null>(null);
+  const panelEl = useRef<HTMLElement>(null);
+  const listScroll = useRef(0);
+  const selectedRef = useRef<string | null>(null);
+  /** Open a site card; remember the list position first so "back" returns to it. */
+  const openSite = (slug: string) => {
+    if (!selectedRef.current) listScroll.current = panelEl.current?.scrollTop ?? 0;
+    setSelected(slug);
+  };
   const [types, setTypes] = useState<Set<SiteType>>(new Set());
   const [city, setCity] = useState<string | null>(null);
   const [me, setMe] = useState<[number, number] | null>(null);
@@ -123,7 +131,7 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
       fit(sites, false);
       m.on("click", "sites", (e) => {
         const slug = e.features?.[0]?.properties?.slug as string | undefined;
-        if (slug) { setSelected(slug); setUploading(false); setCard(null); }
+        if (slug) { openSite(slug); setUploading(false); setCard(null); }
       });
       m.on("mouseenter", "sites", () => (m.getCanvas().style.cursor = "pointer"));
       m.on("mouseleave", "sites", () => (m.getCanvas().style.cursor = ""));
@@ -141,6 +149,14 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site]);
+
+  // Opening a site always starts at the top of its card; going back restores where you were in the list.
+  useEffect(() => {
+    selectedRef.current = selected;
+    const el = panelEl.current;
+    if (!el) return;
+    el.scrollTop = selected ? 0 : listScroll.current;
+  }, [selected]);
 
   function locate() {
     if (!navigator.geolocation) return;
@@ -165,7 +181,7 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
     <main className="app">
       <div ref={mapEl} className="map" aria-label={t(lang, "title")} />
 
-      <section className="panel" aria-live="polite">
+      <section className="panel" aria-live="polite" ref={panelEl}>
         <header className="panel-head">
           <div>
             <h1>{t(lang, "title")}</h1>
@@ -298,7 +314,7 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
             <ul className="list">
               {visible.map((s) => (
                 <li key={s.slug}>
-                  <button onClick={() => { setSelected(s.slug); setCard(null); }}>
+                  <button onClick={() => { openSite(s.slug); setCard(null); }}>
                     {s.photos[0]
                       ? <img className="mini" src={s.photos[0].url} alt="" loading="lazy" />
                       : <span className="mini empty" style={{ borderColor: TYPE_COLOR[s.type] }} title={t(lang, "needsPhoto")}>📷</span>}
