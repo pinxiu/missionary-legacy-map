@@ -40,7 +40,26 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
     existing_people = store.select("persons", select="id,slug,name_en,name_zh,alt_names")
     site_slugs = {s["slug"] for s in existing_sites}
     person_slugs = {p["slug"] for p in existing_people}
-    loaded = {d["url"]: d["content_hash"] for d in store.select("documents", select="url,content_hash")}
+    docs = store.select("documents", select="url,content_hash,text")
+    loaded = {d["url"]: d["content_hash"] for d in docs}
+    archived = {d["url"]: d.get("text") or "" for d in docs}
+    seen_claims: dict[str, set] = {}
+    seen_events: dict[str, set] = {}
+
+    def claim_new(subject_id: str, source_id: str, excerpt: str) -> bool:
+        """Re-extracting a page must not duplicate claims already stored for the same subject, source and quote."""
+        if subject_id not in seen_claims:
+            seen_claims[subject_id] = {(c["source_id"], c["excerpt"]) for c in
+                                       store.select("claims", select="source_id,excerpt", subject_id=f"eq.{subject_id}")}
+        key = (source_id, excerpt)
+        if key in seen_claims[subject_id]:
+            return False
+        seen_claims[subject_id].add(key)
+        return True
+
+    def add_claim(row: dict) -> None:
+        if claim_new(row["subject_id"], row["source_id"], row["excerpt"]):
+            store.insert("claims", [row])
 
     for f in sorted((WORK_DIR / "extracted" / region).glob("*.json")):
         raw = f.read_text()
@@ -48,7 +67,8 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
         ex, dropped = apply_policy(Extraction.model_validate_json(raw))
         raw_page = WORK_DIR / "raw" / region / f.name  # same content-hash filename as the extraction
         page_text = json.loads(raw_page.read_text()).get("text", "") if raw_page.exists() else ""
-        if loaded.get(ex.document_url) == content_hash:
+        unchanged = bool(page_text) and archived.get(ex.document_url) == page_text
+        if loaded.get(ex.document_url) == content_hash or unchanged:
             stats["skipped"] += 1
             if page_text:  # backfill archived text for documents loaded before text was stored
                 store.update("documents", {"url": ex.document_url}, {"text": page_text})
@@ -72,10 +92,10 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                 stats["persons"] += 1
             person_ids[p.name_en] = match["id"]
             for ev in p.evidence:
-                store.insert("claims", [{
+                add_claim({
                     "subject_kind": "person", "subject_id": match["id"], "field": "person",
                     "value": p.model_dump(exclude={"evidence"}), "source_id": source["id"],
-                    "excerpt": ev.excerpt[:300], "confidence": ev.confidence, "extracted_by": "llm"}])
+                    "excerpt": ev.excerpt[:300], "confidence": ev.confidence, "extracted_by": "llm"})
 
         for s in ex.sites:
             if s.city == "other":
@@ -97,21 +117,27 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                 existing_sites.append(match)
                 stats["new_sites"] += 1
             for ev in s.evidence:
-                store.insert("claims", [{
+                add_claim({
                     "subject_kind": "site", "subject_id": match["id"], "field": "site",
                     "value": s.model_dump(exclude={"events", "evidence"}), "source_id": source["id"],
-                    "excerpt": ev.excerpt[:300], "confidence": ev.confidence, "extracted_by": "llm"}])
+                    "excerpt": ev.excerpt[:300], "confidence": ev.confidence, "extracted_by": "llm"})
+            if match["id"] not in seen_events:
+                seen_events[match["id"]] = {(x["event_type"], x["year_start"], x["description"]) for x in
+                                            store.select("events", select="event_type,year_start,description", site_id=f"eq.{match['id']}")}
             for e in s.events:
+                if (e.event_type, e.year_start, e.description) in seen_events[match["id"]]:
+                    continue  # same event already stored for this site (page re-extracted)
+                seen_events[match["id"]].add((e.event_type, e.year_start, e.description))
                 event = store.insert("events", [{
                     "site_id": match["id"], "person_id": person_ids.get(e.person or ""),
                     "event_type": e.event_type, "year_start": e.year_start, "year_end": e.year_end,
                     "description": e.description, "description_zh": e.description_zh}])[0]
                 stats["events"] += 1
                 for evd in e.evidence or s.evidence[:1]:
-                    store.insert("claims", [{
+                    add_claim({
                         "subject_kind": "event", "subject_id": event["id"], "field": "event",
                         "value": e.model_dump(exclude={"evidence"}), "source_id": source["id"],
-                        "excerpt": evd.excerpt[:300], "confidence": evd.confidence, "extracted_by": "llm"}])
+                        "excerpt": evd.excerpt[:300], "confidence": evd.confidence, "extracted_by": "llm"})
         store.upsert("documents", [{"url": ex.document_url, "source_id": source["id"], "content_hash": content_hash,
                                     "text": page_text}], "url")
     notice(f"load[{region}]: {json.dumps(stats)}")

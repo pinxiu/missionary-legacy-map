@@ -78,6 +78,19 @@ def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:
     return Extraction.model_validate(data)
 
 
+def _archived_texts() -> dict[str, str]:
+    """Page text already loaded into the database, by URL. Empty when the database isn't configured."""
+    from .config import SUPABASE_SECRET_KEY, SUPABASE_URL
+    if not (SUPABASE_URL and SUPABASE_SECRET_KEY):
+        return {}
+    try:
+        from .store import Store
+        return {d["url"]: d.get("text") or "" for d in Store().select("documents", select="url,text")}
+    except Exception as e:  # noqa: BLE001 - fall back to the local cache only
+        notice(f"extract: could not read loaded documents ({type(e).__name__}); relying on the local cache", "warning")
+        return {}
+
+
 def run(region: str) -> Path:
     if not ANTHROPIC_API_KEY:
         raise SystemExit("ANTHROPIC_API_KEY is not set; skipping extraction.")
@@ -87,7 +100,8 @@ def run(region: str) -> Path:
     out = WORK_DIR / "extracted" / region
     out.mkdir(parents=True, exist_ok=True)
     client = _client()
-    stats = {"pages": 0, "cached": 0, "irrelevant": 0, "extracted": 0, "failed": 0}
+    stats = {"pages": 0, "cached": 0, "already_loaded": 0, "irrelevant": 0, "extracted": 0, "failed": 0}
+    archived = _archived_texts()
     for f in sorted(raw.glob("*.json")):
         stats["pages"] += 1
         target = out / f.name
@@ -95,6 +109,9 @@ def run(region: str) -> Path:
             stats["cached"] += 1
             continue  # content-hash keyed: unchanged pages are not re-extracted
         page = json.loads(f.read_text())
+        if page.get("text") and archived.get(page["url"]) == page["text"]:
+            stats["already_loaded"] += 1
+            continue  # same text already extracted and loaded in an earlier run (work cache was lost); don't pay twice
         if page.get("kind") == "bibliography" or not relevant(page["text"], keywords):
             stats["irrelevant"] += 1
             continue
