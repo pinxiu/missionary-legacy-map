@@ -1,6 +1,6 @@
 # Coverage status
 
-_Updated 2026-10-13 07:20 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-13 11:41 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
 **Units done:** 0 / 45  ·  **Published records:** 21  ·  **Verified, awaiting approval:** 23  ·  **Audited:** 20
