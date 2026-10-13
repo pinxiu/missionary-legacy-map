@@ -286,3 +286,11 @@ def test_rejected_review_lines_round_trip():
     assert MARK.search(line).groups() == ("site", rid)
     done = _line("event", {"id": rid, "reconsider_issue": 61}, "t", "why", None, None)
     assert done.startswith("- [x]") and "→ #61" in done
+
+
+def test_dedupe_keeps_most_reviewed_then_oldest():
+    from mlm.dedupe import _losers
+
+    rows = [{"id": "a", "k": 1, "status": "rejected", "created_at": "1"}, {"id": "b", "k": 1, "status": "verified", "created_at": "2"},
+            {"id": "c", "k": 1, "status": "verified", "created_at": "3"}, {"id": "d", "k": 2, "status": "pending", "created_at": "1"}]
+    assert sorted(_losers(rows, lambda r: r["k"])) == ["a", "c"]

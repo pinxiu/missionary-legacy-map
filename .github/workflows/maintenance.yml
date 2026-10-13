@@ -1,0 +1,38 @@
+name: Maintenance
+
+# One-off data maintenance, run by hand. No model calls.
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: What to run
+        type: choice
+        options: [dedupe-dry-run, dedupe]
+        default: dedupe-dry-run
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-agents  # never alongside the worker
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e pipeline
+      - if: inputs.task == 'dedupe-dry-run'
+        run: mlm dedupe --dry-run
+      - if: inputs.task == 'dedupe'
+        run: mlm dedupe

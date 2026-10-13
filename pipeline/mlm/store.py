@@ -45,6 +45,15 @@ class Store:
         r.raise_for_status()
         return r.json()
 
+    def select_all(self, table: str, page: int = 1000, **params) -> list[dict]:
+        """Every matching row, paged (PostgREST caps a single response, usually at 1000 rows)."""
+        out: list[dict] = []
+        while True:
+            rows = self.select(table, order="id", limit=str(page), offset=str(len(out)), **params)
+            out += rows
+            if len(rows) < page:
+                return out
+
     def update(self, table: str, match: dict, values: dict) -> None:
         params = {k: f"eq.{v}" for k, v in match.items()}
         r = self.http.patch(f"/{table}", params=params, json=values)

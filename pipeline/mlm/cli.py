@@ -33,6 +33,8 @@ def main(argv: list[str] | None = None) -> None:
     dcd = sub.add_parser("decide", help="Apply the owner's decision label on a needs-decision issue")
     dcd.add_argument("--issue", type=int, required=True)
 
+    dd = sub.add_parser("dedupe", help="Remove exact duplicate events and claims (one-off cleanup, no model)")
+    dd.add_argument("--dry-run", action="store_true")
     cov = sub.add_parser("coverage", help="Coverage tracking")
     cov.add_argument("action", choices=["sync", "status", "next", "publish", "report"])
     cov.add_argument("--unit", default=None)
@@ -47,6 +49,11 @@ def main(argv: list[str] | None = None) -> None:
             from .config import notice
             from .store import Store
             notice(f"seed: {seed_mod.load_via_api(Store(), args.region)}")
+        return
+    if args.cmd == "dedupe":
+        from . import dedupe
+        from .store import Store
+        dedupe.run(Store(), dry_run=args.dry_run)
         return
     if args.cmd == "submissions":
         from . import submissions
