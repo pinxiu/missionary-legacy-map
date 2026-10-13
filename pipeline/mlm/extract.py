@@ -85,9 +85,12 @@ def same_page(old: str | None, new: str, threshold: float = 0.9) -> bool:
 
 
 def overlap(old: str, new: str) -> float:
+    """Share of the text (by characters, so long paragraphs outweigh short link lines) present in both versions.
+    E.g. bdcconline pages end with three random "other biographies" teasers that change on every visit."""
     a = {ln.strip() for ln in old.splitlines() if ln.strip()}
     b = {ln.strip() for ln in new.splitlines() if ln.strip()}
-    return len(a & b) / len(a | b) if a and b else 0.0
+    union = sum(len(x) for x in a | b)
+    return sum(len(x) for x in a & b) / union if union else 0.0
 
 
 def _archived_texts() -> dict[str, str]:

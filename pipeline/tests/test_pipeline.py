@@ -299,7 +299,7 @@ def test_dedupe_keeps_most_reviewed_then_oldest():
 def test_same_page_tolerates_small_dynamic_changes():
     from mlm.extract import same_page
 
-    base = "\n".join(f"line {i}" for i in range(40))
-    assert same_page(base, base + "\nviews: 12")
+    base = "\n".join(f"a long paragraph of biography text number {i} " * 4 for i in range(30))
+    assert same_page(base + "\nteaser A\n1835\nteaser B", base + "\nteaser C\n1864\nteaser D")
     assert not same_page(base, "\n".join(f"other {i}" for i in range(40)))
     assert not same_page(None, base)
