@@ -1,13 +1,13 @@
 # Coverage status
 
-_Updated 2026-10-12 21:33 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-13 05:23 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 0 / 45  ·  **Published records:** 0  ·  **Verified, awaiting approval:** 0  ·  **Audited:** 0
+**Units done:** 0 / 45  ·  **Published records:** 21  ·  **Verified, awaiting approval:** 19  ·  **Audited:** 10
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | CN-ZJ | Zhejiang 浙江 | todo |  |  |  |  |  | [#2](../../issues/2) |
+| 1 | CN-ZJ | Zhejiang 浙江 | in-progress | 21 | 19 | 14 | 116 | 90% | [#2](../../issues/2) |
 | 1 | CN-JS | Jiangsu 江苏 | todo |  |  |  |  |  | [#3](../../issues/3) |
 | 1 | CN-SH | Shanghai 上海 | todo |  |  |  |  |  | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | todo |  |  |  |  |  | [#5](../../issues/5) |
@@ -49,6 +49,6 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 2 | W-NAF | North Africa and Ethiopia 北非与埃塞俄比亚 | todo |  |  |  |  |  | [#41](../../issues/41) |
 | 2 | W-SSA | Sub-Saharan Africa 撒哈拉以南非洲 | todo |  |  |  |  |  | [#42](../../issues/42) |
 | 2 | W-EUR | Europe 欧洲 | todo |  |  |  |  |  | [#43](../../issues/43) |
-| 2 | W-NAM | North America 北美洲 | — |  |  |  |  |  |  |
-| 2 | W-LAM | Latin America and the Caribbean 拉丁美洲与加勒比 | — |  |  |  |  |  |  |
-| 2 | W-OCE | Oceania 大洋洲 | — |  |  |  |  |  |  |
+| 2 | W-NAM | North America 北美洲 | todo |  |  |  |  |  | [#44](../../issues/44) |
+| 2 | W-LAM | Latin America and the Caribbean 拉丁美洲与加勒比 | todo |  |  |  |  |  | [#45](../../issues/45) |
+| 2 | W-OCE | Oceania 大洋洲 | todo |  |  |  |  |  | [#46](../../issues/46) |
