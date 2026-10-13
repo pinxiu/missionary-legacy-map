@@ -116,11 +116,31 @@ def check_places(store, client) -> dict:
     return stats
 
 
+def settle(store) -> dict:
+    """Resolve records left `pending` although every one of their claims has been checked (e.g. a run that stopped
+    between checking claims and updating the record). Same rule as below: verified only if all claims passed."""
+    stats = {"settled": 0}
+    for table in ("sites", "events", "persons"):
+        for rec in store.select_all(table, select="id", status="eq.pending"):
+            claims = store.select("claims", select="status,verified_at,review_note", subject_id=f"eq.{rec['id']}")
+            if not claims or any(c["verified_at"] is None for c in claims):
+                continue
+            ok = all(c["status"] in ("verified", "approved") for c in claims)
+            notes = "; ".join(c["review_note"] for c in claims if c.get("review_note"))[:500] or None
+            store.update(table, {"id": rec["id"], "status": "pending"},
+                         {"status": "verified" if ok else "rejected", "review_note": None if ok else notes})
+            stats["settled"] += 1
+    if stats["settled"]:
+        notice(f"verify settle: {stats}")
+    return stats
+
+
 def run(store, client=None, use_model: bool = True) -> dict:
     claims = store.select("claims", select="id,subject_kind,subject_id,value,source_id,excerpt,status",
                           extracted_by="eq.llm", verified_at="is.null", limit="2000")
     if not claims:
         notice("verify: no new claims")
+        settle(store)
         if use_model and ANTHROPIC_API_KEY:
             check_places(store, client or _client())
         return {}
@@ -178,6 +198,7 @@ def run(store, client=None, use_model: bool = True) -> dict:
         except Exception as e:  # noqa: BLE001 - subject may have been removed
             notice(f"verify: could not update {kinds[sid]} {sid}: {e}", "warning")
     notice(f"verify: {stats}")
+    settle(store)
     if client:
         check_places(store, client)
     return stats
