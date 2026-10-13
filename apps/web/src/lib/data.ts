@@ -2,18 +2,35 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import hangzhou from "@/data/hangzhou.json";
 import zhejiang from "@/data/zhejiang.json";
-import type { LegacyEvent, Person, Photo, Region, Site, Source } from "./types";
+import type { Area, LegacyEvent, Person, Photo, Region, Site, Source } from "./types";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
+/** Cities (filter chips). `parent` is the containing area in AREAS. */
 export const REGIONS: Region[] = [
-  { slug: "hangzhou", nameEn: "Hangzhou", nameZh: "杭州" }, { slug: "ningbo", nameEn: "Ningbo", nameZh: "宁波" },
-  { slug: "wenzhou", nameEn: "Wenzhou", nameZh: "温州" }, { slug: "shaoxing", nameEn: "Shaoxing", nameZh: "绍兴" },
-  { slug: "huzhou", nameEn: "Huzhou", nameZh: "湖州" }, { slug: "jiaxing", nameEn: "Jiaxing", nameZh: "嘉兴" },
-  { slug: "taizhou", nameEn: "Taizhou", nameZh: "台州" }, { slug: "jinhua", nameEn: "Jinhua", nameZh: "金华" },
-  { slug: "lishui", nameEn: "Lishui", nameZh: "丽水" }, { slug: "quzhou", nameEn: "Quzhou", nameZh: "衢州" },
-  { slug: "zhoushan", nameEn: "Zhoushan", nameZh: "舟山" },
+  { slug: "hangzhou", nameEn: "Hangzhou", nameZh: "杭州", parent: "zhejiang" },
+  { slug: "ningbo", nameEn: "Ningbo", nameZh: "宁波", parent: "zhejiang" },
+  { slug: "wenzhou", nameEn: "Wenzhou", nameZh: "温州", parent: "zhejiang" },
+  { slug: "shaoxing", nameEn: "Shaoxing", nameZh: "绍兴", parent: "zhejiang" },
+  { slug: "huzhou", nameEn: "Huzhou", nameZh: "湖州", parent: "zhejiang" },
+  { slug: "jiaxing", nameEn: "Jiaxing", nameZh: "嘉兴", parent: "zhejiang" },
+  { slug: "taizhou", nameEn: "Taizhou", nameZh: "台州", parent: "zhejiang" },
+  { slug: "jinhua", nameEn: "Jinhua", nameZh: "金华", parent: "zhejiang" },
+  { slug: "lishui", nameEn: "Lishui", nameZh: "丽水", parent: "zhejiang" },
+  { slug: "quzhou", nameEn: "Quzhou", nameZh: "衢州", parent: "zhejiang" },
+  { slug: "zhoushan", nameEn: "Zhoushan", nameZh: "舟山", parent: "zhejiang" },
+];
+
+/**
+ * Containing areas, smallest first. "All" zooms to the smallest area that holds every site on the map, so it widens
+ * by itself from a province to a country to the world as coverage grows. Add a province or country here with its
+ * extent when its first city is added above.
+ */
+export const AREAS: Area[] = [
+  { slug: "zhejiang", nameEn: "Zhejiang", nameZh: "浙江", parent: "china", bbox: [118.0, 27.0, 122.95, 31.2] },
+  { slug: "china", nameEn: "China", nameZh: "中国", parent: "world", bbox: [73.5, 18.1, 134.8, 53.6] },
+  { slug: "world", nameEn: "World", nameZh: "世界", parent: null, bbox: [-170, -56, 180, 72] },
 ];
 
 /* ---------- offline seed (used when Supabase is not configured or unreachable) ---------- */

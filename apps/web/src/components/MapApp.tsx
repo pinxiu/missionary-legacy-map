@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ContributeCard, { type CardMode } from "./ContributeCard";
 import PhotoUpload from "./PhotoUpload";
 import { eventLabel, type Lang, pick, precisionLabel, t, TYPE_COLOR, typeLabel } from "@/lib/i18n";
-import type { Region, Site, SiteType, Source } from "@/lib/types";
+import type { Area, Region, Site, SiteType, Source } from "@/lib/types";
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 const REPO = "https://github.com/pinxiu/missionary-legacy-map";
@@ -44,7 +44,21 @@ function displayCoords(sites: Site[]): Map<string, [number, number]> {
 
 const sourceLabel = (lang: Lang, s: Source) => pick(lang, s.publisher, s.publisherZh) || new URL(s.url).hostname;
 
-export default function MapApp({ sites, regions, live }: { sites: Site[]; regions: Region[]; live: boolean }) {
+/** The smallest area containing every given city, walking up the area tree (province → country → world). */
+function enclosingArea(cities: string[], regions: Region[], areas: Area[]): Area | null {
+  const byslug = new Map(areas.map((a) => [a.slug, a]));
+  const chain = (slug: string | undefined): string[] => {
+    const out: string[] = [];
+    for (let a = slug ? byslug.get(slug) : undefined; a; a = a.parent ? byslug.get(a.parent) : undefined) out.push(a.slug);
+    return out;
+  };
+  const chains = [...new Set(cities)].map((c) => chain(regions.find((r) => r.slug === c)?.parent));
+  if (!chains.length || chains.some((c) => !c.length)) return null;
+  const common = chains[0].find((slug) => chains.every((c) => c.includes(slug)));
+  return common ? byslug.get(common) ?? null : null;
+}
+
+export default function MapApp({ sites, regions, areas, live }: { sites: Site[]; regions: Region[]; areas: Area[]; live: boolean }) {
   const mapEl = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const [lang, setLang] = useState<Lang>("en");
@@ -81,13 +95,20 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
   const coords = useMemo(() => displayCoords(sites), [sites]);
   const presentTypes = useMemo(() => [...new Set(sites.map((s) => s.type))], [sites]);
   const presentCities = useMemo(() => regions.filter((r) => sites.some((s) => s.region === r.slug)), [regions, sites]);
+  const typed = useMemo(() => (types.size ? sites.filter((s) => types.has(s.type)) : sites), [sites, types]);
+  const cityCount = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const s of typed) n.set(s.region, (n.get(s.region) ?? 0) + 1);
+    return n;
+  }, [typed]);
+  const homeArea = useMemo(() => enclosingArea(sites.map((s) => s.region), regions, areas), [sites, regions, areas]);
   const visible = useMemo(() => {
-    let list = types.size ? sites.filter((s) => types.has(s.type)) : sites;
+    let list = typed;
     if (city) list = list.filter((s) => s.region === city);
     return me
       ? [...list].sort((a, b) => km(me, [a.lat, a.lng]) - km(me, [b.lat, b.lng]))
       : [...list].sort((a, b) => (a.earliestYear ?? 9999) - (b.earliestYear ?? 9999));
-  }, [sites, types, city, me]);
+  }, [typed, city, me]);
   const site = sites.find((s) => s.slug === selected) ?? null;
   const needPhotos = sites.filter((s) => !s.photos.length).length;
   const regionName = (slug: string) => { const r = regions.find((x) => x.slug === slug); return r ? pick(lang, r.nameEn, r.nameZh) : slug; };
@@ -105,11 +126,23 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
     ? { top: 60, bottom: 60, left: 430, right: 60 }
     : { top: 70, bottom: window.innerHeight * 0.55, left: 40, right: 40 });
 
+  /** Fit the map to a set of sites. Cities whose sites are only located to the city centre stop at a city-wide zoom. */
   function fit(list: Site[], animate = true) {
     if (!map.current || !list.length) return;
     const b = new LngLatBounds();
     list.forEach((s) => b.extend(coords.get(s.slug) ?? [s.lng, s.lat]));
-    map.current.fitBounds(b, { padding: padding(), maxZoom: 14, duration: animate ? 800 : 0 });
+    const approx = list.every((s) => s.precision === "city" || s.precision === "province");
+    map.current.fitBounds(b, { padding: padding(), maxZoom: approx ? 11 : 14, duration: animate ? 900 : 0 });
+  }
+
+  /** "All": show the whole province (or country, or world) that holds every site, plus any site outside it. */
+  function fitHome(animate = true) {
+    if (!map.current) return;
+    if (!homeArea) return fit(sites, animate);
+    const [w, so, e, n] = homeArea.bbox;
+    const b = new LngLatBounds([w, so], [e, n]);
+    sites.forEach((s) => b.extend([s.lng, s.lat]));
+    map.current.fitBounds(b, { padding: padding(), duration: animate ? 900 : 0 });
   }
 
   useEffect(() => {
@@ -128,7 +161,7 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
           "circle-opacity": ["case", ["==", ["get", "approx"], 1], 0.35, 1],
         },
       });
-      fit(sites, false);
+      fitHome(false);
       m.on("click", "sites", (e) => {
         const slug = e.features?.[0]?.properties?.slug as string | undefined;
         if (slug) { openSite(slug); setUploading(false); setCard(null); }
@@ -171,7 +204,10 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
   function chooseCity(slug: string | null) {
     setCity(slug);
     setSelected(null);
-    fit(slug ? sites.filter((s) => s.region === slug) : sites);
+    if (!slug) return fitHome();
+    const inCity = sites.filter((s) => s.region === slug);
+    const shown = inCity.filter((s) => !types.size || types.has(s.type));
+    fit(shown.length ? shown : inCity);
   }
 
   const nearestKm = me && visible[0] ? km(me, [visible[0].lat, visible[0].lng]) : null;
@@ -286,10 +322,13 @@ export default function MapApp({ sites, regions, live }: { sites: Site[]; region
         ) : (
           <>
             <div className="filters cities" role="group" aria-label="City">
-              <button aria-pressed={city === null} onClick={() => chooseCity(null)}>{t(lang, "allCities")}</button>
+              <button aria-pressed={city === null} onClick={() => chooseCity(null)}>
+                {homeArea ? (lang === "zh" ? `全${homeArea.nameZh}` : `All ${homeArea.nameEn}`) : t(lang, "allCities")}
+                <span className="count">{typed.length}</span>
+              </button>
               {presentCities.map((r) => (
                 <button key={r.slug} aria-pressed={city === r.slug} onClick={() => chooseCity(city === r.slug ? null : r.slug)}>
-                  {pick(lang, r.nameEn, r.nameZh)}
+                  {pick(lang, r.nameEn, r.nameZh)}<span className="count">{cityCount.get(r.slug) ?? 0}</span>
                 </button>
               ))}
             </div>
