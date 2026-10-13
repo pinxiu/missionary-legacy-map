@@ -1,13 +1,13 @@
 # Coverage status
 
-_Updated 2026-10-13 18:49 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-13 19:34 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
 **Units done:** 0 / 45  ·  **Published records:** 21  ·  **Verified, awaiting approval:** 23  ·  **Audited:** 23
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | CN-ZJ | Zhejiang 浙江 | in-progress | 21 | 23 | 1 | 155 | 100% | [#2](../../issues/2) |
+| 1 | CN-ZJ | Zhejiang 浙江 | needs-approval | 21 | 23 | 0 | 158 | 100% | [#2](../../issues/2) |
 | 1 | CN-JS | Jiangsu 江苏 | todo |  |  |  |  |  | [#3](../../issues/3) |
 | 1 | CN-SH | Shanghai 上海 | todo |  |  |  |  |  | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | todo |  |  |  |  |  | [#5](../../issues/5) |
