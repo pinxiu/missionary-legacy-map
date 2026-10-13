@@ -95,3 +95,15 @@ It shows our record, what the auditor read, and the source quote. Add ONE label:
 Add a line `ruling: …` in the issue or a comment to set a general rule (e.g. `ruling: A leprosy settlement counts as a
 hospital.`). It is saved to `coverage/rulings.md`, and every extraction, verification and audit prompt follows it.
 A unit can't reach `needs-approval` while any of its decisions are open.
+
+## Rejected records (`rejected-review`)
+The verifier rejects a record when any of its details isn't stated by the quoted source, so some rejected records are
+real places whose summary said too much. Each unit has one `Rejected records · <unit>` issue, refreshed by the pipeline,
+listing every rejected site (grouped: partly supported / not supported / not a specific place) and every rejected event
+on a kept site, with the reason and the source quote.
+
+Tick a box to look at a record again: a `needs-decision` issue opens for it with every claim and quote. Then the same
+three labels apply: `decision:keep-record` restores it as `verified`, `decision:edit-record` restores it with your edits
+(e.g. a trimmed summary), `decision:reject-record` confirms the rejection. A restored record still goes through the
+audit and your approval of the unit. Quotes that aren't in the archived source are never accepted, so a record with
+none left can't be restored here; add it through the app with a source instead.

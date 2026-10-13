@@ -25,7 +25,11 @@ def main(argv: list[str] | None = None) -> None:
     apl.add_argument("--issue", type=int, required=True)
 
     dec = sub.add_parser("decisions", help="Open needs-decision issues for unresolved audit disagreements (no model)")
-    dec.add_argument("action", choices=["sync"])
+    dec.add_argument("action", choices=["sync", "rejected", "reconsider"],
+                     help="sync: audit disagreements → issues; rejected: refresh the rejected-records review issue(s); "
+                          "reconsider: open decision issues for boxes ticked in a review issue")
+    dec.add_argument("--unit", default=None, help="rejected: one unit (default: every started unit)")
+    dec.add_argument("--issue", type=int, default=None, help="reconsider: the rejected-review issue")
     dcd = sub.add_parser("decide", help="Apply the owner's decision label on a needs-decision issue")
     dcd.add_argument("--issue", type=int, required=True)
 
@@ -55,7 +59,18 @@ def main(argv: list[str] | None = None) -> None:
     if args.cmd in ("decisions", "decide"):
         from . import decisions
         from .store import Store
-        if args.cmd == "decisions":
+        if args.cmd == "decisions" and args.action == "rejected":
+            from . import rejected
+            if args.unit:
+                rejected.refresh(Store(), args.unit)
+            else:
+                rejected.refresh_active(Store())
+        elif args.cmd == "decisions" and args.action == "reconsider":
+            from . import rejected
+            if not args.issue:
+                raise SystemExit("--issue is required")
+            rejected.reconsider(Store(), args.issue)
+        elif args.cmd == "decisions":
             decisions.sync(Store())
         else:
             open("/tmp/decide-summary.txt", "w").write(decisions.decide(Store(), args.issue))

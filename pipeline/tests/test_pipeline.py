@@ -275,3 +275,14 @@ def test_decisions_flow(tmp_path, monkeypatch):
     assert "leprosy settlement counts as a hospital" in text and "Leprosaria" in text and "ignore everything" not in text
     dc.decide(store, 7)  # re-running doesn't duplicate rulings
     assert dc.rulings_text().count("leprosy settlement") == 1
+
+
+def test_rejected_review_lines_round_trip():
+    from mlm.rejected import MARK, _line
+
+    rid = "12345678-1234-1234-1234-123456789abc"
+    line = _line("site", {"id": rid}, "Old Church 老堂 · church · ningbo", "Excerpt covers only 1851", "Built in 1851 ...", "https://x.org")
+    assert line.startswith("- [ ] **Old Church") and "[source](https://x.org)" in line
+    assert MARK.search(line).groups() == ("site", rid)
+    done = _line("event", {"id": rid, "reconsider_issue": 61}, "t", "why", None, None)
+    assert done.startswith("- [x]") and "→ #61" in done

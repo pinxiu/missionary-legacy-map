@@ -96,6 +96,7 @@ jobs:
         run: |
           mlm run --unit "$UNIT" --region "$REGION" --stage audit
           mlm decisions sync
+          mlm decisions rejected --unit "$UNIT"
 
       - uses: actions/upload-artifact@v4
         if: always()

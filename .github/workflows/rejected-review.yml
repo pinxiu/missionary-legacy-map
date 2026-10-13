@@ -1,0 +1,35 @@
+name: Rejected records review
+
+# The owner ticks boxes in a `rejected-review` issue → one `needs-decision` issue per ticked record
+# (pipeline/mlm/rejected.py). Decisions on those are applied by decide.yml. No model runs here.
+on:
+  issues:
+    types: [edited]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: rejected-review
+  cancel-in-progress: false
+
+jobs:
+  reconsider:
+    if: contains(github.event.issue.labels.*.name, 'rejected-review') && github.event.sender.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e pipeline
+      - run: mlm decisions reconsider --issue "${{ github.event.issue.number }}"

@@ -131,14 +131,25 @@ def decide(store, issue: int) -> str:
     data = json.loads(gh("issue", "view", str(issue), "--json", "body,labels,comments"))
     labels = {lb["name"] for lb in data["labels"]}
     choice = next((lb.split(":", 1)[1] for lb in labels if lb.startswith("decision:")), None)
+    owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "pinxiu")
+    owner_comments = [c["body"] for c in data.get("comments", []) if c["author"]["login"] == owner]
+    rm = re.search(r"<!-- reconsider:(site|event):([0-9a-f-]{36}):([\w-]+) -->", data["body"])
+    if choice and rm:  # a rejected record the owner asked to look at again (rejected.py)
+        from . import rejected
+        kind, rid, uid = rm.groups()
+        summary = rejected.decide(store, issue, kind, rid, choice, data["body"])
+        added = add_rulings(extract_rulings([data["body"], *owner_comments]), issue)
+        if added:
+            summary += f"; ruling saved: {'; '.join(added)}"
+        rejected.refresh(store, uid)
+        notice(f"decide #{issue}: {summary}")
+        return summary
     m = re.search(r"<!-- audit:([0-9a-f-]{36}) -->", data["body"])
     if not choice or not m:
-        raise SystemExit("Issue has no decision label or audit marker.")
+        raise SystemExit("Issue has no decision label, or no audit/reconsider marker.")
     audit = store.select("audits", select="*", id=f"eq.{m.group(1)}")[0]
     site_id = audit["subject_id"]
     now = dt.datetime.now(dt.timezone.utc).isoformat()
-    owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "pinxiu")
-    owner_comments = [c["body"] for c in data.get("comments", []) if c["author"]["login"] == owner]
     if choice == "edit-record":
         fm = re.search(r"<!-- fix -->\s*```(?:json)?\s*(\{.*?\})\s*```", data["body"], re.S)
         if not fm:

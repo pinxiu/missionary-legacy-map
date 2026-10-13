@@ -1,7 +1,7 @@
 name: Decide
 
 # When the repo owner adds a decision label to a `needs-decision` issue, apply it:
-#   decision:ours | decision:fix | decision:reject  (see pipeline/mlm/decisions.py)
+#   decision:keep-record | decision:edit-record | decision:reject-record  (decisions.py; rejected.py for reconsider issues)
 # `ruling:` lines are saved to coverage/rulings.md for all future agent runs. No model runs here.
 
 on:
