@@ -13,7 +13,10 @@ import random
 from .config import ANTHROPIC_API_KEY, AUDIT_MODEL, notice
 
 SYSTEM = """You read a historical source and report what it says about one named place. Use only the text.
-Return JSON only: {"found": true|false, "site_type": "church|hospital|school|residence|cemetery|mission_station|press|orphanage|other",
+"specific_place" is true only if the text describes a particular building, compound, cemetery or similar spot, not just a
+city or region, a person's work in an area, or an event such as a meeting.
+Return JSON only: {"found": true|false, "specific_place": true|false,
+"site_type": "church|hospital|school|residence|cemetery|mission_station|press|orphanage|other",
 "years": [<every year the text ties to this place>], "notes": "<one line>"}"""
 
 
@@ -33,6 +36,8 @@ def ask(name: str, text: str, client) -> dict:
 def agrees(record: dict, events: list[dict], answer: dict) -> tuple[bool, str]:
     if not answer.get("found"):
         return False, "auditor did not find the place in the source"
+    if answer.get("specific_place") is False:
+        return False, "auditor: not a specific physical place"
     if answer.get("site_type") and answer["site_type"] != record["site_type"] and record["site_type"] != "other":
         return False, f"type {record['site_type']} vs auditor {answer['site_type']}"
     years = {int(y) for y in answer.get("years", []) if str(y).isdigit()}

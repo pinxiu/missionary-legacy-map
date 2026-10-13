@@ -23,6 +23,12 @@ For each item, answer "supported": true only if the excerpt itself states the cl
 If the excerpt is about something else, is vaguer than the claim, or contradicts it, answer false and say why in a few words.
 Return JSON only: {"results": [{"i": <index>, "supported": true|false, "why": "..."}]}"""
 
+PLACE_SYSTEM = """You decide whether each record names a specific physical place someone could stand at: a particular
+church, chapel, school, hospital, cemetery, residence, press, orphanage or mission compound (it may no longer exist).
+Answer false for a city, county or region on its own, a person's work in an area, a meeting, conference, movement,
+anniversary or other happening. Use only the name, type, summary and excerpt given.
+Return JSON only: {"results": [{"i": <index>, "place": true|false, "why": "..."}]}"""
+
 MIN_EXCERPT = 12
 
 
@@ -67,11 +73,54 @@ def describe(claim: dict) -> str:
     return f"Site: {v.get('name_en')} ({v.get('site_type')}) in {v.get('city') or v.get('place_text') or '?'}: {v.get('summary', '')[:200]}"
 
 
+def place_check(items: list[dict], client) -> dict[int, tuple[bool, str]]:
+    if not items:
+        return {}
+    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=PLACE_SYSTEM,
+                                  messages=[{"role": "user", "content": json.dumps(
+                                      [{"i": n, **it} for n, it in enumerate(items)], ensure_ascii=False)}])
+    text = "".join(b.text for b in resp.content if b.type == "text")
+    text = text[text.find("{"): text.rfind("}") + 1]
+    return {int(r["i"]): (bool(r.get("place")), str(r.get("why", ""))[:200]) for r in json.loads(text).get("results", [])}
+
+
+def check_places(store, client) -> dict:
+    """Every verified site must be a specific physical place; others are rejected. Re-runnable: it only looks at
+    sites currently `verified`, so earlier verifications are re-checked under this rule too."""
+    sites = store.select("sites", select="id,name_en,site_type,summary,place_text:modern_address,review_note", status="eq.verified")
+    stats = {"checked": 0, "not_a_place": 0}
+    for i in range(0, len(sites), 25):
+        batch = sites[i:i + 25]
+        items = []
+        for s in batch:
+            ex = store.select("claims", select="excerpt", subject_id=f"eq.{s['id']}", status="eq.verified", limit="1")
+            items.append({"name": s["name_en"], "type": s["site_type"], "summary": (s.get("summary") or "")[:300],
+                          "address": s.get("place_text"), "excerpt": (ex[0]["excerpt"] if ex else "")})
+        try:
+            res = place_check(items, client)
+        except Exception as e:  # noqa: BLE001
+            notice(f"verify: place check failed ({type(e).__name__}); batch left verified-pending-recheck", "warning")
+            continue
+        for n, s in enumerate(batch):
+            if n not in res:
+                continue  # no answer for this one: stays verified and is re-checked next run
+            ok, why = res[n]
+            stats["checked"] += 1
+            if not ok:
+                stats["not_a_place"] += 1
+                store.update("sites", {"id": s["id"], "status": "verified"},
+                             {"status": "rejected", "review_note": f"not a specific physical place: {why}"[:500]})
+    notice(f"verify places: {stats}")
+    return stats
+
+
 def run(store, client=None, use_model: bool = True) -> dict:
     claims = store.select("claims", select="id,subject_kind,subject_id,value,source_id,excerpt,status",
                           extracted_by="eq.llm", verified_at="is.null", limit="2000")
     if not claims:
-        notice("verify: nothing to check")
+        notice("verify: no new claims")
+        if use_model and ANTHROPIC_API_KEY:
+            check_places(store, client or _client())
         return {}
     docs = {d["source_id"]: d.get("text") or "" for d in store.select("documents", select="source_id,text")}
     now = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -127,4 +176,6 @@ def run(store, client=None, use_model: bool = True) -> dict:
         except Exception as e:  # noqa: BLE001 - subject may have been removed
             notice(f"verify: could not update {kinds[sid]} {sid}: {e}", "warning")
     notice(f"verify: {stats}")
+    if client:
+        check_places(store, client)
     return stats

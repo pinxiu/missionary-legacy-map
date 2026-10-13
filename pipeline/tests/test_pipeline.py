@@ -239,3 +239,11 @@ def test_photo_batch_approval_and_issue_body():
            "payload": {"photos": [{"photo_id": "a", "upload_path": "p/a.jpg", "caption": "Front"}, {"photo_id": "b", "upload_path": "p/b.jpg"}]}}
     body = issue_body(sub, {"name_en": "Gulou Church", "name_zh": "鼓楼堂", "slug": "gulou-church"}, [(sub["payload"]["photos"][0], "u1"), (sub["payload"]["photos"][1], "u2")])
     assert "**Photos (2):**" in body and body.count("<img") == 2
+
+
+def test_audit_rejects_non_places():
+    from mlm.audit import agrees
+
+    rec = {"site_type": "mission_station"}
+    assert not agrees(rec, [], {"found": True, "specific_place": False, "site_type": "other", "years": []})[0]
+    assert agrees(rec, [], {"found": True, "specific_place": True, "site_type": "mission_station", "years": []})[0]

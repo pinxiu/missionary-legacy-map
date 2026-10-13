@@ -20,6 +20,10 @@ revivals and church leaders, schools, hospitals, presses, cemeteries and memoria
 Rules:
 - Extract only what the text states. Never add facts from your own knowledge.
 - Every site, person and event needs evidence: the source URL and a short excerpt (under 300 characters) copied from the text.
+- A site must be a specific physical place someone could stand at: a named church, chapel, school, hospital, cemetery,
+  residence, press, orphanage or mission compound. Never make a site out of a city or region ("Taizhou"), a person's work
+  in an area, a meeting, a conference, a movement or an anniversary. Record those as events on the specific place where they
+  happened, or leave them out if the text names no such place.
 - Record places as written (place_text), including historical romanizations such as "Hangchow" or "Kwang-Chi".
 - Sources may be English or Chinese. Fill name_zh (and summary_zh / description_zh) only with Simplified Chinese
   actually written in the text (convert Traditional characters to Simplified). Leave them empty otherwise.
