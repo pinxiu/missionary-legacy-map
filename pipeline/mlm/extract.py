@@ -78,6 +78,18 @@ def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:
     return Extraction.model_validate(data)
 
 
+def same_page(old: str | None, new: str, threshold: float = 0.9) -> bool:
+    """True when a re-crawled page is essentially the text already loaded. Some sites change a few lines on every
+    visit (related links, counters), so an exact match would re-extract (and re-pay for) the same page each run."""
+    return bool(old) and overlap(old, new) >= threshold
+
+
+def overlap(old: str, new: str) -> float:
+    a = {ln.strip() for ln in old.splitlines() if ln.strip()}
+    b = {ln.strip() for ln in new.splitlines() if ln.strip()}
+    return len(a & b) / len(a | b) if a and b else 0.0
+
+
 def _archived_texts() -> dict[str, str]:
     """Page text already loaded into the database, by URL. Empty when the database isn't configured."""
     from .config import SUPABASE_SECRET_KEY, SUPABASE_URL
@@ -109,7 +121,11 @@ def run(region: str) -> Path:
             stats["cached"] += 1
             continue  # content-hash keyed: unchanged pages are not re-extracted
         page = json.loads(f.read_text())
-        if page.get("text") and archived.get(page["url"]) == page["text"]:
+        if page.get("text") and page["url"] in archived and not same_page(archived[page["url"]], page["text"]):
+            stats["changed_since_load"] = stats.get("changed_since_load", 0) + 1
+            if stats["changed_since_load"] <= 3:
+                print(f"[extract] changed since load ({overlap(archived[page['url']], page['text']):.0%} lines shared): {page['url']}")
+        if page.get("text") and same_page(archived.get(page["url"]), page["text"]):
             stats["already_loaded"] += 1
             continue  # same text already extracted and loaded in an earlier run (work cache was lost); don't pay twice
         if page.get("kind") == "bibliography" or not relevant(page["text"], keywords):

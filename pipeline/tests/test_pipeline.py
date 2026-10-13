@@ -294,3 +294,12 @@ def test_dedupe_keeps_most_reviewed_then_oldest():
     rows = [{"id": "a", "k": 1, "status": "rejected", "created_at": "1"}, {"id": "b", "k": 1, "status": "verified", "created_at": "2"},
             {"id": "c", "k": 1, "status": "verified", "created_at": "3"}, {"id": "d", "k": 2, "status": "pending", "created_at": "1"}]
     assert sorted(_losers(rows, lambda r: r["k"])) == ["a", "c"]
+
+
+def test_same_page_tolerates_small_dynamic_changes():
+    from mlm.extract import same_page
+
+    base = "\n".join(f"line {i}" for i in range(40))
+    assert same_page(base, base + "\nviews: 12")
+    assert not same_page(base, "\n".join(f"other {i}" for i in range(40)))
+    assert not same_page(None, base)
