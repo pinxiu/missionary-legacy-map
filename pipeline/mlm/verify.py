@@ -100,7 +100,13 @@ def run(store, client=None, use_model: bool = True) -> dict:
     for group in by_source.values():
         for i in range(0, len(group), 25):
             batch = group[i:i + 25]
-            res = support_check([{"claim": describe(c), "excerpt": c["excerpt"]} for c in batch], client) if client else {}
+            try:
+                res = support_check([{"claim": describe(c), "excerpt": c["excerpt"]} for c in batch], client) if client else {}
+            except Exception as e:  # noqa: BLE001 - leave this batch unchecked; it is retried next run
+                notice(f"verify: support check failed ({type(e).__name__}: {str(e)[:200]}); batch left for next run", "warning")
+                for c in batch:
+                    kinds.pop(c["subject_id"], None)
+                continue
             for n, c in enumerate(batch):
                 ok, why = res.get(n, (False, "support check unavailable"))
                 verdict[c["subject_id"]].append(ok)

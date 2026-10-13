@@ -99,5 +99,22 @@ def main(argv: list[str] | None = None) -> None:
             audit.run(Store(), unit, cov_mod.regions_of(cov_mod.unit(unit)), sample=args.audit_sample)
 
 
+def entry() -> None:
+    """Console entry point: surface crashes as a GitHub annotation so they're readable without the raw log."""
+    import os
+    import sys
+    import traceback
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception:
+        tb = traceback.format_exc()
+        if os.environ.get("GITHUB_ACTIONS"):
+            print("::error::" + tb[-1500:].replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A"))
+        print(tb, file=sys.stderr)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    main()
+    entry()
