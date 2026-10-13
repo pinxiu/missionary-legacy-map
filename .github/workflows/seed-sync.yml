@@ -38,3 +38,4 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: pytest -q
       - run: mlm seed
+      - run: mlm refresh-site

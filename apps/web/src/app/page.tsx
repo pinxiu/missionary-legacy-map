@@ -1,7 +1,8 @@
 import MapApp from "@/components/MapApp";
 import { AREAS, getSites, REGIONS } from "@/lib/data";
 
-export const revalidate = 600;
+// Refreshed right after each publish (/api/revalidate); this daily refresh is only a backup.
+export const revalidate = 86400;
 
 export default async function Page() {
   const { sites, live } = await getSites();
