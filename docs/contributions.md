@@ -88,9 +88,9 @@ It shows our record, what the auditor read, and the source quote. Add ONE label:
 
 | Label | Effect |
 |---|---|
-| `decision:ours` | Our record stands; the audit counts as agreeing |
-| `decision:fix` | Edit the JSON block in the issue first; those fields are updated and the audit counts as agreeing |
-| `decision:reject` | The record is rejected and stays off the map |
+| `decision:keep-record` | Our record is right as it is; the audit counts as agreeing (this does not publish anything) |
+| `decision:edit-record` | Edit the JSON block in the issue first; those fields are updated and the audit counts as agreeing |
+| `decision:reject-record` | The record is rejected and stays off the map |
 
 Add a line `ruling: …` in the issue or a comment to set a general rule (e.g. `ruling: A leprosy settlement counts as a
 hospital.`). It is saved to `coverage/rulings.md`, and every extraction, verification and audit prompt follows it.

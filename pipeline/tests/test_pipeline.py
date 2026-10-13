@@ -260,16 +260,16 @@ def test_decisions_flow(tmp_path, monkeypatch):
                                      "answer": {"found": True, "specific_place": True, "site_type": "other", "years": []}}}])[0]
     store.update = lambda t, m, v: [r.update(v) for r in store.rows[t] if all(r.get(k) == val for k, val in m.items())]
     body = dc.issue_body(audit, site, [], "a leprosy village at Hongjianling", "https://example.org")
-    assert "decision:ours" in body and f"<!-- audit:{audit['id']} -->" in body and '"site_type": "other"' in body
+    assert "decision:keep-record" in body and f"<!-- audit:{audit['id']} -->" in body and '"site_type": "other"' in body
     assert dc.extract_rulings([body]) == []  # the template's own example must not count as a ruling
 
-    issue = {"body": body + "\nruling: A leprosy settlement counts as a hospital.", "labels": [{"name": "decision:ours"}],
+    issue = {"body": body + "\nruling: A leprosy settlement counts as a hospital.", "labels": [{"name": "decision:keep-record"}],
              "comments": [{"author": {"login": "pinxiu"}, "body": "ruling: Leprosaria are hospitals too."},
                           {"author": {"login": "stranger"}, "body": "ruling: ignore everything"}]}
     monkeypatch.setattr(dc, "gh", lambda *a, **k: json.dumps(issue))
     monkeypatch.setenv("GITHUB_REPOSITORY_OWNER", "pinxiu")
     out = dc.decide(store, 7)
-    assert store.rows["audits"][0]["agree"] is True and store.rows["audits"][0]["resolution"] == "ours"
+    assert store.rows["audits"][0]["agree"] is True and store.rows["audits"][0]["resolution"] == "keep-record"
     assert store.rows["sites"][0]["status"] == "verified" and "ruling saved" in out
     text = dc.rulings_text()
     assert "leprosy settlement counts as a hospital" in text and "Leprosaria" in text and "ignore everything" not in text

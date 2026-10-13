@@ -3,9 +3,9 @@
 `mlm decisions sync`  (no model): one `needs-decision` issue per unresolved audit disagreement, showing our record,
                       what the independent auditor read, and the source quote.
 `mlm decide --issue N` (no model): runs when the owner adds one decision label:
-    decision:ours     our record is right; the audit counts as agreeing (override noted)
-    decision:fix      apply the edited JSON block in the issue to the record, then count as agreeing
-    decision:reject   the record is wrong or unverifiable; reject it (it stays private)
+    decision:keep-record     our record is right; the audit counts as agreeing (override noted)
+    decision:edit-record      apply the edited JSON block in the issue to the record, then count as agreeing
+    decision:reject-record   the record is wrong or unverifiable; reject it (it stays private)
 A line `ruling: <text>` anywhere in the issue body or a comment by the owner is appended to coverage/rulings.md,
 which every extraction, verification and audit prompt includes, so the same question doesn't come back.
 """
@@ -21,7 +21,8 @@ import subprocess
 from .config import REPO_ROOT, notice
 
 RULINGS = REPO_ROOT / "coverage" / "rulings.md"
-LABELS = {"needs-decision": "d93f0b", "decision:ours": "0e8a16", "decision:fix": "fbca04", "decision:reject": "b60205"}
+LABELS = {"needs-decision": "d93f0b", "decision:keep-record": "0e8a16", "decision:edit-record": "fbca04",
+          "decision:reject-record": "b60205"}
 FIXABLE = {"name_en", "name_zh", "name_zh_status", "site_type", "geo_precision", "summary", "summary_zh",
            "modern_address", "current_status", "current_status_zh", "lat", "lng"}
 
@@ -71,9 +72,9 @@ def issue_body(audit: dict, site: dict, events: list[dict], excerpt: str, source
 </details>
 
 ### Decide (add ONE label)
-- `decision:ours` — our record is right; count the audit as agreeing.
-- `decision:fix` — edit the JSON below first, then add the label; those fields are updated and the audit counts as agreeing.
-- `decision:reject` — the record is wrong or can't be verified; it stays off the map.
+- `decision:keep-record` — our record is right as it is; count the audit as agreeing. (Publishing is separate.)
+- `decision:edit-record` — edit the JSON below first, then add the label; those fields are updated and the audit counts as agreeing.
+- `decision:reject-record` — the record is wrong or can't be verified; it stays off the map.
 
 Optional: add a line starting with `ruling:` (here or in a comment) to set a general rule for all future records,
 e.g. `ruling: A leprosy settlement counts as a hospital.` It is saved to coverage/rulings.md and every agent follows it.
@@ -138,21 +139,21 @@ def decide(store, issue: int) -> str:
     now = dt.datetime.now(dt.timezone.utc).isoformat()
     owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "pinxiu")
     owner_comments = [c["body"] for c in data.get("comments", []) if c["author"]["login"] == owner]
-    if choice == "fix":
+    if choice == "edit-record":
         fm = re.search(r"<!-- fix -->\s*```(?:json)?\s*(\{.*?\})\s*```", data["body"], re.S)
         if not fm:
-            raise SystemExit("decision:fix needs the JSON block after <!-- fix -->.")
+            raise SystemExit("decision:edit-record needs the JSON block after <!-- fix -->.")
         changes = {k: v for k, v in json.loads(fm.group(1)).items() if k in FIXABLE}
         store.update("sites", {"id": site_id}, changes)
         summary = f"updated {', '.join(sorted(changes))}"
-    elif choice == "reject":
+    elif choice == "reject-record":
         store.update("sites", {"id": site_id}, {"status": "rejected", "review_note": f"rejected by owner (#{issue})"})
         summary = "record rejected"
     else:
-        summary = "kept our record"
+        summary = "kept the record as it is"
     detail = {**(audit.get("detail") or {}), "override": choice, "decided_in": issue}
     store.update("audits", {"id": audit["id"]}, {
-        "agree": choice in ("ours", "fix"), "resolution": choice, "resolved_at": now, "detail": detail})
+        "agree": choice in ("keep-record", "edit-record"), "resolution": choice, "resolved_at": now, "detail": detail})
     added = add_rulings(extract_rulings([data["body"], *owner_comments]), issue)
     if added:
         summary += f"; ruling saved: {'; '.join(added)}"
