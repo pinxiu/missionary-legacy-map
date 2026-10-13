@@ -12,6 +12,7 @@ import json
 from urllib.parse import urlparse
 
 from .config import WORK_DIR, notice
+from .extract import same_page
 from .geocode import geocode
 from .models import Extraction
 from .policy import apply as apply_policy
@@ -67,7 +68,7 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
         ex, dropped = apply_policy(Extraction.model_validate_json(raw))
         raw_page = WORK_DIR / "raw" / region / f.name  # same content-hash filename as the extraction
         page_text = json.loads(raw_page.read_text()).get("text", "") if raw_page.exists() else ""
-        unchanged = bool(page_text) and archived.get(ex.document_url) == page_text
+        unchanged = bool(page_text) and same_page(archived.get(ex.document_url), page_text)
         if loaded.get(ex.document_url) == content_hash or unchanged:
             stats["skipped"] += 1
             if page_text:  # backfill archived text for documents loaded before text was stored

@@ -45,6 +45,19 @@ class Page:
         return hashlib.sha256(self.text.encode()).hexdigest()
 
 
+
+# Headings of "more stories" blocks that list random other pages on every visit. Everything from the heading on is
+# dropped, so a page's text (and content hash) only changes when the page itself changes.
+TEASER_HEADINGS = {"Other Stories", "其他人物生平"}
+
+
+def strip_teasers(text: str) -> str:
+    lines = text.split("\n")
+    for i, ln in enumerate(lines):
+        if ln.strip() in TEASER_HEADINGS:
+            return "\n".join(lines[:i]).rstrip() + "\n"
+    return text
+
 def html_to_page(url: str, html: str, source_name: str) -> Page:
     tree = HTMLParser(html)
     for sel in ("script", "style", "nav", "footer", "header", "noscript", "aside"):
@@ -53,7 +66,7 @@ def html_to_page(url: str, html: str, source_name: str) -> Page:
     title = tree.css_first("title").text(strip=True) if tree.css_first("title") else url
     main = tree.css_first("main") or tree.css_first("article") or tree.css_first("#content") or tree.body
     text = main.text(separator="\n", strip=True) if main else ""
-    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = strip_teasers(re.sub(r"\n{3,}", "\n\n", text))
     links = []
     for a in tree.css("a[href]"):
         href = urljoin(url, a.attributes.get("href") or "").split("#")[0]

@@ -81,7 +81,8 @@ def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:
 def same_page(old: str | None, new: str, threshold: float = 0.9) -> bool:
     """True when a re-crawled page is essentially the text already loaded. Some sites change a few lines on every
     visit (related links, counters), so an exact match would re-extract (and re-pay for) the same page each run."""
-    return bool(old) and overlap(old, new) >= threshold
+    from .crawl import strip_teasers
+    return bool(old) and overlap(strip_teasers(old), strip_teasers(new)) >= threshold
 
 
 def overlap(old: str, new: str) -> float:

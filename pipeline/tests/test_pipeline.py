@@ -303,3 +303,11 @@ def test_same_page_tolerates_small_dynamic_changes():
     assert same_page(base + "\nteaser A\n1835\nteaser B", base + "\nteaser C\n1864\nteaser D")
     assert not same_page(base, "\n".join(f"other {i}" for i in range(40)))
     assert not same_page(None, base)
+
+
+def test_strip_teasers_drops_random_other_stories():
+    from mlm.crawl import strip_teasers
+
+    assert strip_teasers("Body text.\n\nOther Stories\n\nJames Johnston\n1819") == "Body text.\n"
+    assert strip_teasers("正文。\n\n其他人物生平\n\n李庥") == "正文。\n"
+    assert strip_teasers("No teasers here.") == "No teasers here."
