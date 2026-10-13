@@ -27,6 +27,8 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 7. **Agents never grade their own work.** Verification, audits, gates and publishing are trusted code, not agents.
 8. **Crawl politely.** Respect robots.txt, keep `max_pages` modest, store only short excerpts publicly.
 9. **Correctness over speed.** One coverage unit at a time; reject what can't be verified.
+10. **Follow the owner's rulings.** `coverage/rulings.md` holds general decisions from `needs-decision` issues; they
+    override your own judgement in every extraction, verification and audit.
 
 ## Status lifecycle
 `pending` (loaded) → `verified` (trusted verifier) → `approved`/`conflict` (owner approved unit or submission) — public.

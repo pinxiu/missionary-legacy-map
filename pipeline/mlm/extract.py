@@ -50,8 +50,10 @@ def relevant(text: str, keywords: list[str]) -> bool:
 
 
 def system_prompt(region_cfg: dict) -> str:
+    from .decisions import rulings_text
     note = region_cfg.get("extract_hint", "")
-    return SYSTEM + (f"\n\nRegion being mapped: {region_cfg.get('name', '')}\n{note}" if note or region_cfg.get("name") else "")
+    region = f"\n\nRegion being mapped: {region_cfg.get('name', '')}\n{note}" if note or region_cfg.get("name") else ""
+    return SYSTEM + region + rulings_text()
 
 
 def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:

@@ -108,6 +108,7 @@ jobs:
       - name: Status, gates and scoreboard (trusted)
         if: always() && steps.unit.outputs.id != ''
         run: |
+          mlm decisions sync
           mlm coverage status > /dev/null
           if [ -n "$(git status --porcelain STATUS.md)" ]; then
             git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"

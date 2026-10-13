@@ -1,0 +1,50 @@
+name: Decide
+
+# When the repo owner adds a decision label to a `needs-decision` issue, apply it:
+#   decision:ours | decision:fix | decision:reject  (see pipeline/mlm/decisions.py)
+# `ruling:` lines are saved to coverage/rulings.md for all future agent runs. No model runs here.
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: decide
+  cancel-in-progress: false
+
+jobs:
+  decide:
+    if: startsWith(github.event.label.name, 'decision:') && github.event.sender.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ISSUE: ${{ github.event.issue.number }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e pipeline
+      - name: Apply decision
+        run: mlm decide --issue "$ISSUE"
+      - name: Re-check unit gates and save rulings
+        run: |
+          mlm coverage status > /dev/null
+          git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+          git add coverage/rulings.md STATUS.md
+          if ! git diff --cached --quiet; then git commit -m "Decision on #$ISSUE" && git pull --rebase -q && git push; fi
+      - name: Close issue
+        run: |
+          gh issue comment "$ISSUE" --body "✅ Applied: $(cat /tmp/decide-summary.txt)."
+          gh issue edit "$ISSUE" --remove-label needs-decision
+          gh issue close "$ISSUE"

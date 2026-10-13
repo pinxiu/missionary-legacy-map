@@ -1,8 +1,7 @@
 name: Data pipeline
 
 # Manual runs of the pipeline for one unit. Scheduled work happens in coverage-agents.yml.
-# Approved records appear on the site within an hour (ISR). Everything else lands in the
-# "Review queue" issue for a human.
+# Audit disagreements become `needs-decision` issues for the owner.
 
 on:
   workflow_dispatch:
@@ -38,6 +37,8 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     defaults:
       run:
         working-directory: pipeline
@@ -92,7 +93,9 @@ jobs:
 
       - name: Audit (independent model)
         if: (env.STAGE == 'all' || env.STAGE == 'audit') && steps.secrets.outputs.missing == ''
-        run: mlm run --unit "$UNIT" --region "$REGION" --stage audit
+        run: |
+          mlm run --unit "$UNIT" --region "$REGION" --stage audit
+          mlm decisions sync
 
       - uses: actions/upload-artifact@v4
         if: always()

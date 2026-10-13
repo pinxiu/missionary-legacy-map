@@ -80,3 +80,18 @@ Nothing a visitor submits reaches the map without the owner's `approved` label. 
 ```
 The apply worker rejects (and comments) if any event lacks a known source, any year is after 1952, Chinese fields are
 missing, or a slug collides. The owner can edit the JSON in the issue body and re-add `approved`.
+
+
+## Disagreements and uncertainties (`needs-decision`)
+When the independent audit disagrees with a verified record, a `needs-decision` issue is opened (no model involved).
+It shows our record, what the auditor read, and the source quote. Add ONE label:
+
+| Label | Effect |
+|---|---|
+| `decision:ours` | Our record stands; the audit counts as agreeing |
+| `decision:fix` | Edit the JSON block in the issue first; those fields are updated and the audit counts as agreeing |
+| `decision:reject` | The record is rejected and stays off the map |
+
+Add a line `ruling: …` in the issue or a comment to set a general rule (e.g. `ruling: A leprosy settlement counts as a
+hospital.`). It is saved to `coverage/rulings.md`, and every extraction, verification and audit prompt follows it.
+A unit can't reach `needs-approval` while any of its decisions are open.

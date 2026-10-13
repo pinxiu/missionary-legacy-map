@@ -27,7 +27,8 @@ def _client():
 
 
 def ask(name: str, text: str, client) -> dict:
-    resp = client.messages.create(model=AUDIT_MODEL, max_tokens=1500, system=SYSTEM, messages=[{
+    from .decisions import rulings_text
+    resp = client.messages.create(model=AUDIT_MODEL, max_tokens=1500, system=SYSTEM + rulings_text(), messages=[{
         "role": "user", "content": f"Place: {name}\n\n<text>\n{text[:60000]}\n</text>"}])
     out = "".join(b.text for b in resp.content if b.type == "text")
     return json.loads(out[out.find("{"): out.rfind("}") + 1])

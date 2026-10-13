@@ -24,6 +24,11 @@ def main(argv: list[str] | None = None) -> None:
     apl = sub.add_parser("apply", help="Apply the approved proposal in a GitHub issue")
     apl.add_argument("--issue", type=int, required=True)
 
+    dec = sub.add_parser("decisions", help="Open needs-decision issues for unresolved audit disagreements (no model)")
+    dec.add_argument("action", choices=["sync"])
+    dcd = sub.add_parser("decide", help="Apply the owner's decision label on a needs-decision issue")
+    dcd.add_argument("--issue", type=int, required=True)
+
     cov = sub.add_parser("coverage", help="Coverage tracking")
     cov.add_argument("action", choices=["sync", "status", "next", "publish", "report"])
     cov.add_argument("--unit", default=None)
@@ -46,6 +51,14 @@ def main(argv: list[str] | None = None) -> None:
     if args.cmd == "apply":
         from . import apply
         apply.run(args.issue)
+        return
+    if args.cmd in ("decisions", "decide"):
+        from . import decisions
+        from .store import Store
+        if args.cmd == "decisions":
+            decisions.sync(Store())
+        else:
+            open("/tmp/decide-summary.txt", "w").write(decisions.decide(Store(), args.issue))
         return
     if args.cmd == "coverage":
         from . import coverage

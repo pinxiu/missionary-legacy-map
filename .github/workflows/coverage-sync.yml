@@ -31,6 +31,7 @@ jobs:
           cache-dependency-path: pipeline/pyproject.toml
       - run: pip install -e pipeline
       - run: mlm coverage sync
+      - run: mlm decisions sync
       - run: |
           mlm coverage status > /dev/null
           if [ -n "$(git status --porcelain STATUS.md)" ]; then

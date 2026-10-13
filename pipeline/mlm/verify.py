@@ -54,7 +54,8 @@ def support_check(items: list[dict], client=None) -> dict[int, tuple[bool, str]]
         return {}
     client = client or _client()
     payload = [{"i": n, "claim": it["claim"], "excerpt": it["excerpt"]} for n, it in enumerate(items)]
-    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=SYSTEM,
+    from .decisions import rulings_text
+    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=SYSTEM + rulings_text(),
                                   messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}])
     text = "".join(b.text for b in resp.content if b.type == "text")
     text = text[text.find("{"): text.rfind("}") + 1]
@@ -76,7 +77,8 @@ def describe(claim: dict) -> str:
 def place_check(items: list[dict], client) -> dict[int, tuple[bool, str]]:
     if not items:
         return {}
-    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=PLACE_SYSTEM,
+    from .decisions import rulings_text
+    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=PLACE_SYSTEM + rulings_text(),
                                   messages=[{"role": "user", "content": json.dumps(
                                       [{"i": n, **it} for n, it in enumerate(items)], ensure_ascii=False)}])
     text = "".join(b.text for b in resp.content if b.type == "text")

@@ -118,7 +118,7 @@ def metrics(store, u: dict) -> dict:
     regs = regions_of(u)
     sites = [s for s in store.select("sites", select="id,status,region,unit") if s.get("unit") == u["id"] or s["region"] in regs]
     count = lambda st: sum(1 for s in sites if s["status"] == st)  # noqa: E731
-    audits = store.select("audits", select="agree", unit=f"eq.{u['id']}")
+    audits = store.select("audits", select="agree,resolved_at,decision_issue", unit=f"eq.{u['id']}")
     from .crawl import load_registry
     reg = load_registry()["regions"].get(u["region"], {})
     n_sources = sum(len(s.get("start_urls", [])) for s in reg.get("sources", []))
@@ -127,13 +127,14 @@ def metrics(store, u: dict) -> dict:
         "verified": count("verified"), "pending": count("pending"), "rejected": count("rejected"),
         "published": count("approved") + count("conflict"), "sources": n_sources, "audited": len(audits),
         "agreement": f"{agree / len(audits):.0%}" if audits else "—", "agreement_value": agree / len(audits) if audits else None,
+        "open_decisions": sum(1 for a in audits if not a["agree"] and not a.get("resolved_at")),
     }
 
 
 def gates_met(m: dict) -> bool:
     g = catalog()["done_when"]
     sample_ok = m["audited"] >= min(g["min_audit_sample"], max(m["verified"], 1))
-    return (m["verified"] > 0 and m["pending"] == 0 and m["sources"] >= g["min_sources"] and sample_ok
+    return (m["verified"] > 0 and m["pending"] == 0 and m.get("open_decisions", 0) == 0 and m["sources"] >= g["min_sources"] and sample_ok
             and (m["agreement_value"] or 0) >= g["audit_agreement"])
 
 
