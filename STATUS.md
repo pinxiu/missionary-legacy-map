@@ -1,15 +1,15 @@
 # Coverage status
 
-_Updated 2026-10-14 11:38 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-14 16:40 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 2 / 45  ·  **Published records:** 57  ·  **Verified, awaiting approval:** 0  ·  **Audited:** 33
+**Units done:** 2 / 45  ·  **Published records:** 57  ·  **Verified, awaiting approval:** 24  ·  **Audited:** 43
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | CN-ZJ | Zhejiang 浙江 | done | 44 | 0 | 0 | 158 | 100% | [#2](../../issues/2) |
 | 1 | CN-JS | Jiangsu 江苏 | done | 13 | 0 | 0 | 72 | 90% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | todo |  |  |  |  |  | [#4](../../issues/4) |
+| 1 | CN-SH | Shanghai 上海 | in-progress | 0 | 24 | 0 | 103 | 90% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | todo |  |  |  |  |  | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | todo |  |  |  |  |  | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | todo |  |  |  |  |  | [#7](../../issues/7) |
