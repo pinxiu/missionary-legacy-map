@@ -111,3 +111,54 @@ regions:
         follow: []
         max_pages: 20
         language: en
+
+  jiangsu:
+    # Province-wide crawl (coverage unit CN-JS). Each extracted site is assigned to its city (prefecture) by the extractor.
+    name: Jiangsu 江苏
+    extract_hint: >-
+      Prefectures: nanjing, wuxi, xuzhou, changzhou, suzhou, nantong, lianyungang, huaian, yancheng, yangzhou,
+      zhenjiang, taizhou, suqian. Historical spellings: Nanking/Kiangning (江寧), Soochow, Wusih, Hsuchow/Süchow
+      (徐州), Changchow (常州), Tungchow (通州 = nantong), Haichow (海州 = lianyungang), Huaiyin/Tsingkiangpu
+      (清江浦 = huaian), Yencheng, Yangchow, Chinkiang, Taichow (泰州, not the Zhejiang Taizhou).
+    keywords: [Jiangsu, Kiangsu, 江苏, 江蘇, Nanjing, Nanking, 南京, Kiangning, 江寧, Wuxi, Wusih, 无锡, 無錫,
+               Xuzhou, Hsuchow, Suchow, 徐州, Changzhou, Changchow, 常州, Suzhou, Soochow, 苏州, 蘇州,
+               Nantong, Tungchow, 南通, 通州, Lianyungang, Haichow, 连云港, 海州, Huaian, Huaiyin, Tsingkiangpu, 淮安, 清江浦,
+               Yancheng, Yencheng, 盐城, 鹽城, Yangzhou, Yangchow, 扬州, 揚州, Zhenjiang, Chinkiang, 镇江, 鎮江,
+               Taizhou, 泰州, Suqian, 宿迁, 宿遷]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Jiangsu places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/jiangsu/
+          - https://www.bdcconline.net/zh-hans/places/jiangsu/?page=1
+          - https://www.bdcconline.net/zh-hans/places/jiangsu/?page=2
+          - https://www.bdcconline.net/zh-hans/places/jiangsu/?page=3
+          - https://www.bdcconline.net/zh-hans/places/nanjing/
+          - https://www.bdcconline.net/zh-hans/places/suzhou/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 150
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Jiangsu places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/jiangsu/
+          - https://www.bdcconline.net/en/places/nanjing/
+          - https://www.bdcconline.net/en/places/suzhou/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Jiangsu mission institutions
+        start_urls:
+          - https://en.wikipedia.org/wiki/University_of_Nanking
+          - https://en.wikipedia.org/wiki/Ginling_College
+          - https://en.wikipedia.org/wiki/Soochow_University_(Suzhou)
+        follow: []
+        max_pages: 10
+        language: en
+      - name: Wikipedia (ZH) — Jiangsu mission institutions
+        start_urls:
+          - https://zh.wikipedia.org/wiki/金陵大学
+          - https://zh.wikipedia.org/wiki/金陵女子大学
+        follow: []
+        max_pages: 10
+        language: zh
