@@ -31,6 +31,8 @@ jobs:
   due:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      actions: read  # the workflow-level permissions don't include it, and this job lists earlier runs
     outputs:
       run: ${{ steps.check.outputs.run }}
     steps:
