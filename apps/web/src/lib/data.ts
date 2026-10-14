@@ -22,16 +22,44 @@ export const REGIONS: Region[] = [
   { slug: "zhoushan", nameEn: "Zhoushan", nameZh: "舟山", parent: "zhejiang" },
 ];
 
-/**
- * Containing areas, smallest first. "All" zooms to the smallest area that holds every site on the map, so it widens
- * by itself from a province to a country to the world as coverage grows. Add a province or country here with its
- * extent when its first city is added above.
- */
+/** Map extents of areas, [west, south, east, north]. An area without an entry is fitted to its sites. */
+const AREA_BBOX: Record<string, [number, number, number, number]> = {
+  zhejiang: [118.0, 27.0, 122.95, 31.2],
+  jiangsu: [116.3, 30.7, 122.0, 35.2],
+  china: [73.5, 18.1, 134.8, 53.6],
+  world: [-170, -56, 180, 72],
+};
+
+/** Offline fallback for the area tree; online it comes from the `regions` table (getRegions). */
 export const AREAS: Area[] = [
-  { slug: "zhejiang", nameEn: "Zhejiang", nameZh: "浙江", parent: "china", bbox: [118.0, 27.0, 122.95, 31.2] },
-  { slug: "china", nameEn: "China", nameZh: "中国", parent: "world", bbox: [73.5, 18.1, 134.8, 53.6] },
-  { slug: "world", nameEn: "World", nameZh: "世界", parent: null, bbox: [-170, -56, 180, 72] },
+  { slug: "zhejiang", nameEn: "Zhejiang", nameZh: "浙江", parent: "china", bbox: AREA_BBOX.zhejiang },
+  { slug: "china", nameEn: "China", nameZh: "中国", parent: "world", bbox: AREA_BBOX.china },
+  { slug: "world", nameEn: "World", nameZh: "世界", parent: null, bbox: AREA_BBOX.world },
 ];
+
+/**
+ * Provinces/countries (areas) and their cities (regions), from the `regions` table, so a new province and its cities
+ * appear on the map as soon as they exist in the database. Anything directly under China counts as an area, even a
+ * municipality with no cities of its own.
+ */
+export async function getRegions(): Promise<{ regions: Region[]; areas: Area[] }> {
+  if (url && key) {
+    try {
+      const { data, error } = await createClient(url, key).from("regions").select("slug,name_en,name_zh,parent");
+      if (error) throw error;
+      const rows = data ?? [];
+      const parents = new Set(rows.map((r) => r.parent).filter(Boolean));
+      const isArea = (r: { slug: string; parent: string | null }) => parents.has(r.slug) || r.parent === "china";
+      return {
+        areas: rows.filter(isArea).map((r) => ({ slug: r.slug, nameEn: r.name_en, nameZh: r.name_zh, parent: r.parent, bbox: AREA_BBOX[r.slug] })),
+        regions: rows.filter((r) => !isArea(r)).map((r) => ({ slug: r.slug, nameEn: r.name_en, nameZh: r.name_zh, parent: r.parent ?? undefined })),
+      };
+    } catch (err) {
+      console.error("Regions unavailable, using the built-in list:", err);
+    }
+  }
+  return { regions: REGIONS, areas: AREAS };
+}
 
 /* ---------- offline seed (used when Supabase is not configured or unreachable) ---------- */
 

@@ -44,15 +44,15 @@ function displayCoords(sites: Site[]): Map<string, [number, number]> {
 
 const sourceLabel = (lang: Lang, s: Source) => pick(lang, s.publisher, s.publisherZh) || new URL(s.url).hostname;
 
-/** The smallest area containing every given city, walking up the area tree (province → country → world). */
-function enclosingArea(cities: string[], regions: Region[], areas: Area[]): Area | null {
+/** The smallest area containing every given province, walking up the area tree (province → country → world). */
+function enclosingArea(provinces: string[], areas: Area[]): Area | null {
   const byslug = new Map(areas.map((a) => [a.slug, a]));
-  const chain = (slug: string | undefined): string[] => {
+  const chain = (slug: string): string[] => {
     const out: string[] = [];
-    for (let a = slug ? byslug.get(slug) : undefined; a; a = a.parent ? byslug.get(a.parent) : undefined) out.push(a.slug);
+    for (let a = byslug.get(slug); a; a = a.parent ? byslug.get(a.parent) : undefined) out.push(a.slug);
     return out;
   };
-  const chains = [...new Set(cities)].map((c) => chain(regions.find((r) => r.slug === c)?.parent));
+  const chains = [...new Set(provinces)].map(chain);
   if (!chains.length || chains.some((c) => !c.length)) return null;
   const common = chains[0].find((slug) => chains.every((c) => c.includes(slug)));
   return common ? byslug.get(common) ?? null : null;
@@ -72,6 +72,7 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
     setSelected(slug);
   };
   const [types, setTypes] = useState<Set<SiteType>>(new Set());
+  const [province, setProvince] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
   const [me, setMe] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState(false);
@@ -94,21 +95,43 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
 
   const coords = useMemo(() => displayCoords(sites), [sites]);
   const presentTypes = useMemo(() => [...new Set(sites.map((s) => s.type))], [sites]);
-  const presentCities = useMemo(() => regions.filter((r) => sites.some((s) => s.region === r.slug)), [regions, sites]);
+  // Top-level menu items: the smallest areas (provinces), each holding cities. A site's province comes from its region.
+  const leafAreas = useMemo(() => areas.filter((a) => !areas.some((b) => b.parent === a.slug)), [areas]);
+  const provinceOf = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const a of leafAreas) m.set(a.slug, a.slug);
+    for (const r of regions) if (r.parent && leafAreas.some((a) => a.slug === r.parent)) m.set(r.slug, r.parent);
+    return m;
+  }, [regions, leafAreas]);
+  const provinces = useMemo(() => leafAreas.filter((a) => sites.some((s) => provinceOf.get(s.region) === a.slug)), [leafAreas, sites, provinceOf]);
   const typed = useMemo(() => (types.size ? sites.filter((s) => types.has(s.type)) : sites), [sites, types]);
   const cityCount = useMemo(() => {
     const n = new Map<string, number>();
     for (const s of typed) n.set(s.region, (n.get(s.region) ?? 0) + 1);
     return n;
   }, [typed]);
-  const homeArea = useMemo(() => enclosingArea(sites.map((s) => s.region), regions, areas), [sites, regions, areas]);
+  const provCount = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const s of typed) { const p = provinceOf.get(s.region); if (p) n.set(p, (n.get(p) ?? 0) + 1); }
+    return n;
+  }, [typed, provinceOf]);
+  const provinceArea = province ? areas.find((a) => a.slug === province) ?? null : null;
+  const provinceCities = useMemo(
+    () => (province ? regions.filter((r) => r.parent === province && sites.some((s) => s.region === r.slug)) : []),
+    [province, regions, sites],
+  );
+  const homeArea = useMemo(() => {
+    const ps = sites.map((s) => provinceOf.get(s.region));
+    return ps.length && ps.every(Boolean) ? enclosingArea(ps as string[], areas) : null;
+  }, [sites, provinceOf, areas]);
   const visible = useMemo(() => {
     let list = typed;
     if (city) list = list.filter((s) => s.region === city);
+    else if (province) list = list.filter((s) => provinceOf.get(s.region) === province);
     return me
       ? [...list].sort((a, b) => km(me, [a.lat, a.lng]) - km(me, [b.lat, b.lng]))
       : [...list].sort((a, b) => (a.earliestYear ?? 9999) - (b.earliestYear ?? 9999));
-  }, [typed, city, me]);
+  }, [typed, city, province, provinceOf, me]);
   const site = sites.find((s) => s.slug === selected) ?? null;
   const needPhotos = sites.filter((s) => !s.photos.length).length;
   const regionName = (slug: string) => { const r = regions.find((x) => x.slug === slug); return r ? pick(lang, r.nameEn, r.nameZh) : slug; };
@@ -135,15 +158,18 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
     map.current.fitBounds(b, { padding: padding(), maxZoom: approx ? 11 : 14, duration: animate ? 900 : 0 });
   }
 
-  /** "All": show the whole province (or country, or world) that holds every site, plus any site outside it. */
-  function fitHome(animate = true) {
+  /** Fit an area: its extent if it has one, else its sites; always including the sites that belong to it. */
+  function fitArea(area: Area | null, list: Site[], animate = true) {
     if (!map.current) return;
-    if (!homeArea) return fit(sites, animate);
-    const [w, so, e, n] = homeArea.bbox;
+    if (!area?.bbox) return fit(list, animate);
+    const [w, so, e, n] = area.bbox;
     const b = new LngLatBounds([w, so], [e, n]);
-    sites.forEach((s) => b.extend([s.lng, s.lat]));
+    list.forEach((s) => b.extend([s.lng, s.lat]));
     map.current.fitBounds(b, { padding: padding(), duration: animate ? 900 : 0 });
   }
+
+  /** "All": the smallest province / country / world that holds every site. */
+  const fitHome = (animate = true) => fitArea(homeArea, sites, animate);
 
   useEffect(() => {
     if (!mapEl.current || map.current) return;
@@ -201,10 +227,19 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
     );
   }
 
+  function chooseProvince(slug: string | null) {
+    setProvince(slug);
+    setCity(null);
+    setSelected(null);
+    if (!slug) return fitHome();
+    fitArea(areas.find((a) => a.slug === slug) ?? null, sites.filter((s) => provinceOf.get(s.region) === slug));
+  }
+
+  /** null = back to the whole province. */
   function chooseCity(slug: string | null) {
     setCity(slug);
     setSelected(null);
-    if (!slug) return fitHome();
+    if (!slug) return province ? fitArea(provinceArea, sites.filter((s) => provinceOf.get(s.region) === province)) : fitHome();
     const inCity = sites.filter((s) => s.region === slug);
     const shown = inCity.filter((s) => !types.size || types.has(s.type));
     fit(shown.length ? shown : inCity);
@@ -321,17 +356,28 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
           </article>
         ) : (
           <>
-            <div className="filters cities" role="group" aria-label="City">
-              <button aria-pressed={city === null} onClick={() => chooseCity(null)}>
-                {homeArea ? (lang === "zh" ? `全${homeArea.nameZh}` : `All ${homeArea.nameEn}`) : t(lang, "allCities")}
-                <span className="count">{typed.length}</span>
+            <div className="filters cities" role="group" aria-label="Province">
+              <button aria-pressed={province === null} onClick={() => chooseProvince(null)}>
+                {t(lang, "all")}<span className="count">{typed.length}</span>
               </button>
-              {presentCities.map((r) => (
-                <button key={r.slug} aria-pressed={city === r.slug} onClick={() => chooseCity(city === r.slug ? null : r.slug)}>
-                  {pick(lang, r.nameEn, r.nameZh)}<span className="count">{cityCount.get(r.slug) ?? 0}</span>
+              {provinces.map((a) => (
+                <button key={a.slug} aria-pressed={province === a.slug} onClick={() => chooseProvince(province === a.slug ? null : a.slug)}>
+                  {pick(lang, a.nameEn, a.nameZh)}<span className="count">{provCount.get(a.slug) ?? 0}</span>
                 </button>
               ))}
             </div>
+            {provinceArea && provinceCities.length > 0 && (
+              <div className="filters subcities" role="group" aria-label="City">
+                <button aria-pressed={city === null} onClick={() => chooseCity(null)}>
+                  {lang === "zh" ? `全${provinceArea.nameZh}` : `All ${provinceArea.nameEn}`}<span className="count">{provCount.get(provinceArea.slug) ?? 0}</span>
+                </button>
+                {provinceCities.map((r) => (
+                  <button key={r.slug} aria-pressed={city === r.slug} onClick={() => chooseCity(city === r.slug ? null : r.slug)}>
+                    {pick(lang, r.nameEn, r.nameZh)}<span className="count">{cityCount.get(r.slug) ?? 0}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="filters" role="group" aria-label="Type">
               {presentTypes.map((ty) => (
                 <button key={ty} aria-pressed={types.has(ty)}

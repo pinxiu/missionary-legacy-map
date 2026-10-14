@@ -30,8 +30,8 @@ export type Photo = {
 };
 
 export type Region = { slug: string; nameEn: string; nameZh: string; parent?: string };
-/** A containing area (province, country, world) with its map extent: [west, south, east, north]. */
-export type Area = { slug: string; nameEn: string; nameZh: string; parent: string | null; bbox: [number, number, number, number] };
+/** A containing area (province, country, world) with an optional map extent [west, south, east, north]; without one the extent is fitted to its sites. */
+export type Area = { slug: string; nameEn: string; nameZh: string; parent: string | null; bbox?: [number, number, number, number] };
 
 export type Site = {
   id: string | null;
