@@ -162,3 +162,63 @@ regions:
         follow: []
         max_pages: 10
         language: zh
+
+  shanghai:
+    # Municipality (coverage unit CN-SH). Districts rather than prefectures; every site is assigned to Shanghai.
+    name: Shanghai 上海
+    extract_hint: >-
+      Single city-level unit: shanghai. Old city and treaty-port areas: Shanghai county (上海县), the Foreign
+      Settlements (International Settlement 公共租界, French Concession 法租界), Xujiahui/Zikawei/Siccawei (徐家汇),
+      Zose/Sheshan (佘山), Tushanwan/Tou-se-we (土山湾), Hongkew/Hongkou (虹口), Yangtszepoo/Yangpu (杨树浦),
+      Pootung/Pudong (浦东), Nantao (南市), Chapei (闸北), Woosung/Wusong (吴淞), Kiangwan (江湾), Sungkiang/Songjiang (松江),
+      Tsingpu/Qingpu (青浦), Nanhui (南汇), Chuansha (川沙), Paoshan/Baoshan (宝山), Chiating/Jiading (嘉定),
+      Chongming (崇明), Fenghsien/Fengxian (奉贤), Kinshan/Jinshan (金山). Include Jesuit, Protestant, Orthodox and
+      independent Chinese churches, schools, hospitals, presses and cemeteries.
+    keywords: [Shanghai, 上海, Zikawei, Siccawei, Xujiahui, 徐家汇, 徐家匯, Tushanwan, 土山湾, 土山灣, Zose, Sheshan, 佘山,
+               Hongkew, Hongkou, 虹口, Pootung, Pudong, 浦东, 浦東, Woosung, Wusong, 吴淞, 吳淞, Sungkiang, Songjiang, 松江,
+               Nantao, 南市, Chapei, 闸北, 閘北, Kiangwan, 江湾, 江灣, Chiating, Jiading, 嘉定, Tsingpu, Qingpu, 青浦,
+               Chongming, 崇明, Chuansha, 川沙, Nanhui, 南汇, 南匯, Fenghsien, 奉贤, 奉賢, Paoshan, Baoshan, 宝山, 寶山,
+               Kinshan, Jinshan, 金山, "International Settlement", "French Concession", 公共租界, 法租界]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Shanghai places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/shanghai/
+          - https://www.bdcconline.net/zh-hans/places/shanghai/?page=1
+          - https://www.bdcconline.net/zh-hans/places/shanghai/?page=2
+          - https://www.bdcconline.net/zh-hans/places/shanghai/?page=3
+          - https://www.bdcconline.net/zh-hans/places/shanghai/?page=4
+          - https://www.bdcconline.net/zh-hans/places/shanghai/?page=5
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Shanghai places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/shanghai/
+          - https://www.bdcconline.net/en/places/shanghai/?page=1
+          - https://www.bdcconline.net/en/places/shanghai/?page=2
+          - https://www.bdcconline.net/en/places/shanghai/?page=3
+          - https://www.bdcconline.net/en/places/shanghai/?page=4
+          - https://www.bdcconline.net/en/places/shanghai/?page=5
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Shanghai mission institutions
+        start_urls:
+          - https://en.wikipedia.org/wiki/St._John%27s_University,_Shanghai
+          - https://en.wikipedia.org/wiki/University_of_Shanghai
+          - https://en.wikipedia.org/wiki/Xujiahui_Cathedral
+          - https://en.wikipedia.org/wiki/Xujiahui
+          - https://en.wikipedia.org/wiki/Walter_Henry_Medhurst
+        follow: []
+        max_pages: 10
+        language: en
+      - name: Wikipedia (ZH) — Shanghai mission institutions
+        start_urls:
+          - https://zh.wikipedia.org/wiki/圣约翰大学_(上海)
+          - https://zh.wikipedia.org/wiki/沪江大学
+          - https://zh.wikipedia.org/wiki/墨海书馆
+        follow: []
+        max_pages: 10
+        language: zh
