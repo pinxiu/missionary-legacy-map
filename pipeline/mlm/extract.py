@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import ANTHROPIC_API_KEY, EXTRACT_MODEL, WORK_DIR, notice
+from .config import ANTHROPIC_API_KEY, EXTRACT_MODEL, WORK_DIR, cached_system, notice
 from .crawl import load_registry
 from .models import Extraction
 
@@ -62,7 +62,7 @@ def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:
     resp = client.messages.create(
         model=EXTRACT_MODEL,
         max_tokens=8000,
-        system=system,
+        system=cached_system(system),
         tools=[{"name": "record_extraction", "description": "Record the extracted records.", "input_schema": schema}],
         tool_choice={"type": "auto"},  # forced tool choice is not supported by every model
         messages=[{

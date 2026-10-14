@@ -16,7 +16,7 @@ import re
 import unicodedata
 from collections import defaultdict
 
-from .config import ANTHROPIC_API_KEY, VERIFY_MODEL, notice
+from .config import ANTHROPIC_API_KEY, VERIFY_MODEL, cached_system, notice
 
 SYSTEM = """You check whether short source excerpts support claims extracted from them.
 For each item, answer "supported": true only if the excerpt itself states the claim (names, years, places, roles).
@@ -55,7 +55,7 @@ def support_check(items: list[dict], client=None) -> dict[int, tuple[bool, str]]
     client = client or _client()
     payload = [{"i": n, "claim": it["claim"], "excerpt": it["excerpt"]} for n, it in enumerate(items)]
     from .decisions import rulings_text
-    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=SYSTEM + rulings_text(),
+    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=cached_system(SYSTEM + rulings_text()),
                                   messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}])
     text = "".join(b.text for b in resp.content if b.type == "text")
     text = text[text.find("{"): text.rfind("}") + 1]
@@ -78,7 +78,7 @@ def place_check(items: list[dict], client) -> dict[int, tuple[bool, str]]:
     if not items:
         return {}
     from .decisions import rulings_text
-    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=PLACE_SYSTEM + rulings_text(),
+    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=cached_system(PLACE_SYSTEM + rulings_text()),
                                   messages=[{"role": "user", "content": json.dumps(
                                       [{"i": n, **it} for n, it in enumerate(items)], ensure_ascii=False)}])
     text = "".join(b.text for b in resp.content if b.type == "text")

@@ -19,6 +19,15 @@ TRANSLATE_MODEL = os.environ.get("MLM_TRANSLATE_MODEL", "claude-haiku-5-5")  # c
 VERIFY_MODEL = os.environ.get("MLM_VERIFY_MODEL", "claude-sonnet-5-5")       # support check in the trusted verifier
 AUDIT_MODEL = os.environ.get("MLM_AUDIT_MODEL", "claude-opus-5-5")           # independent auditor: a different, stronger model
 
+
+
+def cached_system(text: str) -> list[dict]:
+    """System prompt marked for prompt caching. Within a run the same instructions (and, for extraction, the tool
+    schema before them) go out with every call, so later calls read them from cache at a small fraction of the
+    input price instead of paying full price each time. Prompts below the model's cache minimum are sent uncached."""
+    return [{"type": "text", "text": text, "cache_control": {"type": "ephemeral"}}]
+
+
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 # New-style secret key (sb_secret_...). The legacy service_role JWT is still accepted as a fallback.
 SUPABASE_SECRET_KEY = os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
