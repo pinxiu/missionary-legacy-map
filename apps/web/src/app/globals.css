@@ -21,6 +21,19 @@ button { font: inherit; color: inherit; }
 .app { position: fixed; inset: 0; }
 .map { position: absolute; inset: 0; }
 
+/* Shown over the blank map canvas until its first tiles have loaded, so a slow first visit doesn't look broken. */
+.map-status {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 52dvh; z-index: 1; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: 0 24px; text-align: center; color: var(--muted); font-size: 0.9rem;
+}
+@media (min-width: 820px) { .map-status { left: 412px; bottom: 0; } }
+.map-status button { pointer-events: auto; font: inherit; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.spinner { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+.gallery img, img.mini { background: var(--line); } /* a grey block while a photo loads, not a hole */
+
 .panel {
   position: absolute; left: 0; right: 0; bottom: 0; max-height: 52dvh; overflow-y: auto;
   background: var(--panel); border-top: 1px solid var(--line); border-radius: 18px 18px 0 0;
@@ -97,7 +110,7 @@ h1 { font-family: var(--serif); font-size: 1.45rem; margin: 0; letter-spacing: 0
 .filters button[aria-pressed="true"] .count { opacity: 0.9; }
 .photo-banner { font-size: 0.85rem; background: var(--bg); border: 1px dashed var(--line); padding: 8px 10px; border-radius: 10px; }
 
-.list .mini { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: none; margin-right: 8px; background: var(--bg); }
+.list .mini { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: none; margin-right: 8px; background: var(--line); }
 .list .mini.empty { display: grid; place-items: center; font-size: 1rem; border: 2px dashed; opacity: 0.55; }
 .list .name { display: flex; flex-direction: column; }
 .list .sub-name { font-family: var(--sans); font-size: 0.78rem; color: var(--muted); margin-top: 2px; }

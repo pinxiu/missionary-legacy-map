@@ -72,6 +72,7 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
     setSelected(slug);
   };
   const [types, setTypes] = useState<Set<SiteType>>(new Set());
+  const [mapState, setMapState] = useState<"loading" | "slow" | "failed" | "ready">("loading");
   const [province, setProvince] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
   const [me, setMe] = useState<[number, number] | null>(null);
@@ -175,7 +176,13 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
     if (!mapEl.current || map.current) return;
     setWorkerUrl("/maplibre-gl-worker.mjs");
     const m = new MLMap({ container: mapEl.current, style: STYLE_URL, center: [120.4, 29.4], zoom: 7, attributionControl: { compact: true } });
-    m.on("error", (e) => console.error("map error", e.error ?? e));
+    m.on("error", (e) => {
+      console.error("map error", e.error ?? e);
+      if (!m.isStyleLoaded()) setMapState((s) => (s === "ready" ? s : "failed")); // the base style itself didn't arrive
+    });
+    // The first load fetches the style, fonts and tiles; until the first idle the canvas is blank. Say so.
+    m.once("idle", () => setMapState("ready"));
+    const slow = window.setTimeout(() => setMapState((s) => (s === "loading" ? "slow" : s)), 6000);
     m.addControl(new NavigationControl({ showCompass: false }), "top-right");
     m.on("load", () => {
       m.addSource("sites", { type: "geojson", data: geojson });
@@ -196,7 +203,7 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
       m.on("mouseleave", "sites", () => (m.getCanvas().style.cursor = ""));
     });
     map.current = m;
-    return () => { m.remove(); map.current = null; };
+    return () => { window.clearTimeout(slow); m.remove(); map.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -251,6 +258,21 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
   return (
     <main className="app">
       <div ref={mapEl} className="map" aria-label={t(lang, "title")} />
+      {mapState !== "ready" && (
+        <div className="map-status" role="status" aria-live="polite">
+          {mapState === "failed" ? (
+            <>
+              <span>{t(lang, "mapFailed")}</span>
+              <button onClick={() => window.location.reload()}>{t(lang, "retry")}</button>
+            </>
+          ) : (
+            <>
+              <span className="spinner" aria-hidden="true" />
+              <span>{t(lang, mapState === "slow" ? "mapSlow" : "mapLoading")}</span>
+            </>
+          )}
+        </div>
+      )}
 
       <section className="panel" aria-live="polite" ref={panelEl}>
         <header className="panel-head">

@@ -31,6 +31,8 @@ const UI = {
   title: ["Legacy Map", "宣教遗迹地图"],
   subtitle: ["Zhejiang · {n} sites, every fact cited", "浙江 · {n} 处遗迹，每条史实均有出处"],
   offline: [" · offline seed", " · 离线数据"],
+  mapLoading: ["Loading the map…", "地图加载中…"], mapSlow: ["Still loading the map. The connection looks slow.", "地图仍在加载，网络似乎较慢。"],
+  mapFailed: ["The map couldn't load. Check your connection.", "地图未能加载，请检查网络。"], retry: ["Try again", "重试"],
   nearMe: ["Near me", "附近"], locating: ["Locating…", "定位中…"], all: ["All", "全部"],
   allCities: ["All cities", "全部城市"], back: ["← All sites", "← 全部遗迹"],
   disagree: ["Sources disagree", "来源记载不一"], also: ["Also", "别名"], today: ["Today", "现状"],
