@@ -33,6 +33,8 @@ def main(argv: list[str] | None = None) -> None:
     dcd = sub.add_parser("decide", help="Apply the owner's decision label on a needs-decision issue")
     dcd.add_argument("--issue", type=int, required=True)
 
+    rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
+    rg.add_argument("--unit", required=True)
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
     dd = sub.add_parser("dedupe", help="Remove exact duplicate events and claims (one-off cleanup, no model)")
     dd.add_argument("--dry-run", action="store_true")
@@ -50,6 +52,11 @@ def main(argv: list[str] | None = None) -> None:
             from .config import notice
             from .store import Store
             notice(f"seed: {seed_mod.load_via_api(Store(), args.region)}")
+        return
+    if args.cmd == "regeocode":
+        from . import regeocode
+        from .store import Store
+        regeocode.run(Store(), args.unit)
         return
     if args.cmd == "refresh-site":
         from .site import refresh

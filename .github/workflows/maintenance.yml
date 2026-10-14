@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu]
         default: dedupe-dry-run
 
 permissions:
@@ -38,3 +38,7 @@ jobs:
         run: mlm dedupe
       - if: inputs.task == 'refresh-site'
         run: mlm refresh-site
+      - if: inputs.task == 'regeocode-jiangsu'
+        run: |
+          mlm regeocode --unit CN-JS
+          mlm refresh-site

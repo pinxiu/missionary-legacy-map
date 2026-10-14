@@ -311,3 +311,20 @@ def test_strip_teasers_drops_random_other_stories():
     assert strip_teasers("Body text.\n\nOther Stories\n\nJames Johnston\n1819") == "Body text.\n"
     assert strip_teasers("正文。\n\n其他人物生平\n\n李庥") == "正文。\n"
     assert strip_teasers("No teasers here.") == "No teasers here."
+
+
+def test_resolve_city_uses_province_suffix_for_shared_names():
+    from mlm.geocode import resolve_city
+
+    subs = ["nanjing", "taizhou-js"]
+    assert resolve_city("nanjing", "CN-JS", subs, "jiangsu") == "nanjing"
+    assert resolve_city("taizhou", "CN-JS", subs, "jiangsu") == "taizhou-js"
+    assert resolve_city("other", "CN-JS", subs, "jiangsu") == "jiangsu"
+    assert resolve_city("ningbo", "CN-ZJ", ["ningbo"], "zhejiang") == "ningbo"
+
+
+def test_jiangsu_cities_have_centres_in_jiangsu():
+    from mlm.geocode import CITIES, REGION_CENTROIDS
+
+    assert len(CITIES) == 13 and all(30.7 < c["lat"] < 35.2 and 116.3 < c["lng"] < 122.0 for c in CITIES.values())
+    assert REGION_CENTROIDS["suzhou"][1] > 120

@@ -13,7 +13,7 @@ from pathlib import Path
 import httpx
 import yaml
 
-from .config import DATA_DIR, USER_AGENT
+from .config import DATA_DIR, REPO_ROOT, USER_AGENT
 from .resolve import normalize
 
 REGION_CENTROIDS = {
@@ -23,6 +23,39 @@ REGION_CENTROIDS = {
     "quzhou": (28.9701, 118.8593), "zhoushan": (29.9853, 122.2072),
     "zhejiang": (29.1832, 120.0934), "china": (35.8617, 104.1954),
 }
+
+
+def _load_cities() -> dict[str, dict]:
+    """Cities of the provinces added after Zhejiang (coverage/cities.yaml), by slug."""
+    p = REPO_ROOT / "coverage" / "cities.yaml"
+    out: dict[str, dict] = {}
+    for province, cities in (yaml.safe_load(p.read_text()) if p.exists() else {}).items():
+        for c in cities:
+            out[c["slug"]] = {**c, "province": province}
+    return out
+
+
+CITIES = _load_cities()
+REGION_CENTROIDS.update({slug: (c["lat"], c["lng"]) for slug, c in CITIES.items()})
+
+
+def resolve_city(city: str | None, unit_id: str | None, subregions: list[str] | None, default: str) -> str:
+    """Map the extractor's city (lowercase pinyin) to one of the unit's region slugs; `default` if it isn't one.
+    A pinyin name shared with another province resolves to the suffixed slug (taizhou -> taizhou-js in CN-JS)."""
+    subs = set(subregions or [])
+    c = (city or "").strip().lower()
+    if c in subs:
+        return c
+    alias = f"{c}-{unit_id.split('-')[-1].lower()}" if unit_id else ""
+    return alias if alias in subs else default
+
+
+def km_apart(a: tuple[float, float], b: tuple[float, float]) -> float:
+    from math import asin, cos, radians, sin, sqrt
+
+    dlat, dlng = radians(b[0] - a[0]), radians(b[1] - a[1])
+    h = sin(dlat / 2) ** 2 + cos(radians(a[0])) * cos(radians(b[0])) * sin(dlng / 2) ** 2
+    return 12742 * asin(sqrt(h))
 
 
 @lru_cache
@@ -70,7 +103,9 @@ def geocode(region: str, name: str, place_text: str = "", modern_address: str | 
         return hit
     if use_network and modern_address:
         hit = from_nominatim(modern_address)
-        if hit:
+        centre = REGION_CENTROIDS.get(region)
+        # A hit far from the city is a same-named street somewhere else (the Lanzhou problem): ignore it.
+        if hit and (centre is None or region in ("china", "zhejiang") or km_apart(centre, hit[:2]) <= 150):
             return hit
     lat, lng = REGION_CENTROIDS.get(region, REGION_CENTROIDS["china"])
     return lat, lng, "city"

@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 from .config import WORK_DIR, notice
 from .extract import same_page
-from .geocode import geocode
+from .geocode import geocode, resolve_city
 from .models import Extraction
 from .policy import apply as apply_policy
 from .resolve import same_entity, slugify
@@ -33,15 +33,23 @@ def _unique_slug(base: str, taken: set[str]) -> str:
 
 
 def ensure_region(store: Store, region: str, unit: str | None) -> None:
-    """Sites reference `regions(slug)`; a new unit's province needs its row before its first site is loaded."""
-    if not unit or store.select("regions", select="slug", slug=f"eq.{region}"):
+    """Sites reference `regions(slug)`: a new unit's province, and each of its cities, needs a row before sites load."""
+    if not unit:
         return
     from .coverage import unit as unit_of
+    from .geocode import CITIES
 
     u = unit_of(unit)
-    parent = "china" if unit.startswith("CN-") else "world"
-    store.insert("regions", [{"slug": region, "name_en": u["en"], "name_zh": u["zh"], "parent": parent}])
-    notice(f"load: added region {region} ({u['en']} {u['zh']})")
+    have = {r["slug"] for r in store.select("regions", select="slug")}
+    rows = []
+    if region not in have:
+        rows.append({"slug": region, "name_en": u["en"], "name_zh": u["zh"], "parent": "china" if unit.startswith("CN-") else "world"})
+    for slug in u.get("subregions", []):
+        if slug not in have and slug in CITIES:
+            rows.append({"slug": slug, "name_en": CITIES[slug]["en"], "name_zh": CITIES[slug]["zh"], "parent": region})
+    if rows:
+        store.insert("regions", rows)
+        notice(f"load: added regions {', '.join(r['slug'] for r in rows)}")
 
 
 def load_extractions(region: str, store: Store | None = None, use_network: bool = True,
@@ -114,7 +122,7 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
         for s in ex.sites:
             if s.city == "other":
                 continue  # outside the region being mapped
-            city = s.city if (subregions and s.city in subregions) else region
+            city = resolve_city(s.city, unit, subregions, default=region)
             match = next((e for e in existing_sites
                           if same_entity(_names(e), [s.name_en, *s.alt_names], e.get("name_zh"), s.name_zh)), None)
             if match:

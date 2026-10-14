@@ -29,7 +29,8 @@ units:
   # ---- Phase 1: China, provincial level ----
   - {id: CN-ZJ, region: zhejiang, en: Zhejiang, zh: 浙江, phase: 1, order: 1,
      subregions: [hangzhou, ningbo, wenzhou, shaoxing, huzhou, jiaxing, taizhou, jinhua, lishui, quzhou, zhoushan]}
-  - {id: CN-JS, region: jiangsu, en: Jiangsu, zh: 江苏, phase: 1, order: 2}
+  - {id: CN-JS, region: jiangsu, en: Jiangsu, zh: 江苏, phase: 1, order: 2,
+     subregions: [nanjing, wuxi, xuzhou, changzhou, suzhou, nantong, lianyungang, huaian, yancheng, yangzhou, zhenjiang, taizhou-js, suqian]}
   - {id: CN-SH, region: shanghai, en: Shanghai, zh: 上海, phase: 1, order: 3}
   - {id: CN-FJ, region: fujian, en: Fujian, zh: 福建, phase: 1, order: 4}
   - {id: CN-GD, region: guangdong, en: Guangdong, zh: 广东, phase: 1, order: 5}
