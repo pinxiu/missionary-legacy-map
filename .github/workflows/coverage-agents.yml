@@ -100,6 +100,18 @@ jobs:
             and Traditional Chinese), and 4-10 reputable sources with modest max_pages and max_depth: 1 where they list links.
             Include at least one Chinese-language source. Check each start URL loads. Do not edit any other file.
 
+      # The scout action leaves git on its own branch with its own (revoked) credentials, so every later `git push`
+      # failed with exit 128. Put the working tree back on main with this job's token, keeping the scout's edit.
+      - name: Restore git state after scout
+        if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
+        run: |
+          cp pipeline/mlm/sources.yaml "$RUNNER_TEMP/sources.yaml"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q origin main
+          git checkout -q -f -B main origin/main
+          cp "$RUNNER_TEMP/sources.yaml" pipeline/mlm/sources.yaml
+          git status -sb | head -3
+
       - name: Validate scout output (trusted)
         if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
         run: |
@@ -117,7 +129,7 @@ jobs:
           git diff --stat -- pipeline/mlm/sources.yaml
           [ -z "$(git status --porcelain -- . ':!pipeline/mlm/sources.yaml')" ] || { echo "scout edited other files"; git status --porcelain; exit 1; }
           git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
-          git add pipeline/mlm/sources.yaml && git commit -m "Sources for ${{ steps.unit.outputs.id }} (source scout)" && git push
+          git add pipeline/mlm/sources.yaml && git commit -m "Sources for ${{ steps.unit.outputs.id }} (source scout)" && git pull --rebase -q && git push origin HEAD:main
 
       - name: Restore crawl + extraction cache
         if: steps.unit.outputs.id != ''
@@ -139,6 +151,7 @@ jobs:
           mlm coverage status > /dev/null
           if [ -n "$(git status --porcelain STATUS.md)" ]; then
             git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
-            git pull --rebase -q || true
-            git add STATUS.md && git commit -m "Coverage status" && git push
+            git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+            git add STATUS.md && git commit -m "Coverage status" -q
+            git pull --rebase -q origin main && git push -q origin HEAD:main
           fi
