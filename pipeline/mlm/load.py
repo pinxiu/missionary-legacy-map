@@ -32,11 +32,24 @@ def _unique_slug(base: str, taken: set[str]) -> str:
     return slug
 
 
+def ensure_region(store: Store, region: str, unit: str | None) -> None:
+    """Sites reference `regions(slug)`; a new unit's province needs its row before its first site is loaded."""
+    if not unit or store.select("regions", select="slug", slug=f"eq.{region}"):
+        return
+    from .coverage import unit as unit_of
+
+    u = unit_of(unit)
+    parent = "china" if unit.startswith("CN-") else "world"
+    store.insert("regions", [{"slug": region, "name_en": u["en"], "name_zh": u["zh"], "parent": parent}])
+    notice(f"load: added region {region} ({u['en']} {u['zh']})")
+
+
 def load_extractions(region: str, store: Store | None = None, use_network: bool = True,
                      unit: str | None = None, subregions: list[str] | None = None) -> dict:
     store = store or Store()
     stats = {"documents": 0, "skipped": 0, "new_sites": 0, "matched_sites": 0, "events": 0, "persons": 0, "dropped": 0}
 
+    ensure_region(store, region, unit)
     existing_sites = store.select("sites", select="id,slug,name_en,name_zh,alt_names")
     existing_people = store.select("persons", select="id,slug,name_en,name_zh,alt_names")
     site_slugs = {s["slug"] for s in existing_sites}
