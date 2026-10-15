@@ -14,8 +14,16 @@ USER_AGENT = os.environ.get(
 CRAWL_DELAY_S = float(os.environ.get("MLM_CRAWL_DELAY_S", "2.0"))
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-EXTRACT_MODEL = os.environ.get("MLM_EXTRACT_MODEL", "claude-sonnet-5-5")
-TRANSLATE_MODEL = os.environ.get("MLM_TRANSLATE_MODEL", "claude-haiku-5-5")  # cheap model for zh fill-in
+# Extraction runs on the cheap model first; a page whose result fails local checks (excerpts not found in the page,
+# output cut off, nothing found on a clearly relevant page) is redone with the stronger model. Precision is guarded
+# downstream anyway: the trusted verifier and the independent audit decide what is kept.
+EXTRACT_MODEL = os.environ.get("MLM_EXTRACT_MODEL", "claude-haiku-5-5")
+EXTRACT_ESCALATE_MODEL = os.environ.get("MLM_EXTRACT_ESCALATE_MODEL", "claude-sonnet-5-5")
+EXTRACT_MIN_EXCERPT_RATE = float(os.environ.get("MLM_EXTRACT_MIN_EXCERPT_RATE", "0.9"))
+# Translation: Gemini's free tier when GEMINI_API_KEY is set (it is strong at Chinese), Claude Haiku otherwise or when
+# Gemini is out of quota. Set MLM_TRANSLATE_MODEL to a Claude model to skip Gemini entirely.
+TRANSLATE_MODEL = os.environ.get("MLM_TRANSLATE_MODEL", "gemini-3.8-flash")
+TRANSLATE_FALLBACK_MODEL = os.environ.get("MLM_TRANSLATE_FALLBACK_MODEL", "claude-haiku-5-5")
 VERIFY_MODEL = os.environ.get("MLM_VERIFY_MODEL", "claude-sonnet-5-5")       # support check in the trusted verifier
 AUDIT_MODEL = os.environ.get("MLM_AUDIT_MODEL", "claude-opus-5-5")           # independent auditor: a different, stronger model
 

@@ -47,7 +47,9 @@ jobs:
         if: steps.queue.outputs.count != '0'
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Your Claude subscription pays when CLAUDE_CODE_OAUTH_TOKEN is set (`claude setup-token`); the API key is the fallback.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN == '' && secrets.ANTHROPIC_API_KEY || '' }}
           claude_args: >-
             --model claude-sonnet-5-5
             --max-turns 60

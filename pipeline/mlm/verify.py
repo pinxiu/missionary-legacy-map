@@ -16,7 +16,8 @@ import re
 import unicodedata
 from collections import defaultdict
 
-from .config import ANTHROPIC_API_KEY, VERIFY_MODEL, cached_system, notice
+from .config import ANTHROPIC_API_KEY, VERIFY_MODEL, notice
+from .llm import Req, parse_json, shared
 
 SYSTEM = """You check whether short source excerpts support claims extracted from them.
 For each item, answer "supported": true only if the excerpt itself states the claim (names, years, places, roles).
@@ -43,26 +44,33 @@ def excerpt_found(excerpt: str, text: str) -> bool:
     return len(e) >= MIN_EXCERPT and e in norm(text)
 
 
-def _client():
-    import anthropic
+def _support_req(items: list[dict], system: str) -> Req:
+    payload = [{"i": n, "claim": it["claim"], "excerpt": it["excerpt"]} for n, it in enumerate(items)]
+    return Req(model=VERIFY_MODEL, max_tokens=4000, system=system, purpose="verify",
+               user=json.dumps(payload, ensure_ascii=False))
 
-    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+def _parse_results(field: str):
+    def parse(res: dict, items: list) -> dict[int, list]:
+        out = {}
+        for r in parse_json(res["text"]).get("results", []):
+            i = int(r["i"])
+            if 0 <= i < len(items):
+                out[i] = [bool(r.get(field)), str(r.get("why", ""))[:200]]
+        return out
+    return parse
 
 
-def support_check(items: list[dict], client=None) -> dict[int, tuple[bool, str]]:
+def support_check(items: list[dict], llm=None) -> dict[int, tuple[bool, str]]:
+    """Does each excerpt support its claim? Each (claim, excerpt) pair is answered once and cached on its own."""
     if not items:
         return {}
-    client = client or _client()
-    payload = [{"i": n, "claim": it["claim"], "excerpt": it["excerpt"]} for n, it in enumerate(items)]
     from .decisions import rulings_text
-    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=cached_system(SYSTEM + rulings_text()),
-                                  messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}])
-    text = "".join(b.text for b in resp.content if b.type == "text")
-    text = text[text.find("{"): text.rfind("}") + 1]
-    out = {}
-    for r in json.loads(text).get("results", []):
-        out[int(r["i"])] = (bool(r.get("supported")), str(r.get("why", ""))[:200])
-    return out
+    llm = llm or shared()
+    system = SYSTEM + rulings_text()
+    answers = llm.per_item("support", items, lambda it: [system, it["claim"], it["excerpt"]], 25,
+                           lambda chunk: _support_req(chunk, system), _parse_results("supported"))
+    return {n: (a[0], a[1]) for n, a in enumerate(answers) if a is not None}
 
 
 def describe(claim: dict) -> str:
@@ -74,44 +82,46 @@ def describe(claim: dict) -> str:
     return f"Site: {v.get('name_en')} ({v.get('site_type')}) in {v.get('city') or v.get('place_text') or '?'}: {v.get('summary', '')[:200]}"
 
 
-def place_check(items: list[dict], client) -> dict[int, tuple[bool, str]]:
+def place_check(items: list[dict], llm=None) -> dict[int, tuple[bool, str]]:
+    """Is each record a specific physical place? Cached per record, so unchanged sites are never asked again."""
     if not items:
         return {}
     from .decisions import rulings_text
-    resp = client.messages.create(model=VERIFY_MODEL, max_tokens=4000, system=cached_system(PLACE_SYSTEM + rulings_text()),
-                                  messages=[{"role": "user", "content": json.dumps(
-                                      [{"i": n, **it} for n, it in enumerate(items)], ensure_ascii=False)}])
-    text = "".join(b.text for b in resp.content if b.type == "text")
-    text = text[text.find("{"): text.rfind("}") + 1]
-    return {int(r["i"]): (bool(r.get("place")), str(r.get("why", ""))[:200]) for r in json.loads(text).get("results", [])}
+    llm = llm or shared()
+    system = PLACE_SYSTEM + rulings_text()
+
+    def build(chunk: list[dict]) -> Req:
+        return Req(model=VERIFY_MODEL, max_tokens=4000, system=system, purpose="verify-places",
+                   user=json.dumps([{"i": n, **it} for n, it in enumerate(chunk)], ensure_ascii=False))
+
+    answers = llm.per_item("place", items, lambda it: [system, it], 25, build, _parse_results("place"))
+    return {n: (a[0], a[1]) for n, a in enumerate(answers) if a is not None}
 
 
-def check_places(store, client) -> dict:
+def check_places(store, llm=None) -> dict:
     """Every verified site must be a specific physical place; others are rejected. Re-runnable: it only looks at
-    sites currently `verified`, so earlier verifications are re-checked under this rule too."""
+    sites currently `verified`, so earlier verifications are re-checked under this rule too (cached answers are free)."""
     sites = store.select("sites", select="id,name_en,site_type,summary,place_text:modern_address,review_note", status="eq.verified")
     stats = {"checked": 0, "not_a_place": 0}
-    for i in range(0, len(sites), 25):
-        batch = sites[i:i + 25]
-        items = []
-        for s in batch:
-            ex = store.select("claims", select="excerpt", subject_id=f"eq.{s['id']}", status="eq.verified", limit="1")
-            items.append({"name": s["name_en"], "type": s["site_type"], "summary": (s.get("summary") or "")[:300],
-                          "address": s.get("place_text"), "excerpt": (ex[0]["excerpt"] if ex else "")})
-        try:
-            res = place_check(items, client)
-        except Exception as e:  # noqa: BLE001
-            notice(f"verify: place check failed ({type(e).__name__}); batch left verified-pending-recheck", "warning")
-            continue
-        for n, s in enumerate(batch):
-            if n not in res:
-                continue  # no answer for this one: stays verified and is re-checked next run
-            ok, why = res[n]
-            stats["checked"] += 1
-            if not ok:
-                stats["not_a_place"] += 1
-                store.update("sites", {"id": s["id"], "status": "verified"},
-                             {"status": "rejected", "review_note": f"not a specific physical place: {why}"[:500]})
+    items = []
+    for s in sites:
+        ex = store.select("claims", select="excerpt", subject_id=f"eq.{s['id']}", status="eq.verified", limit="1")
+        items.append({"name": s["name_en"], "type": s["site_type"], "summary": (s.get("summary") or "")[:300],
+                      "address": s.get("place_text"), "excerpt": (ex[0]["excerpt"] if ex else "")})
+    try:
+        res = place_check(items, llm)
+    except Exception as e:  # noqa: BLE001
+        notice(f"verify: place check failed ({type(e).__name__}); sites stay verified and are re-checked next run", "warning")
+        res = {}
+    for n, s in enumerate(sites):
+        if n not in res:
+            continue  # no answer for this one: stays verified and is re-checked next run
+        ok, why = res[n]
+        stats["checked"] += 1
+        if not ok:
+            stats["not_a_place"] += 1
+            store.update("sites", {"id": s["id"], "status": "verified"},
+                         {"status": "rejected", "review_note": f"not a specific physical place: {why}"[:500]})
     notice(f"verify places: {stats}")
     return stats
 
@@ -135,14 +145,16 @@ def settle(store) -> dict:
     return stats
 
 
-def run(store, client=None, use_model: bool = True) -> dict:
+def run(store, llm=None, use_model: bool = True) -> dict:
     claims = store.select("claims", select="id,subject_kind,subject_id,value,source_id,excerpt,status",
                           extracted_by="eq.llm", verified_at="is.null", limit="2000")
     if not claims:
         notice("verify: no new claims")
         settle(store)
         if use_model and ANTHROPIC_API_KEY:
-            check_places(store, client or _client())
+            llm = llm or shared()
+            check_places(store, llm)
+            llm.report()
         return {}
     docs = {d["source_id"]: d.get("text") or "" for d in store.select("documents", select="source_id,text")}
     now = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -167,25 +179,24 @@ def run(store, client=None, use_model: bool = True) -> dict:
         else:
             by_source[c["source_id"]].append(c)
 
-    client = client or (_client() if use_model and ANTHROPIC_API_KEY else None)
-    for group in by_source.values():
-        for i in range(0, len(group), 25):
-            batch = group[i:i + 25]
-            try:
-                res = support_check([{"claim": describe(c), "excerpt": c["excerpt"]} for c in batch], client) if client else {}
-            except Exception as e:  # noqa: BLE001 - leave this batch unchecked; it is retried next run
-                notice(f"verify: support check failed ({type(e).__name__}: {str(e)[:200]}); batch left for next run", "warning")
-                for c in batch:
-                    kinds.pop(c["subject_id"], None)
-                continue
-            for n, c in enumerate(batch):
-                ok, why = res.get(n, (False, "support check unavailable"))
-                verdict[c["subject_id"]].append(ok)
-                stats["supported" if ok else "unsupported"] += 1
-                if not ok:
-                    notes[c["subject_id"]].append(why)
-                store.update("claims", {"id": c["id"]}, {"status": "verified" if ok else "rejected",
-                                                         "review_note": None if ok else why, "verified_at": now})
+    llm = llm or (shared() if use_model and ANTHROPIC_API_KEY else None)
+    pending = [c for group in by_source.values() for c in group]
+    try:
+        res = support_check([{"claim": describe(c), "excerpt": c["excerpt"]} for c in pending], llm) if llm else {}
+    except Exception as e:  # noqa: BLE001 - leave these claims unchecked; they are retried next run
+        notice(f"verify: support check failed ({type(e).__name__}: {str(e)[:200]}); claims left for next run", "warning")
+        res = {}
+    for n, c in enumerate(pending):
+        if n not in res:
+            kinds.pop(c["subject_id"], None)  # no answer yet (e.g. batch still running): retried next run
+            continue
+        ok, why = res[n]
+        verdict[c["subject_id"]].append(ok)
+        stats["supported" if ok else "unsupported"] += 1
+        if not ok:
+            notes[c["subject_id"]].append(why)
+        store.update("claims", {"id": c["id"]}, {"status": "verified" if ok else "rejected",
+                                                 "review_note": None if ok else why, "verified_at": now})
 
     table = {"site": "sites", "event": "events", "person": "persons"}
     for sid, oks in verdict.items():
@@ -199,6 +210,7 @@ def run(store, client=None, use_model: bool = True) -> dict:
             notice(f"verify: could not update {kinds[sid]} {sid}: {e}", "warning")
     notice(f"verify: {stats}")
     settle(store)
-    if client:
-        check_places(store, client)
+    if llm:
+        check_places(store, llm)
+        llm.report()
     return stats
