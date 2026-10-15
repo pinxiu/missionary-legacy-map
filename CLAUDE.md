@@ -34,7 +34,7 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 Every model call goes through `pipeline/mlm/llm.py`: results are cached (`.mlm-work/llm-cache` and the `llm_cache` table),
 uncached Claude requests go out as half-price Message Batches, and each stage prints a cost line (`llm[stage]: … ~$`).
 Extraction runs on Haiku and escalates a page to Sonnet only when local checks fail. Translation uses the seed glossary,
-then Wikidata (people), then Gemini's free tier (`GEMINI_API_KEY`) or Haiku. The verifier (Sonnet) and the auditor (Opus)
+then Wikidata (people), then Haiku (Gemini's free tier only if `MLM_TRANSLATE_MODEL` selects it after a benchmark). The verifier (Sonnet) and the auditor (Opus)
 keep their models: they are the correctness gates. Claude Code steps use `CLAUDE_CODE_OAUTH_TOKEN` (the owner's
 subscription) when it is set. Never add a model call that bypasses `llm.py`.
 The verifier's excerpt check is script-insensitive (Traditional = Simplified) and accepts an elided quote ("A … B") only if

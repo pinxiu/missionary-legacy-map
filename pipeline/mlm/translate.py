@@ -5,7 +5,7 @@ marked 'translated', and the map shows those names with a 译 badge. Sources, in
   1. Glossary: names already in the hand-curated seed and in records whose Chinese name a source wrote (free).
   2. Wikidata, for people only, when exactly one person with the same name, birth year and death year has a
      Simplified Chinese label (free; established names such as 戴德生 instead of a phonetic guess).
-  3. A model, for everything else: Gemini's free tier when GEMINI_API_KEY is set, Claude Haiku otherwise. Requests
+  3. A model, for everything else: Claude Haiku by default (MLM_TRANSLATE_MODEL can select Gemini's free tier). Requests
      cover many documents at once and every phrase is cached, so a society or description is translated only once.
 A machine-translation API is not used: it turns historical names into phonetic guesses, which rule 5 forbids presenting
 as names.
