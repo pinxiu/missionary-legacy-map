@@ -89,7 +89,7 @@ It shows our record, what the auditor read, and the source quote. Add ONE label:
 | Label | Effect |
 |---|---|
 | `decision:keep-record` | Our record is right as it is; the audit counts as agreeing (this does not publish anything) |
-| `decision:edit-record` | Edit the JSON block in the issue first; those fields are updated and the audit counts as agreeing |
+| `decision:edit-record` | Edit the JSON block in the issue first; those fields are updated and the audit counts as agreeing. Change `"region"` to another city's slug (e.g. `shanghai`) to move the record to that city and its unit; add `lat`/`lng` for an exact pin, otherwise it sits at the city centre |
 | `decision:reject-record` | The record is rejected and stays off the map |
 
 Add a line `ruling: …` in the issue or a comment to set a general rule (e.g. `ruling: A leprosy settlement counts as a

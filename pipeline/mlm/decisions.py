@@ -24,7 +24,30 @@ RULINGS = REPO_ROOT / "coverage" / "rulings.md"
 LABELS = {"needs-decision": "d93f0b", "decision:keep-record": "0e8a16", "decision:edit-record": "fbca04",
           "decision:reject-record": "b60205"}
 FIXABLE = {"name_en", "name_zh", "name_zh_status", "site_type", "geo_precision", "summary", "summary_zh",
-           "modern_address", "current_status", "current_status_zh", "lat", "lng"}
+           "modern_address", "current_status", "current_status_zh", "lat", "lng", "region"}
+
+
+def site_changes(store, changes: dict) -> dict:
+    """Turn an owner's edit into columns of `sites`. `region` moves the site to another city (and its unit); `lat`/`lng`
+    become the `location` point. Moving city without coordinates puts the pin at that city's centre, marked `city`."""
+    from .coverage import regions_of, units
+    from .geocode import REGION_CENTROIDS
+
+    out = {k: v for k, v in changes.items() if k not in ("lat", "lng", "region")}
+    region = changes.get("region")
+    if region:
+        if not store.select("regions", select="slug", slug=f"eq.{region}"):
+            raise SystemExit(f"Unknown city '{region}': use a slug from the regions table (e.g. shanghai, nanjing).")
+        out["region"] = region
+        out["unit"] = next((u["id"] for u in units() if region in regions_of(u)), None)
+    lat, lng = changes.get("lat"), changes.get("lng")
+    if lat is not None and lng is not None:
+        out["location"] = f"SRID=4326;POINT({float(lng)} {float(lat)})"
+    elif region and region in REGION_CENTROIDS:
+        clat, clng = REGION_CENTROIDS[region]
+        out["location"] = f"SRID=4326;POINT({clng} {clat})"
+        out["geo_precision"] = "city"
+    return out
 
 
 def rulings_text() -> str:
@@ -46,7 +69,7 @@ def issue_body(audit: dict, site: dict, events: list[dict], excerpt: str, source
     answer = (audit.get("detail") or {}).get("answer", {})
     why = (audit.get("detail") or {}).get("why", "")
     ours = {k: site.get(k) for k in ("name_en", "name_zh", "site_type", "geo_precision", "summary")}
-    fix = {k: site.get(k) for k in ("site_type", "name_en", "name_zh", "summary")}
+    fix = {k: site.get(k) for k in ("site_type", "name_en", "name_zh", "summary", "region")}
     if answer.get("site_type") and answer["site_type"] != site.get("site_type"):
         fix["site_type"] = answer["site_type"]
     years = ", ".join(str(e["year_start"]) for e in events if e.get("year_start")) or "none"
@@ -74,6 +97,7 @@ def issue_body(audit: dict, site: dict, events: list[dict], excerpt: str, source
 ### Decide (add ONE label)
 - `decision:keep-record` — our record is right as it is; count the audit as agreeing. (Publishing is separate.)
 - `decision:edit-record` — edit the JSON below first, then add the label; those fields are updated and the audit counts as agreeing.
+  To move it to another city, change `"region"` to that city's slug (e.g. `"shanghai"`); add `lat`/`lng` for an exact pin.
 - `decision:reject-record` — the record is wrong or can't be verified; it stays off the map.
 
 Optional: add a line starting with `ruling:` (here or in a comment) to set a general rule for all future records,
@@ -155,7 +179,7 @@ def decide(store, issue: int) -> str:
         if not fm:
             raise SystemExit("decision:edit-record needs the JSON block after <!-- fix -->.")
         changes = {k: v for k, v in json.loads(fm.group(1)).items() if k in FIXABLE}
-        store.update("sites", {"id": site_id}, changes)
+        store.update("sites", {"id": site_id}, site_changes(store, changes))
         summary = f"updated {', '.join(sorted(changes))}"
     elif choice == "reject-record":
         store.update("sites", {"id": site_id}, {"status": "rejected", "review_note": f"rejected by owner (#{issue})"})

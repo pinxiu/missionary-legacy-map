@@ -16,3 +16,13 @@ jiangsu:
   - {slug: zhenjiang,   en: Zhenjiang,   zh: 镇江,   lat: 32.1877, lng: 119.4250}
   - {slug: taizhou-js,  en: Taizhou (Jiangsu), zh: 泰州, lat: 32.4555, lng: 119.9230}
   - {slug: suqian,      en: Suqian,      zh: 宿迁,   lat: 33.9630, lng: 118.2753}
+
+# Municipalities are both province and city: the unit's own region slug is the city.
+shanghai:
+  - {slug: shanghai,  en: Shanghai,  zh: 上海, lat: 31.2304, lng: 121.4737}
+beijing:
+  - {slug: beijing,   en: Beijing,   zh: 北京, lat: 39.9042, lng: 116.4074}
+tianjin:
+  - {slug: tianjin,   en: Tianjin,   zh: 天津, lat: 39.3434, lng: 117.3616}
+chongqing:
+  - {slug: chongqing, en: Chongqing, zh: 重庆, lat: 29.5630, lng: 106.5516}

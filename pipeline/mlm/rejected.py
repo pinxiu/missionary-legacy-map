@@ -234,5 +234,8 @@ def decide(store, issue: int, kind: str, rid: str, choice: str, body: str) -> st
     for c in found:
         if c["status"] == "rejected":
             store.update("claims", {"id": c["id"]}, {"status": "verified", "review_note": f"accepted by owner (#{issue})"})
+    if kind == "site":
+        from .decisions import site_changes
+        changes = site_changes(store, changes)
     store.update(table, {"id": rid}, {**changes, "status": "verified", "review_note": f"restored by owner (#{issue})"})
     return f"restored as verified{' with ' + ', '.join(sorted(changes)) + ' updated' if changes else ''}"

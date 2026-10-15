@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -48,4 +48,8 @@ jobs:
       - if: inputs.task == 'regeocode-jiangsu'
         run: |
           mlm regeocode --unit CN-JS
+          mlm refresh-site
+      - if: inputs.task == 'regeocode-shanghai'
+        run: |
+          mlm regeocode --unit CN-SH
           mlm refresh-site

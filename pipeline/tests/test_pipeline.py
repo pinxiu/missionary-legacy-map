@@ -326,5 +326,26 @@ def test_resolve_city_uses_province_suffix_for_shared_names():
 def test_jiangsu_cities_have_centres_in_jiangsu():
     from mlm.geocode import CITIES, REGION_CENTROIDS
 
-    assert len(CITIES) == 13 and all(30.7 < c["lat"] < 35.2 and 116.3 < c["lng"] < 122.0 for c in CITIES.values())
+    js = [c for c in CITIES.values() if c["province"] == "jiangsu"]
+    assert len(js) == 13 and all(30.7 < c["lat"] < 35.2 and 116.3 < c["lng"] < 122.0 for c in js)
+    assert 120 < CITIES["shanghai"]["lng"] < 122 and 30 < CITIES["shanghai"]["lat"] < 32
     assert REGION_CENTROIDS["suzhou"][1] > 120
+
+
+def test_edit_record_can_move_a_site_to_another_city():
+    import pytest
+
+    from mlm import decisions as dc
+
+    class S:
+        def select(self, table, **kw):
+            return [{"slug": "shanghai"}] if kw.get("slug") == "eq.shanghai" else []
+
+    out = dc.site_changes(S(), {"region": "shanghai", "summary": "x"})
+    assert out["region"] == "shanghai" and out["unit"] == "CN-SH" and out["geo_precision"] == "city"
+    assert out["location"].startswith("SRID=4326;POINT(121.") and out["summary"] == "x"
+    pinned = dc.site_changes(S(), {"region": "shanghai", "lat": 31.2, "lng": 121.4})
+    assert pinned["location"] == "SRID=4326;POINT(121.4 31.2)" and "geo_precision" not in pinned
+    assert "lat" not in dc.site_changes(S(), {"lat": 1, "lng": 2})
+    with pytest.raises(SystemExit):
+        dc.site_changes(S(), {"region": "atlantis"})
