@@ -229,3 +229,26 @@ def test_wikidata_requires_unique_match_on_both_years():
     assert translate.wikidata_person("Hudson Taylor", None, 1905, H({"Q1": person("戴德生", 1832, 1905)})) is None
     two = H({"Q1": person("甲", 1832, 1905), "Q2": person("乙", 1832, 1905)})
     assert translate.wikidata_person("John Smith", 1832, 1905, two) is None
+
+
+def test_excerpt_matcher_accepts_elisions_and_script_but_not_stitching():
+    from mlm.verify import excerpt_found
+    text = ("稻惟德医师是英国内地会医疗传教士，生于1848年。1874年来华，作为中国内地会传教士，起初在浙江绍兴宣教。"
+            + "x" * 3000 + "后于1880年应邀前往温州。")
+    assert excerpt_found("稻惟德医师是英国内地会医疗传教士……起初在浙江绍兴宣教", text)
+    assert excerpt_found("1915年，金陵女子大學在南京開學", "1915年，金陵女子大学在南京开学。")
+    assert not excerpt_found("起初在浙江绍兴宣教……生于1848年", text)        # wrong order
+    assert not excerpt_found("生于1848年……后于1880年应邀前往温州", text)      # pieces too far apart
+    assert not excerpt_found("生于1848年……他发明了电话", text)                 # a piece not in the source
+    assert not excerpt_found("生于1848年……绍", text)                          # a piece too short to mean anything
+
+
+def test_snap_fixes_a_dropped_word_only_when_close():
+    from mlm.extract import snap_excerpts
+    text = "In 1876 the new Tianshui Church was built by the American Presbyterian mission outside the gate."
+    ex = Extraction.model_validate({"document_url": "u", "sites": [{"name_en": "x", "evidence": [
+        {"source_url": "u", "excerpt": "In 1876 the Tianshui Church was built by the American Presbyterian mission"},
+        {"source_url": "u", "excerpt": "In 1890 the Gulou Church was destroyed by a great fire in the city"}]}]})
+    assert snap_excerpts(ex, text) == 1
+    ev = ex.sites[0].evidence
+    assert ev[0].excerpt in text and ev[1].excerpt.startswith("In 1890")

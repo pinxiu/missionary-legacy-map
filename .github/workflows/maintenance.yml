@@ -1,13 +1,13 @@
 name: Maintenance
 
-# One-off data maintenance, run by hand. No model calls.
+# One-off data maintenance, run by hand. No model calls, except verify-recheck (the trusted verifier's support check).
 on:
   workflow_dispatch:
     inputs:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -20,7 +20,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -38,6 +38,15 @@ jobs:
         run: mlm dedupe
       - if: inputs.task == 'refresh-site'
         run: mlm refresh-site
+      - if: inputs.task == 'verify-recheck-dry-run'
+        run: mlm verify-recheck --dry-run
+      - if: inputs.task == 'verify-recheck'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MLM_BATCH_WAIT_MIN: "15"
+        run: |
+          mlm verify-recheck
+          mlm coverage status > /dev/null
       - if: inputs.task == 'regeocode-jiangsu'
         run: |
           mlm regeocode --unit CN-JS

@@ -79,9 +79,40 @@ def parse(result: dict | None, page: dict) -> Extraction | None:
     try:
         data = dict(result["tool_input"])
         data["document_url"] = page["url"]
-        return Extraction.model_validate(data)
+        ex = Extraction.model_validate(data)
     except Exception:  # noqa: BLE001
         return None
+    snap_excerpts(ex, page.get("text", "")[:MAX_CHARS])
+    return ex
+
+
+SNAP_MIN_SCORE = 92
+
+
+def snap_excerpts(ex: Extraction, text: str) -> int:
+    """Replace a quoted excerpt that is almost, but not exactly, in the page (changed punctuation, case or spacing, a
+    dropped word) with the page's own text for that passage. The verifier only accepts verbatim excerpts and then asks
+    whether the excerpt supports the claim, so this changes no verdict on its own: it stops good claims being thrown
+    away (and pages being re-extracted with the expensive model) over transcription slips. Returns how many it fixed."""
+    from rapidfuzz import fuzz
+
+    from .verify import MIN_EXCERPT, excerpt_found
+    evs = [e for p in ex.persons for e in p.evidence] + [e for s in ex.sites for e in s.evidence] + \
+          [e for s in ex.sites for ev in s.events for e in ev.evidence]
+    fixed = 0
+    for e in evs:
+        if not e.excerpt or excerpt_found(e.excerpt, text):
+            continue
+        r = fuzz.partial_ratio_alignment(e.excerpt, text, score_cutoff=SNAP_MIN_SCORE)
+        if r is None:
+            continue
+        span = text[r.dest_start:r.dest_end].strip()
+        if abs(len(span) - len(e.excerpt)) > 0.2 * len(e.excerpt) or not (MIN_EXCERPT <= len(span) <= 300):
+            continue
+        if excerpt_found(span, text):
+            e.excerpt = span
+            fixed += 1
+    return fixed
 
 
 def excerpt_rate(ex: Extraction, text: str) -> tuple[int, int]:
