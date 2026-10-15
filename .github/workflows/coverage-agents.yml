@@ -7,11 +7,11 @@ name: Coverage agents
 #   4. Status job updates the unit issue and STATUS.md; when the gates are met the unit goes to needs-approval.
 # Nothing is published until the owner adds `approved` to the unit issue (handled by apply-approved.yml).
 
-# GitHub often drops scheduled runs, so the schedule fires hourly and the cheap `due` job lets the real work run
+# GitHub often drops scheduled runs, so the schedule fires every 2 hours and the cheap `due` job lets the real work run
 # only when no run has started in the last ~5.5 hours (about every 6 hours, without depending on any single slot).
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17 */2 * * *"   # each check bills at least a minute; work is due about every 6 hours
   workflow_dispatch:
     inputs:
       unit:
@@ -60,7 +60,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
-      MLM_BATCH_WAIT_MIN: "150"   # half-price batches; a batch still running after this is collected next run
+      MLM_BATCH_WAIT_MIN: "10"    # don't keep a billed runner idle: a batch still running is collected by the next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:

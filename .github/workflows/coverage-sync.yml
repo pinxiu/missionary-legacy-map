@@ -12,6 +12,7 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: read
 
 jobs:
   sync:
@@ -33,6 +34,7 @@ jobs:
       - run: mlm coverage sync
       - run: mlm decisions sync
       - run: mlm decisions rejected
+      - run: mlm actions-usage || true   # minutes pace vs the account quota, shown in the run annotations
       - run: mlm cache prune --days 180   # drop model results unused for 6 months (keeps the DB in the free tier)
       - run: |
           mlm coverage status > /dev/null
