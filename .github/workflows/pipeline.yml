@@ -35,6 +35,8 @@ jobs:
       REGION: ${{ inputs.region || 'zhejiang' }}
       STAGE: ${{ inputs.stage || 'all' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
+      MLM_BATCH_WAIT_MIN: "60"
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       GH_TOKEN: ${{ github.token }}
@@ -80,7 +82,7 @@ jobs:
         if: (env.STAGE == 'all' || env.STAGE == 'extract') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
         run: mlm run --unit "$UNIT" --region "$REGION" --stage extract
 
-      - name: Translate (fill missing Chinese with Haiku)
+      - name: Translate (glossary, Wikidata, then Gemini free tier or Haiku)
         if: (env.STAGE == 'all' || env.STAGE == 'translate') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
         run: mlm run --unit "$UNIT" --region "$REGION" --stage translate
 

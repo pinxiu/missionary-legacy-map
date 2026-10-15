@@ -59,6 +59,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
+      MLM_BATCH_WAIT_MIN: "150"   # half-price batches; a batch still running after this is collected next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
@@ -87,7 +89,9 @@ jobs:
         if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Your Claude subscription pays when CLAUDE_CODE_OAUTH_TOKEN is set (`claude setup-token`); the API key is the fallback.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN == '' && secrets.ANTHROPIC_API_KEY || '' }}
           claude_args: >-
             --model claude-sonnet-5-5
             --max-turns 60

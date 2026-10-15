@@ -9,8 +9,16 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import ANTHROPIC_API_KEY, EXTRACT_MODEL, WORK_DIR, cached_system, notice
+from .config import (
+    ANTHROPIC_API_KEY,
+    EXTRACT_ESCALATE_MODEL,
+    EXTRACT_MIN_EXCERPT_RATE,
+    EXTRACT_MODEL,
+    WORK_DIR,
+    notice,
+)
 from .crawl import load_registry
+from .llm import Req, shared
 from .models import Extraction
 
 SYSTEM = """You extract historical records of Christian history from source texts for a cited historical map: missions of every
@@ -38,15 +46,14 @@ Rules:
 MAX_CHARS = 60_000
 
 
-def _client():
-    import anthropic
-
-    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-
 def relevant(text: str, keywords: list[str]) -> bool:
     lower = text.lower()
     return any(k.lower() in lower for k in keywords)
+
+
+def keyword_hits(text: str, keywords: list[str]) -> int:
+    lower = text.lower()
+    return sum(lower.count(k.lower()) for k in keywords if k)
 
 
 def system_prompt(region_cfg: dict) -> str:
@@ -56,26 +63,62 @@ def system_prompt(region_cfg: dict) -> str:
     return SYSTEM + region + rulings_text()
 
 
-def extract_page(page: dict, client=None, system: str = SYSTEM) -> Extraction:
-    client = client or _client()
+def request(page: dict, system: str = SYSTEM, model: str = EXTRACT_MODEL) -> Req:
     schema = Extraction.model_json_schema()
-    resp = client.messages.create(
-        model=EXTRACT_MODEL,
-        max_tokens=8000,
-        system=cached_system(system),
-        tools=[{"name": "record_extraction", "description": "Record the extracted records.", "input_schema": schema}],
-        tool_choice={"type": "auto"},  # forced tool choice is not supported by every model
-        messages=[{
-            "role": "user",
-            "content": f"Source URL: {page['url']}\nTitle: {page['title']}\n\n<text>\n{page['text'][:MAX_CHARS]}\n</text>",
-        }],
-    )
-    block = next((b for b in resp.content if b.type == "tool_use"), None)
-    if block is None:  # the model found nothing to record
+    return Req(model=model, system=system, max_tokens=8000, purpose="extract",
+               tools=[{"name": "record_extraction", "description": "Record the extracted records.", "input_schema": schema}],
+               user=f"Source URL: {page['url']}\nTitle: {page['title']}\n\n<text>\n{page['text'][:MAX_CHARS]}\n</text>")
+
+
+def parse(result: dict | None, page: dict) -> Extraction | None:
+    """The extraction in a model result; None if the result is missing or malformed."""
+    if result is None:
+        return None
+    if result.get("tool_input") is None:  # the model found nothing to record
         return Extraction(document_url=page["url"])
-    data = dict(block.input)
-    data["document_url"] = page["url"]
-    return Extraction.model_validate(data)
+    try:
+        data = dict(result["tool_input"])
+        data["document_url"] = page["url"]
+        return Extraction.model_validate(data)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def excerpt_rate(ex: Extraction, text: str) -> tuple[int, int]:
+    """(excerpts found verbatim in the page, excerpts given). The same check the trusted verifier applies first."""
+    from .verify import excerpt_found
+    evs = [e for p in ex.persons for e in p.evidence] + [e for s in ex.sites for e in s.evidence] + \
+          [e for s in ex.sites for ev in s.events for e in ev.evidence]
+    return sum(excerpt_found(e.excerpt, text) for e in evs), len(evs)
+
+
+def needs_escalation(result: dict | None, ex: Extraction | None, page: dict, keywords: list[str]) -> str:
+    """Why the cheap model's result should be redone with the stronger one ('' = keep it)."""
+    if result is None:
+        return ""  # not answered this run (e.g. batch still running): retried next run, not escalated
+    if ex is None:
+        return "malformed output"
+    if result.get("stop_reason") == "max_tokens":
+        return "output cut off"
+    found, total = excerpt_rate(ex, page["text"][:MAX_CHARS])
+    if total and found / total < EXTRACT_MIN_EXCERPT_RATE:
+        return f"only {found}/{total} excerpts found in the page"
+    if not (ex.sites or ex.persons) and keyword_hits(page["text"][:MAX_CHARS], keywords) >= 3:
+        return "nothing found on a clearly relevant page"
+    return ""
+
+
+def extract_page(page: dict, llm=None, system: str = SYSTEM) -> Extraction:
+    """One page through the cheap model, escalating once if its result fails the local checks (used for single pages)."""
+    llm = llm or shared()
+    res = llm.one(request(page, system))
+    ex = parse(res, page)
+    if needs_escalation(res, ex, page, []) and EXTRACT_ESCALATE_MODEL != EXTRACT_MODEL:
+        res = llm.one(request(page, system, EXTRACT_ESCALATE_MODEL))
+        ex = parse(res, page)
+    if ex is None:
+        raise RuntimeError("no extraction returned")
+    return ex
 
 
 def same_page(old: str | None, new: str, threshold: float = 0.9) -> bool:
@@ -115,9 +158,11 @@ def run(region: str) -> Path:
     raw = WORK_DIR / "raw" / region
     out = WORK_DIR / "extracted" / region
     out.mkdir(parents=True, exist_ok=True)
-    client = _client()
-    stats = {"pages": 0, "cached": 0, "already_loaded": 0, "irrelevant": 0, "extracted": 0, "failed": 0}
+    llm = shared()
+    stats = {"pages": 0, "cached": 0, "already_loaded": 0, "irrelevant": 0, "extracted": 0, "escalated": 0,
+             "failed": 0, "pending": 0}
     archived = _archived_texts()
+    todo: list[tuple[Path, dict]] = []
     for f in sorted(raw.glob("*.json")):
         stats["pages"] += 1
         target = out / f.name
@@ -135,15 +180,41 @@ def run(region: str) -> Path:
         if page.get("kind") == "bibliography" or not relevant(page["text"], keywords):
             stats["irrelevant"] += 1
             continue
-        print(f"[extract] {page['url']}")
-        try:
-            ex = extract_page(page, client, system)
-        except Exception as e:  # noqa: BLE001 - keep the batch going; failures are re-tried next run
-            stats["failed"] += 1
-            if stats["failed"] <= 3:
-                notice(f"extract failed for {page['url']}: {type(e).__name__}: {str(e)[:300]}", "warning")
-            continue
+        todo.append((out / f.name, page))
+
+    # Pass 1: every page through the cheap model, as one batch (cached results cost nothing).
+    first = llm.run([request(page, system) for _, page in todo])
+    results: list[Extraction | None] = []
+    redo: list[int] = []
+    for n, ((_, page), res) in enumerate(zip(todo, first, strict=True)):
+        ex = parse(res, page)
+        why = needs_escalation(res, ex, page, keywords) if EXTRACT_ESCALATE_MODEL != EXTRACT_MODEL else ""
+        if why:
+            redo.append(n)
+            if len(redo) <= 5:
+                print(f"[extract] escalating ({why}): {page['url']}")
+        results.append(ex if res is not None else None)
+        if res is None:
+            stats["pending"] += 1
+
+    # Pass 2: the pages that failed the checks, through the stronger model, as one batch.
+    if redo:
+        second = llm.run([request(todo[n][1], system, EXTRACT_ESCALATE_MODEL) for n in redo])
+        for n, res in zip(redo, second, strict=True):
+            ex = parse(res, todo[n][1])
+            if ex is not None:
+                results[n] = ex
+                stats["escalated"] += 1
+            elif res is None:
+                results[n] = None  # not answered yet: retried next run rather than keeping the weaker result
+                stats["pending"] += 1
+
+    for (target, _page), ex in zip(todo, results, strict=True):
+        if ex is None:
+            continue  # pending (answered in a later run) or malformed twice (retried next run)
         stats["extracted"] += 1
         target.write_text(ex.model_dump_json(indent=2))
+    stats["failed"] = len(todo) - stats["extracted"] - stats["pending"]
     notice(f"extract[{region}]: {stats}")
+    llm.report()
     return out

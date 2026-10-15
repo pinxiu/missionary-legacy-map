@@ -7,10 +7,10 @@ appears in the auditor's list. Results go to the `audits` table and feed the uni
 
 from __future__ import annotations
 
-import json
 import random
 
-from .config import ANTHROPIC_API_KEY, AUDIT_MODEL, notice
+from .config import AUDIT_MODEL, notice
+from .llm import Req, parse_json, shared
 
 SYSTEM = """You read a historical source and report what it says about one named place. Use only the text.
 "specific_place" is true only if the text describes a particular building, compound, cemetery or similar spot, not just a
@@ -20,18 +20,17 @@ Return JSON only: {"found": true|false, "specific_place": true|false,
 "years": [<every year the text ties to this place>], "notes": "<one line>"}"""
 
 
-def _client():
-    import anthropic
-
-    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-
-def ask(name: str, text: str, client) -> dict:
+def request(name: str, text: str) -> Req:
     from .decisions import rulings_text
-    resp = client.messages.create(model=AUDIT_MODEL, max_tokens=1500, system=SYSTEM + rulings_text(), messages=[{
-        "role": "user", "content": f"Place: {name}\n\n<text>\n{text[:60000]}\n</text>"}])
-    out = "".join(b.text for b in resp.content if b.type == "text")
-    return json.loads(out[out.find("{"): out.rfind("}") + 1])
+    return Req(model=AUDIT_MODEL, max_tokens=1500, system=SYSTEM + rulings_text(), purpose="audit",
+               user=f"Place: {name}\n\n<text>\n{text[:60000]}\n</text>")
+
+
+def ask(name: str, text: str, llm=None) -> dict:
+    res = (llm or shared()).one(request(name, text))
+    if res is None:
+        raise RuntimeError("no answer from the auditor this run")
+    return parse_json(res["text"])
 
 
 def agrees(record: dict, events: list[dict], answer: dict) -> tuple[bool, str]:
@@ -48,31 +47,37 @@ def agrees(record: dict, events: list[dict], answer: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
-def run(store, uid: str, regions: list[str], sample: int = 10, client=None) -> dict:
+def run(store, uid: str, regions: list[str], sample: int = 10, llm=None) -> dict:
     audited = {a["subject_id"] for a in store.select("audits", select="subject_id", unit=f"eq.{uid}")}
     sites = [s for s in store.select("sites", select="id,name_en,site_type,region,unit,status")
              if s["status"] == "verified" and (s.get("unit") == uid or s["region"] in regions) and s["id"] not in audited]
     if not sites:
         notice(f"audit[{uid}]: nothing new to audit")
         return {}
-    client = client or _client()
+    llm = llm or shared()
     docs = {d["source_id"]: d.get("text") or "" for d in store.select("documents", select="source_id,text")}
     stats = {"audited": 0, "agree": 0}
+    picked = []
     for s in random.sample(sites, min(sample, len(sites))):
         claims = store.select("claims", select="source_id", subject_id=f"eq.{s['id']}", status="eq.verified")
         text = next((docs[c["source_id"]] for c in claims if docs.get(c["source_id"])), "")
-        if not text:
+        if text:
+            picked.append((s, text))
+    answers = llm.run([request(s["name_en"], text) for s, text in picked])  # one batch for the whole sample
+    for (s, _text), res in zip(picked, answers, strict=True):
+        if res is None:
+            continue  # not answered this run; the site stays unaudited and can be sampled again
+        try:
+            answer = parse_json(res["text"])
+        except ValueError as e:
+            notice(f"audit: {s['name_en']}: unreadable answer ({e})", "warning")
             continue
         events = store.select("events", select="year_start", site_id=f"eq.{s['id']}", status="eq.verified")
-        try:
-            answer = ask(s["name_en"], text, client)
-        except Exception as e:  # noqa: BLE001
-            notice(f"audit: {s['name_en']}: {e}", "warning")
-            continue
         ok, why = agrees(s, events, answer)
         store.insert("audits", [{"unit": uid, "subject_kind": "site", "subject_id": s["id"], "agree": ok,
                                  "detail": {"why": why, "answer": answer}, "model": AUDIT_MODEL}])
         stats["audited"] += 1
         stats["agree"] += ok
     notice(f"audit[{uid}]: {stats}")
+    llm.report()
     return stats

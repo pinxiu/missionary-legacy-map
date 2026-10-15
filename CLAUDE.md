@@ -30,6 +30,14 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 10. **Follow the owner's rulings.** `coverage/rulings.md` holds general decisions from `needs-decision` issues; they
     override your own judgement in every extraction, verification and audit.
 
+## Model costs
+Every model call goes through `pipeline/mlm/llm.py`: results are cached (`.mlm-work/llm-cache` and the `llm_cache` table),
+uncached Claude requests go out as half-price Message Batches, and each stage prints a cost line (`llm[stage]: … ~$`).
+Extraction runs on Haiku and escalates a page to Sonnet only when local checks fail. Translation uses the seed glossary,
+then Wikidata (people), then Gemini's free tier (`GEMINI_API_KEY`) or Haiku. The verifier (Sonnet) and the auditor (Opus)
+keep their models: they are the correctness gates. Claude Code steps use `CLAUDE_CODE_OAUTH_TOKEN` (the owner's
+subscription) when it is set. Never add a model call that bypasses `llm.py`.
+
 ## Status lifecycle
 `pending` (loaded) → `verified` (trusted verifier) → `approved`/`conflict` (owner approved unit or submission) — public.
 `rejected` records stay private with a `review_note`.
