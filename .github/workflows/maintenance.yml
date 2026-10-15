@@ -44,9 +44,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           MLM_BATCH_WAIT_MIN: "15"
-        run: |
-          mlm verify-recheck
-          mlm coverage status > /dev/null
+        run: mlm verify-recheck   # unit gates and STATUS.md refresh in the daily coverage-sync
       - if: inputs.task == 'regeocode-jiangsu'
         run: |
           mlm regeocode --unit CN-JS
