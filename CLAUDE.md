@@ -37,6 +37,9 @@ Extraction runs on Haiku and escalates a page to Sonnet only when local checks f
 then Wikidata (people), then Gemini's free tier (`GEMINI_API_KEY`) or Haiku. The verifier (Sonnet) and the auditor (Opus)
 keep their models: they are the correctness gates. Claude Code steps use `CLAUDE_CODE_OAUTH_TOKEN` (the owner's
 subscription) when it is set. Never add a model call that bypasses `llm.py`.
+The verifier's excerpt check is script-insensitive (Traditional = Simplified) and accepts an elided quote ("A … B") only if
+every piece is verbatim, in order, within one passage; extraction snaps near-verbatim quotes to the page's own text. Cached
+results unused for 180 days are pruned daily (`mlm cache prune`).
 
 ## Status lifecycle
 `pending` (loaded) → `verified` (trusted verifier) → `approved`/`conflict` (owner approved unit or submission) — public.

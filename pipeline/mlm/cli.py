@@ -36,6 +36,11 @@ def main(argv: list[str] | None = None) -> None:
     rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
     rg.add_argument("--unit", required=True)
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
+    cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
+    cp.add_argument("action", choices=["prune"])
+    cp.add_argument("--days", type=int, default=180)
+    rc = sub.add_parser("verify-recheck", help="Re-verify claims rejected only for an excerpt the current matcher accepts")
+    rc.add_argument("--dry-run", action="store_true")
     dd = sub.add_parser("dedupe", help="Remove exact duplicate events and claims (one-off cleanup, no model)")
     dd.add_argument("--dry-run", action="store_true")
     cov = sub.add_parser("coverage", help="Coverage tracking")
@@ -62,6 +67,16 @@ def main(argv: list[str] | None = None) -> None:
         from .site import refresh
         from .store import Store
         refresh(Store())
+        return
+    if args.cmd == "cache":
+        from . import llm
+        from .store import Store
+        llm.prune(Store(), args.days)
+        return
+    if args.cmd == "verify-recheck":
+        from . import verify
+        from .store import Store
+        verify.recheck_excerpts(Store(), dry_run=args.dry_run)
         return
     if args.cmd == "dedupe":
         from . import dedupe

@@ -10,6 +10,7 @@ dependencies = [
   "pydantic>=2.7",
   "rapidfuzz>=3.9",
   "anthropic>=0.40",
+  "opencc-python-reimplemented>=0.1.7",
 ]
 
 [project.optional-dependencies]

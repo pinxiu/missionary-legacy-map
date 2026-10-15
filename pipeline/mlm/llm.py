@@ -94,6 +94,7 @@ class Cache:
     def __init__(self, store=None, local: Path = CACHE_DIR):
         self.local = local
         self.store = store
+        self.used: set[str] = set()  # keys read this run; their last_used is refreshed by touch()
 
     def _path(self, key: str) -> Path:
         k = key.replace(":", "_")
@@ -107,6 +108,7 @@ class Cache:
             if p.exists():
                 try:
                     out[k] = json.loads(p.read_text())
+                    self.used.add(k)
                     continue
                 except ValueError:
                     pass
@@ -122,6 +124,7 @@ class Cache:
                     break
                 for r in rows:
                     out[r["key"]] = r["result"]
+                    self.used.add(r["key"])
                     self._write_local(r["key"], r["result"])
         return out
 
@@ -143,6 +146,22 @@ class Cache:
                     self.store.upsert("llm_cache", rows[i:i + 200], on_conflict="key")
             except Exception as e:  # noqa: BLE001
                 notice(f"llm cache: table write failed ({type(e).__name__}); kept locally", "warning")
+
+    def touch(self) -> None:
+        """Mark the results read this run as used now (one update per 80 keys), so pruning keeps them."""
+        if self.store is None or not self.used:
+            self.used.clear()
+            return
+        keys = sorted(k for k in self.used if not k.startswith("batch:"))
+        self.used.clear()
+        now = _now_iso()
+        try:
+            for i in range(0, len(keys), 80):
+                r = self.store.http.patch("/llm_cache", params={"key": f"in.({','.join(keys[i:i + 80])})"},
+                                          json={"last_used": now})
+                r.raise_for_status()
+        except Exception as e:  # noqa: BLE001
+            notice(f"llm cache: could not record use ({type(e).__name__})", "warning")
 
     def delete(self, key: str) -> None:
         self._path(key).unlink(missing_ok=True)
@@ -428,6 +447,7 @@ class LLM:
         return [known[k]["v"] if k in known else None for k in keys]
 
     def report(self) -> None:
+        self.cache.touch()
         for purpose, u in self.usage.items():
             if not (u.calls or u.cached):
                 continue
@@ -455,3 +475,21 @@ def shared() -> LLM:
     if _shared is None:
         _shared = LLM()
     return _shared
+
+
+def prune(store, days: int = 180) -> dict:
+    """Delete cached results unused for `days` days (in-flight batch markers are kept). Returns counts before/after."""
+    import datetime as dt
+
+    def count() -> int:
+        r = store.http.get("/llm_cache", params={"select": "key", "limit": "1"}, headers={"Prefer": "count=exact"})
+        r.raise_for_status()
+        return int(r.headers.get("content-range", "*/0").split("/")[-1] or 0)
+
+    before = count()
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+    r = store.http.delete("/llm_cache", params={"last_used": f"lt.{cutoff}", "key": "not.like.batch:*"})
+    r.raise_for_status()
+    stats = {"rows_before": before, "rows_after": count(), "unused_days": days}
+    notice(f"llm cache prune: {stats}")
+    return stats

@@ -15,6 +15,7 @@ import json
 import re
 import unicodedata
 from collections import defaultdict
+from functools import lru_cache
 
 from .config import ANTHROPIC_API_KEY, VERIFY_MODEL, notice
 from .llm import Req, parse_json, shared
@@ -33,15 +34,59 @@ Return JSON only: {"results": [{"i": <index>, "place": true|false, "why": "..."}
 MIN_EXCERPT = 12
 
 
+ELLIPSIS = re.compile(r"\s*(?:…+|\.{3,}|⋯+|\[\s*\.\.\.\s*\])\s*")
+MIN_FRAGMENT = 4        # each piece of an elided quote must still say something
+MAX_ELIDED_SPAN = 1500  # the pieces must come from one passage, not be stitched across the page
+
+
+@lru_cache(maxsize=1)
+def _t2s():
+    try:
+        from opencc import OpenCC
+        return OpenCC("t2s").convert
+    except Exception:  # noqa: BLE001 - converter missing: compare characters as they are
+        return lambda x: x
+
+
 def norm(s: str) -> str:
+    """Comparable form: Simplified script, lower case, no punctuation, single spaces. A source page and a quote from it
+    can legitimately differ in all of these (e.g. zh.wikipedia serves either script)."""
     s = unicodedata.normalize("NFKC", s or "").lower()
+    s = _t2s()(s)
     s = re.sub(r"[\s　]+", " ", s)
     return re.sub(r"[“”\"'‘’`·•,，。．.;；:：!！?？()（）\[\]【】—–-]", "", s).strip()
 
 
+@lru_cache(maxsize=256)
+def _norm_text(text: str) -> str:
+    return norm(text)
+
+
 def excerpt_found(excerpt: str, text: str) -> bool:
-    e = norm(excerpt)
-    return len(e) >= MIN_EXCERPT and e in norm(text)
+    """The excerpt is the source's own words. A quote that skips text with an ellipsis ("A … B") counts only if every
+    piece appears verbatim, in order, within one passage of the page."""
+    t = _norm_text(text or "")
+    parts = [norm(x) for x in ELLIPSIS.split(excerpt or "")]
+    parts = [x for x in parts if x]
+    if not parts or sum(len(x) for x in parts) < MIN_EXCERPT:
+        return False
+    if len(parts) == 1:
+        return parts[0] in t
+    if any(len(x) < MIN_FRAGMENT for x in parts):
+        return False
+    start = t.find(parts[0])
+    while start != -1:
+        pos, ok = start + len(parts[0]), True
+        for x in parts[1:]:
+            pos = t.find(x, pos)
+            if pos == -1:
+                ok = False
+                break
+            pos += len(x)
+        if ok and pos - start <= MAX_ELIDED_SPAN:
+            return True
+        start = t.find(parts[0], start + 1)
+    return False
 
 
 def _support_req(items: list[dict], system: str) -> Req:
@@ -202,7 +247,16 @@ def run(store, llm=None, use_model: bool = True) -> dict:
     for sid, oks in verdict.items():
         if sid not in kinds:
             continue
-        status = "verified" if oks and all(oks) else "rejected"
+        # Decide on every claim the record has, not only those checked in this run (a record can hold claims from
+        # several documents, checked in different runs). Unchecked ones keep it pending.
+        try:
+            others = store.select("claims", select="status,verified_at", subject_id=f"eq.{sid}")
+        except Exception:  # noqa: BLE001
+            others = []
+        if any(c.get("verified_at") is None and c.get("status") != "approved" for c in others):
+            continue
+        status = "verified" if oks and all(oks) and all(c["status"] in ("verified", "approved") for c in others) \
+            else "rejected"
         try:
             store.update(table[kinds[sid]], {"id": sid, "status": "pending"},
                          {"status": status, "review_note": "; ".join(notes[sid])[:500] or None})
@@ -213,4 +267,29 @@ def run(store, llm=None, use_model: bool = True) -> dict:
     if llm:
         check_places(store, llm)
         llm.report()
+    return stats
+
+
+def recheck_excerpts(store, dry_run: bool = False, llm=None) -> dict:
+    """Give claims rejected only because their excerpt wasn't found another look under the current matcher (elided
+    quotes, Traditional/Simplified script). Claims whose excerpt is now found go back to unchecked, their records back
+    to pending, and the normal verifier (model support check included) decides them again."""
+    rejected = store.select_all("claims", select="id,subject_id,subject_kind,source_id,excerpt",
+                                review_note="eq.excerpt not found in source", status="eq.rejected")
+    docs = {d["source_id"]: d.get("text") or "" for d in store.select("documents", select="source_id,text")}
+    found = [c for c in rejected if docs.get(c["source_id"]) and excerpt_found(c.get("excerpt") or "", docs[c["source_id"]])]
+    stats = {"rejected_for_excerpt": len(rejected), "now_found": len(found)}
+    if dry_run or not found:
+        notice(f"verify recheck: {stats}{' (dry run)' if dry_run else ''}")
+        return stats
+    table = {"site": "sites", "event": "events", "person": "persons"}
+    for c in found:
+        store.update("claims", {"id": c["id"]}, {"status": "pending", "review_note": None, "verified_at": None})
+    for sid, kind in {c["subject_id"]: c["subject_kind"] for c in found}.items():
+        try:
+            store.update(table[kind], {"id": sid, "status": "rejected"}, {"status": "pending", "review_note": None})
+        except Exception as e:  # noqa: BLE001
+            notice(f"verify recheck: could not reopen {kind} {sid}: {e}", "warning")
+    notice(f"verify recheck: {stats}; re-verifying")
+    stats["verify"] = run(store, llm)
     return stats

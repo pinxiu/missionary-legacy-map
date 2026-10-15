@@ -33,6 +33,7 @@ jobs:
       - run: mlm coverage sync
       - run: mlm decisions sync
       - run: mlm decisions rejected
+      - run: mlm cache prune --days 180   # drop model results unused for 6 months (keeps the DB in the free tier)
       - run: |
           mlm coverage status > /dev/null
           if [ -n "$(git status --porcelain STATUS.md)" ]; then
