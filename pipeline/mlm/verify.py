@@ -41,11 +41,14 @@ MAX_ELIDED_SPAN = 1500  # the pieces must come from one passage, not be stitched
 
 @lru_cache(maxsize=1)
 def _t2s():
+    """Traditional→Simplified converter. Required: without it a Traditional-script quote would be rejected as 'not found',
+    so verification stops rather than quietly mis-grading records."""
     try:
         from opencc import OpenCC
-        return OpenCC("t2s").convert
-    except Exception:  # noqa: BLE001 - converter missing: compare characters as they are
-        return lambda x: x
+    except ImportError as e:
+        raise RuntimeError("opencc-python-reimplemented is not installed; the verifier can't compare Chinese scripts "
+                           "(pip install -e pipeline)") from e
+    return OpenCC("t2s").convert
 
 
 def norm(s: str) -> str:
