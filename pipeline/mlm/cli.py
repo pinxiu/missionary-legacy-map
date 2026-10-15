@@ -36,6 +36,7 @@ def main(argv: list[str] | None = None) -> None:
     rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
     rg.add_argument("--unit", required=True)
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
+    sub.add_parser("actions-usage", help="Approximate GitHub Actions minutes over 30 days, per workflow (no model)")
     cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
     cp.add_argument("action", choices=["prune"])
     cp.add_argument("--days", type=int, default=180)
@@ -67,6 +68,10 @@ def main(argv: list[str] | None = None) -> None:
         from .site import refresh
         from .store import Store
         refresh(Store())
+        return
+    if args.cmd == "actions-usage":
+        from . import actions_usage
+        actions_usage.report()
         return
     if args.cmd == "cache":
         from . import llm

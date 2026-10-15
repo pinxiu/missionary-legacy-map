@@ -1,11 +1,11 @@
 name: Submissions sync
 
-# Every 15 minutes: copy new in-app submissions from Supabase into GitHub issues.
+# Hourly: copy new in-app submissions from Supabase into GitHub issues.
 # Plain API calls, no model, so it costs nothing when idle.
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "7 * * * *"   # hourly: every run bills at least a minute
   workflow_dispatch:
 
 permissions:

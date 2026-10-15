@@ -36,7 +36,7 @@ jobs:
       STAGE: ${{ inputs.stage || 'all' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
-      MLM_BATCH_WAIT_MIN: "60"
+      MLM_BATCH_WAIT_MIN: "10"   # a batch still running is collected by the next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       GH_TOKEN: ${{ github.token }}

@@ -1,9 +1,17 @@
 name: CI
 
+# Pipeline lint and tests, only when the pipeline (or this file) changes. The web build is ci-web.yml.
+# Status, data and docs commits don't run CI, and a newer push cancels a run still in progress.
 on:
   pull_request:
+    paths: ["pipeline/**", ".github/workflows/ci.yml"]
   push:
     branches: [main]
+    paths: ["pipeline/**", ".github/workflows/ci.yml"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pipeline:
@@ -21,18 +29,3 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: ruff check .
       - run: pytest -q
-
-  web:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - run: npm ci
-      - run: npm run build
