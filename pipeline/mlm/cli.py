@@ -35,6 +35,9 @@ def main(argv: list[str] | None = None) -> None:
 
     rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
     rg.add_argument("--unit", required=True)
+    lc = sub.add_parser("locate", help="Find real pins for city-centre sites in OSM / Wikidata / Amap (dry run unless --apply)")
+    lc.add_argument("--apply", action="store_true")
+    lc.add_argument("--limit", type=int, default=None)
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
     sub.add_parser("actions-usage", help="Approximate GitHub Actions minutes over 30 days, per workflow (no model)")
     cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
@@ -63,6 +66,11 @@ def main(argv: list[str] | None = None) -> None:
         from . import regeocode
         from .store import Store
         regeocode.run(Store(), args.unit)
+        return
+    if args.cmd == "locate":
+        from . import locate
+        from .store import Store
+        locate.run(Store(), apply=args.apply, limit=args.limit)
         return
     if args.cmd == "refresh-site":
         from .site import refresh

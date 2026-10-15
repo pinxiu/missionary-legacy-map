@@ -349,3 +349,18 @@ def test_edit_record_can_move_a_site_to_another_city():
     assert "lat" not in dc.site_changes(S(), {"lat": 1, "lng": 2})
     with pytest.raises(SystemExit):
         dc.site_changes(S(), {"region": "atlantis"})
+
+
+def test_locate_matches_names_and_converts_amap():
+    from mlm import locate
+
+    assert locate._same_name(["沐恩堂"], "沐恩堂")
+    assert locate._same_name(["景宁堂", "x"], "杭州景寧堂")  # Traditional hit, Simplified name
+    assert not locate._same_name(["沐恩堂"], "杭州市第一医院")
+    assert not locate._same_name(["堂"], "沐恩堂")  # one character is not a name
+    lat, lng = locate._gcj_to_wgs(31.2304, 121.4737)
+    assert abs(lat - 31.2304) < 0.01 and abs(lng - 121.4737) < 0.01 and (lat, lng) != (31.2304, 121.4737)
+    near, far = {"source": "osm", "km": 1, "lat": 30.0, "lng": 120.0}, {"source": "wikidata", "km": 2, "lat": 30.0001, "lng": 120.0}
+    pick, agree = locate.best([far, near])
+    assert pick["source"] == "osm" and agree
+    assert locate.best([]) == (None, False)

@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, locate-dry-run, locate-apply, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
+      AMAP_KEY: ${{ secrets.AMAP_KEY }}  # optional: Amap POI search
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
@@ -52,4 +53,10 @@ jobs:
       - if: inputs.task == 'regeocode-shanghai'
         run: |
           mlm regeocode --unit CN-SH
+          mlm refresh-site
+      - if: inputs.task == 'locate-dry-run'
+        run: mlm locate   # report only: candidates are listed in the job summary
+      - if: inputs.task == 'locate-apply'
+        run: |
+          mlm locate --apply
           mlm refresh-site
