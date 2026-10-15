@@ -151,7 +151,7 @@ jobs:
         run: mlm run --unit "${{ steps.unit.outputs.id }}"
 
       - name: Save crawl + extraction cache (also after a failure)
-        if: always() && steps.unit.outputs.id != '' && steps.cache.outcome != 'skipped'
+        if: always() && steps.unit.outputs.id != '' && steps.cache.outcome != 'skipped' && hashFiles('.mlm-work/**') != ''
         uses: actions/cache/save@v4
         with:
           path: .mlm-work

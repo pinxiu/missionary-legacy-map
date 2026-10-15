@@ -102,7 +102,7 @@ jobs:
           mlm decisions rejected --unit "$UNIT"
 
       - name: Save crawl + extraction cache (also after a failure)
-        if: always()
+        if: always() && hashFiles('.mlm-work/**') != ''
         uses: actions/cache/save@v4
         with:
           path: .mlm-work
