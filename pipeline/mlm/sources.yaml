@@ -222,3 +222,65 @@ regions:
         follow: []
         max_pages: 10
         language: zh
+
+  fujian:
+    # Province-wide crawl (coverage unit CN-FJ). Each extracted site is assigned to its city (prefecture) by the extractor.
+    name: Fujian 福建
+    extract_hint: >-
+      Prefectures: fuzhou, xiamen, quanzhou, zhangzhou, putian, sanming, nanping, longyan, ningde.
+      Historical spellings: Foochow/Fuchow (福州), Amoy/Emoy (厦门 = xiamen, incl. Kulangsu/Gulangyu 鼓浪屿),
+      Chuanchow/Chinchew (泉州), Changchow/Chiangchiu (漳州), Hinghwa/Henghua/Hsinghua (興化 = putian),
+      Yenping/Yenpingfu (延平 = nanping), Tingchow (汀州 = longyan), Funing (福寧 = ningde), Kutien (古田 = ningde),
+      Shaowu (邵武 = nanping), Ingtai/Yongtai, Lienkiang (連江), Fukien. Include Dominican, Jesuit,
+      Protestant (ABCFM, CMS, LMS, RCA, English Presbyterian, Methodist), Anglican, independent Chinese churches,
+      schools, hospitals, presses and cemeteries.
+    keywords: [Fujian, Fukien, Hokkien, 福建, Fuzhou, Foochow, Fuchow, 福州, Xiamen, Amoy, Emoy, 厦门, 廈門,
+               Kulangsu, Gulangyu, 鼓浪屿, 鼓浪嶼, Quanzhou, Chuanchow, Chinchew, 泉州, Zhangzhou, Changchow, Chiangchiu,
+               漳州, Putian, Hinghwa, Henghua, 莆田, 興化, 兴化, Nanping, Yenping, 南平, 延平, Shaowu, 邵武,
+               Longyan, Tingchow, 龙岩, 龍巖, 汀州, Ningde, Funing, 宁德, 寧德, 福寧, Kutien, 古田, Sanming, 三明,
+               Yongtai, Ingtai, 永泰, Lienkiang, 连江, 連江]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Fujian places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/fujian/
+          - https://www.bdcconline.net/zh-hans/places/fujian/?page=1
+          - https://www.bdcconline.net/zh-hans/places/fujian/?page=2
+          - https://www.bdcconline.net/zh-hans/places/fujian/?page=3
+          - https://www.bdcconline.net/zh-hans/places/fujian/?page=4
+          - https://www.bdcconline.net/zh-hans/places/fuzhou/
+          - https://www.bdcconline.net/zh-hans/places/xiamen/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Fujian places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/fujian/
+          - https://www.bdcconline.net/en/places/fujian/?page=1
+          - https://www.bdcconline.net/en/places/fujian/?page=2
+          - https://www.bdcconline.net/en/places/fujian/?page=3
+          - https://www.bdcconline.net/en/places/fuzhou/
+          - https://www.bdcconline.net/en/places/fuzhou/?page=1
+          - https://www.bdcconline.net/en/places/xiamen/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Fujian mission institutions
+        start_urls:
+          - https://en.wikipedia.org/wiki/Hwa_Nan_College
+          - https://en.wikipedia.org/wiki/Foochow_College
+          - https://en.wikipedia.org/wiki/Fukien_Christian_University
+          - https://en.wikipedia.org/wiki/Elihu_Doty
+          - https://en.wikipedia.org/wiki/Carstairs_Douglas
+          - https://en.wikipedia.org/wiki/Gulangyu
+        follow: []
+        max_pages: 10
+        language: en
+      - name: Wikipedia (ZH) — Fujian mission institutions
+        start_urls:
+          - https://zh.wikipedia.org/wiki/福建协和大学
+          - https://zh.wikipedia.org/wiki/鼓浪屿
+        follow: []
+        max_pages: 5
+        language: zh
