@@ -252,3 +252,51 @@ def test_snap_fixes_a_dropped_word_only_when_close():
     assert snap_excerpts(ex, text) == 1
     ev = ex.sites[0].evidence
     assert ev[0].excerpt in text and ev[1].excerpt.startswith("In 1890")
+
+
+def test_bad_answer_is_not_cached_and_items_are_retried_smaller(make_llm):
+    sizes = []
+
+    def answer(p):
+        items = json.loads(p["messages"][0]["content"])
+        sizes.append(len(items))
+        if len(items) > 2:  # a long answer comes back broken
+            return message(text='{"results": [{"i": 0, "v": 1} {"i": 1}]}')
+        return message(text=json.dumps({"results": [{"i": it["i"], "v": it["x"] * 2} for it in items]}))
+
+    llm, _ = make_llm(answer)
+    build = lambda chunk: Req(model="claude-haiku-5-5", system="s", purpose="pi",  # noqa: E731
+                              user=json.dumps([{"i": n, **it} for n, it in enumerate(chunk)]))
+    parse = lambda res, chunk: {r["i"]: r["v"] for r in json.loads(res["text"])["results"]}  # noqa: E731
+    items = [{"x": i} for i in range(8)]
+    assert llm.per_item("ns", items, lambda it: it, 8, build, parse) == [i * 2 for i in range(8)]
+    assert sizes[0] == 8 and max(sizes[1:]) <= 2
+    # the broken answer was dropped from the cache, so it can't be replayed by a later run
+    assert not llm.cache.get_many([build(items).key])
+
+
+def test_store_retries_only_repeatable_requests():
+    import httpx
+
+    from mlm.store import RetryTransport
+    calls = []
+
+    class Flaky(RetryTransport):
+        def __init__(self):
+            super().__init__(tries=3, backoff_s=0)
+
+    def fake(self, request):
+        calls.append(request.method)
+        return httpx.Response(502 if len(calls) < 3 else 200, request=request)
+
+    t = Flaky()
+    httpx.HTTPTransport.handle_request, orig = fake, httpx.HTTPTransport.handle_request
+    try:
+        c = httpx.Client(base_url="https://x.supabase.co/rest/v1", transport=t)
+        assert c.patch("/claims", params={"id": "eq.1"}, json={}).status_code == 200 and calls == ["PATCH"] * 3
+        calls.clear()
+        assert c.post("/claims", json=[{}]).status_code == 502 and calls == ["POST"]          # plain insert: once
+        calls.clear()
+        assert c.post("/llm_cache", params={"on_conflict": "key"}, json=[{}]).status_code == 200 and len(calls) == 3
+    finally:
+        httpx.HTTPTransport.handle_request = orig

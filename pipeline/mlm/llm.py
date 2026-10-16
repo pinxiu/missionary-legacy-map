@@ -429,21 +429,33 @@ class LLM:
             uniq.setdefault(keys[n], n)
         order = list(uniq.values())
         chunks = [order[i:i + chunk] for i in range(0, len(order), chunk)]
-        results = self.run([build([items[n] for n in c]) for c in chunks])
+        reqs = [build([items[n] for n in c]) for c in chunks]
+        results = self.run(reqs)
         new: dict[str, dict] = {}
-        for c, res in zip(chunks, results, strict=True):
+        retry: list[int] = []
+        for c, req, res in zip(chunks, reqs, results, strict=True):
             if res is None:
                 continue
             try:
                 parsed = parse(res, [items[n] for n in c])
-            except Exception as e:  # noqa: BLE001 - unparseable answer: leave these items for the next run
-                notice(f"llm[{namespace}]: could not parse an answer ({type(e).__name__}: {str(e)[:120]})", "warning")
+            except Exception as e:  # noqa: BLE001 - unparseable answer
+                # Drop the bad answer from the cache (or every later run would replay it) and ask again in smaller
+                # pieces: a long JSON answer is what usually breaks, and a smaller one rarely does.
+                notice(f"llm[{namespace}]: could not parse an answer ({type(e).__name__}: {str(e)[:120]}); "
+                       f"retrying {len(c)} item(s) in smaller requests", "warning")
+                self.cache.delete(req.key)
+                retry += c
                 continue
             for j, n in enumerate(c):
                 if j in parsed:
                     new[keys[n]] = {"v": parsed[j]}
         self.cache.put_many(new, model="item", purpose=namespace)
         known |= new
+        if retry and chunk > 1:
+            again = self.per_item(namespace, [items[n] for n in retry], payload, max(1, chunk // 4), build, parse)
+            for n, v in zip(retry, again, strict=True):
+                if v is not None:
+                    known[keys[n]] = {"v": v}
         return [known[k]["v"] if k in known else None for k in keys]
 
     def report(self) -> None:

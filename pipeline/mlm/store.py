@@ -19,9 +19,44 @@ def auth_headers(url: str | None, key: str | None) -> dict[str, str]:
     return headers
 
 
+class RetryTransport(httpx.HTTPTransport):
+    """Retry a request that hit a passing server or network error (502/503/504, a dropped connection), with backoff.
+    Only requests that are safe to repeat: reads, updates and deletes by filter, and upserts (POST with on_conflict).
+    A plain insert is not retried, since the first attempt may have written the row. One 502 from Supabase mid-run
+    used to fail a whole pipeline run (Oct 15)."""
+
+    def __init__(self, tries: int = 4, backoff_s: float = 2.0, **kw):
+        super().__init__(**kw)
+        self.tries, self.backoff_s = tries, backoff_s
+
+    @staticmethod
+    def repeatable(request: httpx.Request) -> bool:
+        return request.method in ("GET", "HEAD", "PATCH", "DELETE") or \
+            (request.method == "POST" and "on_conflict" in request.url.params)
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        import time
+        if not self.repeatable(request):
+            return super().handle_request(request)
+        for attempt in range(self.tries):
+            last = attempt == self.tries - 1
+            try:
+                resp = super().handle_request(request)
+            except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError, httpx.ReadTimeout):
+                if last:
+                    raise
+            else:
+                if resp.status_code not in (502, 503, 504) or last:
+                    return resp
+                resp.close()
+            time.sleep(self.backoff_s * (2 ** attempt))
+        raise RuntimeError("unreachable")
+
+
 class Store:
     def __init__(self, url: str | None = SUPABASE_URL, key: str | None = SUPABASE_SECRET_KEY):
-        self.http = httpx.Client(base_url=f"{(url or '').rstrip('/')}/rest/v1", headers=auth_headers(url, key), timeout=30)
+        self.http = httpx.Client(base_url=f"{(url or '').rstrip('/')}/rest/v1", headers=auth_headers(url, key), timeout=30,
+                                 transport=RetryTransport())
 
     def upsert(self, table: str, rows: list[dict], on_conflict: str) -> list[dict]:
         if not rows:
