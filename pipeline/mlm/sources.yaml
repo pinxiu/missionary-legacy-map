@@ -284,3 +284,67 @@ regions:
         follow: []
         max_pages: 5
         language: zh
+
+  guangdong:
+    # Province-wide crawl (coverage unit CN-GD). Each extracted site is assigned to its city (prefecture) by the extractor.
+    name: Guangdong 广东
+    extract_hint: >-
+      Prefectures: guangzhou, shenzhen, zhuhai, shantou, foshan, shaoguan, zhanjiang, zhaoqing, jiangmen, maoming,
+      huizhou, meizhou, shanwei, heyuan, yangjiang, qingyuan, dongguan, zhongshan, chaozhou, jieyang, yunfu.
+      Historical spellings: Canton/Kwangtung (廣東), Kwong-chow (廣州 = guangzhou, incl. Shameen/Shamian 沙面,
+      Honam 河南, Whampoa 黃埔, Fatshan 佛山 = foshan), Swatow (汕頭 = shantou), Teochew/Chaochowfu (潮州 = chaozhou),
+      Kityang (揭陽 = jieyang), Shiuhing (肇慶 = zhaoqing), Shiuchow/Shaochow (韶州 = shaoguan), Kongmoon (江門 = jiangmen),
+      Sunwui/Xinhui (新會), Yeungkong (陽江 = yangjiang), Tungkun (東莞 = dongguan), Hiangshan (香山 = zhongshan),
+      Waichow (惠州 = huizhou), Kayin/Kaying (嘉應 = meizhou), Lilong (禮賢, Rhenish Mission), Hakka (客家).
+      Macao and Hong Kong are outside this unit. Include Jesuit, Protestant (LMS, ABCFM, Basel, Rhenish, English
+      Presbyterian, American Baptist, American Presbyterian, Methodist), Anglican, Hakka and Chaozhou churches,
+      independent Chinese churches, schools, hospitals, presses and cemeteries.
+    keywords: [Guangdong, Kwangtung, Canton, 广东, 廣東, Guangzhou, Kwong-chow, 广州, 廣州, Shenzhen, 深圳,
+               Zhuhai, 珠海, Shantou, Swatow, 汕头, 汕頭, Foshan, Fatshan, 佛山, Shaoguan, Shiuchow, Shaochow, 韶关, 韶關, 韶州,
+               Zhanjiang, 湛江, Zhaoqing, Shiuhing, 肇庆, 肇慶, Jiangmen, Kongmoon, 江门, 江門, Maoming, 茂名,
+               Huizhou, Waichow, 惠州, Meizhou, Kayin, Kaying, 梅州, 嘉应, 嘉應, Shanwei, 汕尾, Heyuan, 河源,
+               Yangjiang, Yeungkong, 阳江, 陽江, Qingyuan, 清远, 清遠, Dongguan, Tungkun, 东莞, 東莞,
+               Zhongshan, Hiangshan, 中山, 香山, Chaozhou, Teochew, Chaochowfu, 潮州, Jieyang, Kityang, 揭阳, 揭陽,
+               Yunfu, 云浮, 雲浮, Hakka, 客家, Shameen, Shamian, 沙面, Whampoa, 黄埔, 黃埔, Lingnan, 岭南, 嶺南,
+               Sunwui, Xinhui, 新会, 新會, Lilong, 礼贤, 禮賢]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Guangdong places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/guangdong/
+          - https://www.bdcconline.net/zh-hans/places/guangdong/?page=1
+          - https://www.bdcconline.net/zh-hans/places/guangdong/?page=2
+          - https://www.bdcconline.net/zh-hans/places/guangdong/?page=3
+          - https://www.bdcconline.net/zh-hans/places/guangdong/?page=4
+          - https://www.bdcconline.net/zh-hans/places/guangzhou/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Guangdong places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/guangdong/
+          - https://www.bdcconline.net/en/places/guangdong/?page=1
+          - https://www.bdcconline.net/en/places/guangdong/?page=2
+          - https://www.bdcconline.net/en/places/guangdong/?page=3
+          - https://www.bdcconline.net/en/places/guangdong/?page=4
+          - https://www.bdcconline.net/en/places/shantou/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 120
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Guangdong mission institutions
+        start_urls:
+          - https://en.wikipedia.org/wiki/Lingnan_University_(Guangzhou)
+          - https://en.wikipedia.org/wiki/Robert_Morrison_(missionary)
+          - https://en.wikipedia.org/wiki/Peter_Parker_(missionary)
+          - https://en.wikipedia.org/wiki/Basel_Mission
+        follow: []
+        max_pages: 10
+        language: en
+      - name: Wikipedia (ZH) — Guangdong mission institutions
+        start_urls:
+          - https://zh.wikipedia.org/wiki/岭南大学_(广州)
+          - https://zh.wikipedia.org/wiki/石室圣心大教堂
+        follow: []
+        max_pages: 5
+        language: zh
