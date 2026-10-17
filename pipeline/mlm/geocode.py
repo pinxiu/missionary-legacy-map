@@ -123,7 +123,9 @@ def geocode(region: str, name: str, place_text: str = "", modern_address: str | 
         hit = from_nominatim(modern_address)
         centre = REGION_CENTROIDS.get(region)
         # A hit far from the city is a same-named street somewhere else (the Lanzhou problem): ignore it.
-        if hit and (centre is None or region in ("china", "zhejiang") or km_apart(centre, hit[:2]) <= 150):
+        # (a province is wide, so its radius is wider than a city's)
+        radius = 400 if region in PROVINCE_CENTROIDS and region not in CITIES else 150
+        if hit and (centre is None or region == "china" or km_apart(centre, hit[:2]) <= radius):
             return hit
     lat, lng = REGION_CENTROIDS.get(region, REGION_CENTROIDS["china"])
     return lat, lng, "province" if region in PROVINCE_CENTROIDS and region not in CITIES else "city"
