@@ -138,8 +138,8 @@ def test_one_extraction_fills_every_province_it_mentions(tmp_path, monkeypatch):
     by = {s["name_en"]: s for s in store.rows["sites"]}
     assert set(by) == {"Hangchow church", "Foochow hospital"}
     assert by["Hangchow church"]["unit"] == "CN-ZJ" and by["Hangchow church"]["region"] == "hangzhou"
-    assert by["Foochow hospital"]["unit"] == "CN-FJ" and by["Foochow hospital"]["region"] == "fujian"
-    assert by["Foochow hospital"]["geo_precision"] == "province"
+    assert by["Foochow hospital"]["unit"] == "CN-FJ" and by["Foochow hospital"]["region"] == "fuzhou"
+    assert by["Foochow hospital"]["geo_precision"] == "city"  # Fuzhou is in the gazetteer: pinned to the city, not the province
     assert any(r["slug"] == "fujian" for r in store.rows["regions"])
     assert stats["other_units"] == 1 and stats["unmapped"] == 1 and len(store.rows["events"]) == 1
 

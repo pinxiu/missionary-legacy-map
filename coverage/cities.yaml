@@ -26,3 +26,36 @@ tianjin:
   - {slug: tianjin,   en: Tianjin,   zh: 天津, lat: 39.3434, lng: 117.3616}
 chongqing:
   - {slug: chongqing, en: Chongqing, zh: 重庆, lat: 29.5630, lng: 106.5516}
+
+fujian:
+  - {slug: fuzhou,   en: Fuzhou,   zh: 福州, lat: 26.0745, lng: 119.2965}
+  - {slug: xiamen,   en: Xiamen,   zh: 厦门, lat: 24.4798, lng: 118.0894}
+  - {slug: zhangzhou, en: Zhangzhou, zh: 漳州, lat: 24.5130, lng: 117.6472}
+  - {slug: quanzhou, en: Quanzhou, zh: 泉州, lat: 24.8741, lng: 118.6757}
+  - {slug: putian,   en: Putian,   zh: 莆田, lat: 25.4310, lng: 119.0076}
+  - {slug: sanming,  en: Sanming,  zh: 三明, lat: 26.2634, lng: 117.6389}
+  - {slug: nanping,  en: Nanping,  zh: 南平, lat: 26.6417, lng: 118.1778}
+  - {slug: longyan,  en: Longyan,  zh: 龙岩, lat: 25.0750, lng: 117.0173}
+  - {slug: ningde,   en: Ningde,   zh: 宁德, lat: 26.6592, lng: 119.5479}
+guangdong:
+  - {slug: guangzhou, en: Guangzhou, zh: 广州, lat: 23.1291, lng: 113.2644}
+  - {slug: shenzhen,  en: Shenzhen,  zh: 深圳, lat: 22.5431, lng: 114.0579}
+  - {slug: zhuhai,    en: Zhuhai,    zh: 珠海, lat: 22.2707, lng: 113.5767}
+  - {slug: shantou,   en: Shantou,   zh: 汕头, lat: 23.3535, lng: 116.6822}
+  - {slug: foshan,    en: Foshan,    zh: 佛山, lat: 23.0215, lng: 113.1214}
+  - {slug: shaoguan,  en: Shaoguan,  zh: 韶关, lat: 24.8108, lng: 113.5972}
+  - {slug: zhanjiang, en: Zhanjiang, zh: 湛江, lat: 21.2707, lng: 110.3594}
+  - {slug: zhaoqing,  en: Zhaoqing,  zh: 肇庆, lat: 23.0472, lng: 112.4651}
+  - {slug: jiangmen,  en: Jiangmen,  zh: 江门, lat: 22.5791, lng: 113.0815}
+  - {slug: maoming,   en: Maoming,   zh: 茂名, lat: 21.6633, lng: 110.9253}
+  - {slug: huizhou,   en: Huizhou,   zh: 惠州, lat: 23.1115, lng: 114.4152}
+  - {slug: meizhou,   en: Meizhou,   zh: 梅州, lat: 24.2886, lng: 116.1225}
+  - {slug: shanwei,   en: Shanwei,   zh: 汕尾, lat: 22.7862, lng: 115.3751}
+  - {slug: heyuan,    en: Heyuan,    zh: 河源, lat: 23.7437, lng: 114.7001}
+  - {slug: yangjiang, en: Yangjiang, zh: 阳江, lat: 21.8579, lng: 111.9822}
+  - {slug: qingyuan,  en: Qingyuan,  zh: 清远, lat: 23.6817, lng: 113.0560}
+  - {slug: dongguan,  en: Dongguan,  zh: 东莞, lat: 23.0207, lng: 113.7518}
+  - {slug: zhongshan, en: Zhongshan, zh: 中山, lat: 22.5170, lng: 113.3926}
+  - {slug: chaozhou,  en: Chaozhou,  zh: 潮州, lat: 23.6567, lng: 116.6228}
+  - {slug: jieyang,   en: Jieyang,   zh: 揭阳, lat: 23.5438, lng: 116.3728}
+  - {slug: yunfu,     en: Yunfu,     zh: 云浮, lat: 22.9152, lng: 112.0445}

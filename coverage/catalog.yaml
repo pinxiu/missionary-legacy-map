@@ -34,8 +34,10 @@ units:
   - {id: CN-JS, region: jiangsu, en: Jiangsu, zh: 江苏, phase: 1, order: 2,
      subregions: [nanjing, wuxi, xuzhou, changzhou, suzhou, nantong, lianyungang, huaian, yancheng, yangzhou, zhenjiang, taizhou-js, suqian]}
   - {id: CN-SH, region: shanghai, en: Shanghai, zh: 上海, phase: 1, order: 3}
-  - {id: CN-FJ, region: fujian, en: Fujian, zh: 福建, phase: 1, order: 4}
-  - {id: CN-GD, region: guangdong, en: Guangdong, zh: 广东, phase: 1, order: 5}
+  - {id: CN-FJ, region: fujian, en: Fujian, zh: 福建, phase: 1, order: 4,
+     subregions: [fuzhou, xiamen, zhangzhou, quanzhou, putian, sanming, nanping, longyan, ningde]}
+  - {id: CN-GD, region: guangdong, en: Guangdong, zh: 广东, phase: 1, order: 5,
+     subregions: [guangzhou, shenzhen, zhuhai, shantou, foshan, shaoguan, zhanjiang, zhaoqing, jiangmen, maoming, huizhou, meizhou, shanwei, heyuan, yangjiang, qingyuan, dongguan, zhongshan, chaozhou, jieyang, yunfu]}
   - {id: CN-SD, region: shandong, en: Shandong, zh: 山东, phase: 1, order: 6}
   - {id: CN-BJ, region: beijing, en: Beijing, zh: 北京, phase: 1, order: 7}
   - {id: CN-TJ, region: tianjin, en: Tianjin, zh: 天津, phase: 1, order: 8}

@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, pool-backfill, locate-dry-run, locate-apply, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -62,3 +62,11 @@ jobs:
           mlm refresh-site
       - if: inputs.task == 'pool-backfill'
         run: mlm pool backfill   # enter already-loaded documents into the resource pool
+      - if: inputs.task == 'regeocode-fujian'
+        run: |
+          mlm regeocode --unit CN-FJ
+          mlm refresh-site
+      - if: inputs.task == 'regeocode-guangdong'
+        run: |
+          mlm regeocode --unit CN-GD
+          mlm refresh-site
