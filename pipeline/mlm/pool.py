@@ -37,7 +37,7 @@ class Pool:
 
     def statuses(self) -> dict[str, str]:
         if self._status is None:
-            self._status = {r["hash"]: r["status"] for r in self.store.select_all("resource_pool", select="hash,status")}
+            self._status = {r["hash"]: r["status"] for r in self.store.select_all("resource_pool", order="hash", select="hash,status")}
         return self._status
 
     def known(self, h: str) -> bool:

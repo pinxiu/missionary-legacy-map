@@ -80,11 +80,12 @@ class Store:
         r.raise_for_status()
         return r.json()
 
-    def select_all(self, table: str, page: int = 1000, **params) -> list[dict]:
-        """Every matching row, paged (PostgREST caps a single response, usually at 1000 rows)."""
+    def select_all(self, table: str, page: int = 1000, order: str = "id", **params) -> list[dict]:
+        """Every matching row, paged (PostgREST caps a single response, usually at 1000 rows). `order` must be a unique
+        column of the table (`id` for most; `hash` for resource_pool)."""
         out: list[dict] = []
         while True:
-            rows = self.select(table, order="id", limit=str(page), offset=str(len(out)), **params)
+            rows = self.select(table, order=order, limit=str(page), offset=str(len(out)), **params)
             out += rows
             if len(rows) < page:
                 return out

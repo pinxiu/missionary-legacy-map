@@ -17,12 +17,13 @@ class MemStore:
     def select(self, table, select="*", **params):
         rows = self.rows.get(table, [])
         for k, v in params.items():
-            if k == "limit":
+            if k in ("limit", "offset", "order"):
                 continue
             rows = [r for r in rows if str(r.get(k)) == v.removeprefix("eq.")]
         return rows
 
-    select_all = select
+    def select_all(self, table, page=1000, order="id", **params):
+        return self.select(table, **params)
 
     def insert(self, table, rows):
         recs = [{"id": self._id(), **r} for r in rows]
