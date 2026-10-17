@@ -12,7 +12,7 @@ visitor card ─▶ Supabase `submissions` ─(every 15 min, no model)─▶ Git
                                                   validate → edit data/seed → publish → close issue [applied]
 ```
 
-Nothing a visitor submits reaches the map without the owner's `approved` label. Photos follow the same path.
+Nothing a visitor submits reaches the map without the `approved` label from the owner or a listed approver (repo variable `APPROVERS`, comma-separated GitHub logins; the owner is always allowed). Anyone else's label does nothing. Photos follow the same path.
 
 ## Labels
 | Label | Meaning |

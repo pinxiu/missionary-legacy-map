@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   reconsider:
-    if: contains(github.event.issue.labels.*.name, 'rejected-review') && github.event.sender.login == github.repository_owner
+    if: contains(github.event.issue.labels.*.name, 'rejected-review') && (github.event.sender.login == github.repository_owner || contains(format(',{0},', vars.APPROVERS), format(',{0},', github.event.sender.login)))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

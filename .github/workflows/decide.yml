@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   decide:
-    if: startsWith(github.event.label.name, 'decision:') && github.event.sender.login == github.repository_owner
+    if: startsWith(github.event.label.name, 'decision:') && (github.event.sender.login == github.repository_owner || contains(format(',{0},', vars.APPROVERS), format(',{0},', github.event.sender.login)))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

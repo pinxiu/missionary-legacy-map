@@ -1,6 +1,7 @@
 name: Apply approved
 
-# The repo owner's `approved` label is the only path to production:
+# The `approved` label, added by the repo owner or a login listed in the repo variable APPROVERS (comma-separated;
+# Settings → Secrets and variables → Actions → Variables), is the only path to production for submissions:
 #   * on a submission issue: validate the proposal, edit the seed and/or publish the photo, publish, close.
 #   * on a coverage unit issue: publish the unit's verified records (verified -> approved), mark the unit done.
 # Deterministic code only; no model runs here.
@@ -19,7 +20,7 @@ concurrency:
 
 jobs:
   apply:
-    if: github.event.label.name == 'approved' && github.event.sender.login == github.repository_owner
+    if: github.event.label.name == 'approved' && (github.event.sender.login == github.repository_owner || contains(format(',{0},', vars.APPROVERS), format(',{0},', github.event.sender.login)))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
