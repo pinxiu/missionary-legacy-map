@@ -14,7 +14,8 @@ Now: **Zhejiang 浙江**. Next: all of China, then the world. Progress: [STATUS.
                        trusted verifier: excerpt really in the source + supports the claim ─▶ [verified]
                        independent audit (different model) on a random sample ─▶ gates in STATUS.md
                                                                                        │
-                                owner adds `approved` on the unit issue ─▶ published [approved]
+                                gates met (audit agreement ≥ 80%) ─▶ published [approved]
+                                (the owner's `approved` label also publishes a unit; disputed records are held back)
 
  visitor card ─▶ submissions ─▶ GitHub issue ─▶ AI first pass (polish, translate, verify, cite, proposal)
                                                      ─▶ owner adds `approved` ─▶ apply worker ─▶ published
@@ -22,11 +23,11 @@ Now: **Zhejiang 浙江**. Next: all of China, then the world. Progress: [STATUS.
 
 | Workflow | When | Model? |
 |---|---|---|
-| `coverage-agents.yml` | every 6 h, one unit at a time | Sonnet (scout, extract, verify), Haiku (translate), Opus (audit) |
+| `coverage-agents.yml` | every 6 h, one unit at a time (searches each city, pools pages by hash, extracts every place once) | Sonnet (scout, extract, verify), Haiku (translate), Opus (audit) |
 | `coverage-sync.yml` | on catalog change + daily | no |
 | `submissions-sync.yml` | every 15 min | no |
 | `feedback-agent.yml` | every 3 h, only if issues need triage | Sonnet |
-| `apply-approved.yml` | when the owner adds `approved` | no |
+| `apply-approved.yml` | when the owner or a listed approver adds `approved` | no |
 | `seed-sync.yml` | when `data/seed` changes | no |
 | `ci.yml` | every push / PR | no |
 
