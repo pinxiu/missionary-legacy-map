@@ -45,7 +45,11 @@ class SiteMention(BaseModel):
     name_zh_status: ZhStatus | None = None  # set by the pipeline, not the extractor
     alt_names: list[str] = []
     site_type: SiteType = "other"
-    city: str = Field(default="other", description="Prefecture-level city in lowercase pinyin; 'other' if outside the mapped region")
+    province: str | None = Field(
+        default=None,
+        description="Province-level division in lowercase pinyin (a municipality is its own province), e.g. 'fujian'; "
+                    "for sites outside China, the country")
+    city: str = Field(default="other", description="Prefecture-level city in lowercase pinyin; 'other' only if the text names none")
     place_text: str = Field(default="", description="Location as written in the source, e.g. 'outside the Qiantang Gate'")
     modern_address: str | None = None
     current_status: str | None = None

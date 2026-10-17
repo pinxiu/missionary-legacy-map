@@ -3,9 +3,11 @@ name: Coverage agents
 # Background workers for expanding coverage (coverage/catalog.yaml), ONE unit at a time, correctness first.
 #   1. Pick the active unit (in-progress, else next todo). No unit: stop. (free)
 #   2. If the unit has no sources yet, a source-scout agent proposes some; trusted code validates them.
-#   3. Crawl → extract → translate → load → trusted verifier → independent audit.
-#   4. Status job updates the unit issue and STATUS.md; when the gates are met the unit goes to needs-approval.
-# Nothing is published until the owner adds `approved` to the unit issue (handled by apply-approved.yml).
+#   3. Discover (per city) → crawl → resource pool (hash dedupe) → extract once for all places → pin → translate → load
+      → trusted verifier → independent audit.
+#   4. Status job updates the unit issue and STATUS.md; when the gates are met the unit is published and marked done.
+# A unit publishes itself when its gates are met (audit agreement >= 80%); the owner's `approved` label also publishes it
+# (apply-approved.yml, or the status job's catch-up if that event was missed).
 
 # GitHub often drops scheduled runs, so the schedule fires every 2 hours and the cheap `due` job lets the real work run
 # only when no run has started in the last ~5.5 hours (about every 6 hours, without depending on any single slot).
@@ -60,6 +62,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
+      AMAP_KEY: ${{ secrets.AMAP_KEY }}               # optional: Amap place search for exact pins in China
       MLM_BATCH_WAIT_MIN: "10"    # don't keep a billed runner idle: a batch still running is collected by the next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -101,8 +104,9 @@ jobs:
             Read coverage/catalog.yaml for the unit and its themes (all significant Christian movements, not only missions).
             Add ONE new region entry `${{ steps.unit.outputs.region }}` to pipeline/mlm/sources.yaml with: name, extract_hint
             (prefecture-level cities in pinyin and historical spellings), keywords (English, historical romanizations, Simplified
-            and Traditional Chinese), and 4-10 reputable sources with modest max_pages and max_depth: 1 where they list links.
-            Include at least one Chinese-language source. Check each start URL loads. Do not edit any other file.
+            and Traditional Chinese), and 4-10 reputable sources with modest max_pages and max_depth: 1 where they list links,
+            covering the province and, where sources exist, its main cities (city gazetteers, diocesan and mission-station
+            histories, university and hospital histories). Include at least one Chinese-language source. Check each start URL loads. Do not edit any other file.
 
       # The scout action leaves git on its own branch with its own (revoked) credentials, so every later `git push`
       # failed with exit 128. Put the working tree back on main with this job's token, keeping the scout's edit.

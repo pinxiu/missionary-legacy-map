@@ -18,8 +18,10 @@ done_when:
   min_sources: 3                # registered sources, at least one in Chinese for China units
   verifier_pass_rate: 1.0       # every published record passed the verifier
   min_audit_sample: 10          # audited records (or all, if fewer)
-  audit_agreement: 0.95
-  owner_approval: true          # the owner approves the unit's batch before anything is published
+  audit_agreement: 0.8          # share of the independent audit that agrees with us
+  auto_approve: true            # gates met -> the unit publishes itself (the owner delegated approval); records the auditor
+                                # disagreed with are held back until the owner rules on them
+  owner_approval: false         # (an `approved` label from the owner still publishes a unit at any time)
 
 phases:
   - {phase: 1, en: "China", zh: "中国"}

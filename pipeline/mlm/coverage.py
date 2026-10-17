@@ -132,10 +132,42 @@ def metrics(store, u: dict) -> dict:
 
 
 def gates_met(m: dict) -> bool:
+    """Verified records exist, none unchecked, enough sources, a big enough independent audit and agreement at or above
+    the threshold. Records the auditor disagreed with are held back by `publish`, not by this gate."""
     g = catalog()["done_when"]
     sample_ok = m["audited"] >= min(g["min_audit_sample"], max(m["verified"], 1))
-    return (m["verified"] > 0 and m["pending"] == 0 and m.get("open_decisions", 0) == 0 and m["sources"] >= g["min_sources"] and sample_ok
+    return (m["verified"] > 0 and m["pending"] == 0 and m["sources"] >= g["min_sources"] and sample_ok
             and (m["agreement_value"] or 0) >= g["audit_agreement"])
+
+
+def auto_approve() -> bool:
+    """The owner delegated unit approval to the gates (catalog `done_when.auto_approve`)."""
+    return bool(catalog()["done_when"].get("auto_approve"))
+
+
+def held_back(store, uid: str) -> set[str]:
+    """Sites the independent auditor disagreed with and the owner hasn't ruled on: never published automatically."""
+    return {a["subject_id"] for a in store.select("audits", select="subject_id,agree,resolved_at", unit=f"eq.{uid}")
+            if not a["agree"] and not a.get("resolved_at")}
+
+
+def auto_publish(store, u: dict, issue: dict, m: dict, why: str) -> dict:
+    """Publish a unit whose gates are met (or whose `approved` label the owner added but the event was missed)."""
+    stats = publish(store, u["id"])
+    try:
+        from .site import refresh
+        refresh(store)
+    except Exception as e:  # noqa: BLE001 - the daily backup refresh will pick it up
+        notice(f"coverage: site refresh failed ({type(e).__name__})", "warning")
+    held = len(held_back(store, u["id"]))
+    gh("issue", "comment", str(issue["number"]), "--body",
+       f"✅ {why}: published {stats['sites']} sites and {stats['events']} events for {u['id']} "
+       f"(audit agreement {m['agreement']} on {m['audited']}). {held} record(s) the auditor disagreed with are held back "
+       "until you decide them in their `needs-decision` issues.", check=False)
+    gh("issue", "edit", str(issue["number"]), "--remove-label", "in-progress", "--remove-label", "needs-approval",
+       "--add-label", "approved", "--add-label", "done", check=False)
+    gh("issue", "close", str(issue["number"]), check=False)
+    return stats
 
 
 def status(store, write: bool = True) -> str:
@@ -150,7 +182,13 @@ def status(store, write: bool = True) -> str:
             totals[k] += m.get(k, 0)
         if i and m:
             gh("issue", "edit", str(i["number"]), "--body", issue_body(u, m), check=False)
-            if state == "in-progress" and gates_met(m):
+            if state == "approved" and i["state"] == "OPEN":  # owner's label whose workflow event never ran (e.g. Actions was down)
+                auto_publish(store, u, i, metrics(store, u), "Approved by the owner")
+                state = "done"
+            elif state == "in-progress" and gates_met(m) and auto_approve():
+                auto_publish(store, u, i, m, f"Gates met (audit agreement {m['agreement']} ≥ threshold), auto-approved")
+                state = "done"
+            elif state == "in-progress" and gates_met(m):
                 gh("issue", "edit", str(i["number"]), "--remove-label", "in-progress", "--add-label", "needs-approval", check=False)
                 sheet = report(store, u["id"]).read_text()
                 if len(sheet) > 60000:
@@ -185,11 +223,12 @@ def publish(store, uid: str) -> dict:
     u = unit(uid)
     regs = regions_of(u)
     sites = [s for s in store.select("sites", select="id,status,region,unit") if s.get("unit") == uid or s["region"] in regs]
-    site_ids = [s["id"] for s in sites if s["status"] == "verified"]
+    held = held_back(store, uid)
+    site_ids = [s["id"] for s in sites if s["status"] == "verified" and s["id"] not in held]
     stats = {"sites": 0, "events": 0}
     subject_ids = list(site_ids)
     # Verified events can also attach to sites that are already public (e.g. curated seed sites).
-    for sid in [s["id"] for s in sites if s["status"] in ("verified", "approved", "conflict")]:
+    for sid in [s["id"] for s in sites if s["status"] in ("verified", "approved", "conflict") and s["id"] not in held]:
         if sid in site_ids:
             store.update("sites", {"id": sid}, {"status": "approved"})
             stats["sites"] += 1

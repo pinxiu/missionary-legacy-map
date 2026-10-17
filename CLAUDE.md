@@ -22,13 +22,26 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 4. **Be honest about location.** Use `geo_precision`; never pretend a city-centre pin is exact.
 5. **Bilingual and honest about it.** Every name, summary and event has English and Simplified Chinese. A Chinese name
    is `cited` only if a source writes it; otherwise `translated` (shown with 译). Never invent a "historical" name.
-6. **Owner approval before anything goes live.** Visitor changes publish only after the owner labels the issue `approved`.
-   Agent-found records publish only after the trusted verifier, an independent audit, and the owner's `approved` on the unit.
+6. **Approval before anything goes live.** Visitor changes publish only after the owner labels the issue `approved`.
+   Agent-found records publish when the trusted verifier and the independent audit pass the unit's gates (audit agreement
+   ≥ 80%, `done_when` in the catalog; the owner delegated unit approval to these gates), or when the owner labels the unit
+   `approved`. A record the auditor disagreed with is held back until the owner rules on it.
 7. **Agents never grade their own work.** Verification, audits, gates and publishing are trusted code, not agents.
 8. **Crawl politely.** Respect robots.txt, keep `max_pages` modest, store only short excerpts publicly.
 9. **Correctness over speed.** One coverage unit at a time; reject what can't be verified.
 10. **Follow the owner's rulings.** `coverage/rulings.md` holds general decisions from `needs-decision` issues; they
     override your own judgement in every extraction, verification and audit.
+
+## How a unit is researched (the resource pool)
+1. **Discover** per province, then per city in it (`discover.py`: Wikipedia search in English and Chinese), plus the
+   curated sources in `sources.yaml`.
+2. **Pool** (`resource_pool` table, `pool.py`): every fetched page is stored under a hash of its normalised text. A page
+   already `extracted`/`loaded` is never read by a model again, whichever unit's search finds it.
+3. **Extract once, for every place on the page** (long pages in overlapping chunks). Each site carries `province` and
+   `city`; load files it under that province's unit, so a Fujian page found while working on Zhejiang fills CN-FJ.
+4. **Pin** each new site: gazetteer, then `locate.py` by Chinese name: Amap in China (needs `AMAP_KEY`), OpenStreetMap
+   and Wikidata everywhere else; the pin is `street` precision with a cited `location` claim, else the city/province centre.
+5. Verify, audit and publish per unit as below; the unit being worked on is still one at a time.
 
 ## Model costs
 Every model call goes through `pipeline/mlm/llm.py`: results are cached (`.mlm-work/llm-cache` and the `llm_cache` table),

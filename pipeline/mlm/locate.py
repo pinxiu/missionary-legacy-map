@@ -25,12 +25,20 @@ from math import cos, pi, sin, sqrt
 import httpx
 
 from .config import USER_AGENT, notice
-from .geocode import REGION_CENTROIDS, km_apart
+from .geocode import PROVINCE_CENTROIDS, REGION_CENTROIDS, km_apart
 from .verify import norm
 
-MAX_KM = 40.0
+MAX_KM = 40.0          # a hit must lie this close to the site's city centre...
+MAX_KM_PROVINCE = 400.0  # ...or this close to the province capital when only the province is known
 AGREE_M = 300.0
-BOX = 0.35  # degrees around the city centre for the OSM search
+BOX = 0.35  # degrees around the city centre for the OSM search (x10 for a province)
+
+
+def search_radius(region: str) -> tuple[float, float]:
+    """(max km from the centre, OSM box in degrees) for a site known to city or only to province level."""
+    from .geocode import CITIES
+    province_level = region in PROVINCE_CENTROIDS and region not in CITIES
+    return (MAX_KM_PROVINCE, BOX * 10) if province_level else (MAX_KM, BOX)
 PUBLIC = ("verified", "approved", "conflict")
 COARSE = ("city", "district", "province")
 
@@ -78,14 +86,14 @@ class Finder:
         except (httpx.HTTPError, ValueError):
             return {}
 
-    def osm(self, name: str, centre: tuple[float, float]) -> list[dict]:
+    def osm(self, name: str, centre: tuple[float, float], box: float = BOX) -> list[dict]:
         wait = 1.1 - (time.monotonic() - self._last)  # Nominatim policy: one request a second
         if wait > 0:
             time.sleep(wait)
         self._last = time.monotonic()
         lat, lng = centre
         hits = self._json("https://nominatim.openstreetmap.org/search", q=name, format="jsonv2", limit=5,
-                          viewbox=f"{lng - BOX},{lat + BOX},{lng + BOX},{lat - BOX}", bounded=1, **{"accept-language": "zh"})
+                          viewbox=f"{lng - box},{lat + box},{lng + box},{lat - box}", bounded=1, **{"accept-language": "zh"})
         return [{"source": "osm", "name": h.get("name") or h.get("display_name", "").split(",")[0],
                  "lat": float(h["lat"]), "lng": float(h["lon"]),
                  "url": f"https://www.openstreetmap.org/{h.get('osm_type')}/{h.get('osm_id')}"}
@@ -122,17 +130,19 @@ class Finder:
         return out
 
 
-def candidates(finder: Finder, site: dict, city_zh: str, centre: tuple[float, float]) -> list[dict]:
+def candidates(finder: Finder, site: dict, city_zh: str, centre: tuple[float, float], region: str = "",
+               china: bool = True) -> list[dict]:
     names = [n for n in [site.get("name_zh"), *(site.get("alt_names") or [])] if n and any("一" <= ch <= "鿿" for ch in n)]
+    max_km, box = search_radius(region)
     seen, out = set(), []
     for q in names[:2]:
-        for hit in [*finder.osm(q, centre), *finder.wikidata(q), *finder.amap(q, city_zh)]:
+        for hit in [*finder.osm(q, centre, box), *finder.wikidata(q), *(finder.amap(q, city_zh) if china else [])]:
             key = (hit["source"], hit["url"])
             if key in seen or not _same_name(names, hit["name"]):
                 continue
             seen.add(key)
             hit["km"] = km_apart(centre, (hit["lat"], hit["lng"]))
-            if hit["km"] <= MAX_KM:
+            if hit["km"] <= max_km:
                 out.append(hit)
     return out
 
@@ -146,6 +156,30 @@ def best(hits: list[dict]) -> tuple[dict | None, bool]:
     agree = any(h["source"] != pick["source"] and km_apart((pick["lat"], pick["lng"]), (h["lat"], h["lng"])) * 1000 <= AGREE_M
                 for h in hits)
     return pick, agree
+
+
+def apply_pick(store, site_id: str, pick: dict, agree: bool) -> None:
+    """Move a site's pin to a found place and record a `location` claim naming where the pin came from."""
+    src = store.upsert("sources", [{"url": pick["url"], "publisher": pick["source"]}], "url")[0]
+    store.update("sites", {"id": site_id}, {"location": f"SRID=4326;POINT({pick['lng']} {pick['lat']})",
+                                           "geo_precision": "street"})
+    store.insert("claims", [{
+        "subject_kind": "site", "subject_id": site_id, "field": "location",
+        "value": {"lat": pick["lat"], "lng": pick["lng"], "source": pick["source"], "agreed": agree},
+        "source_id": src["id"], "excerpt": f"{pick['source']}: {pick['name']}"[:300], "confidence": 0.8 if agree else 0.6,
+        "status": "verified", "verified_at": dt.datetime.now(dt.timezone.utc).isoformat(), "extracted_by": "geocoder"}])
+
+
+def refine(store, site: dict, city_zh: str, finder: Finder, china: bool = True) -> dict | None:
+    """Look a freshly loaded, city-pinned site up by its Chinese name; moves the pin when a match is found.
+    Returns the pick, or None. Used by the load stage so new sites are pinned as precisely as the free data allows."""
+    centre = REGION_CENTROIDS.get(site["region"])
+    if not centre:
+        return None
+    pick, agree = best(candidates(finder, site, city_zh, centre, site["region"], china))
+    if pick:
+        apply_pick(store, site["id"], pick, agree)
+    return pick
 
 
 def run(store, apply: bool = False, finder: Finder | None = None, limit: int | None = None) -> dict:
@@ -163,7 +197,7 @@ def run(store, apply: bool = False, finder: Finder | None = None, limit: int | N
         if not centre:
             stats["none"] += 1
             continue
-        hits = candidates(finder, s, (regions.get(s["region"]) or {}).get("name_zh") or "", centre)
+        hits = candidates(finder, s, (regions.get(s["region"]) or {}).get("name_zh") or "", centre, s["region"])
         pick, agree = best(hits)
         if not pick:
             stats["none"] += 1
@@ -173,14 +207,7 @@ def run(store, apply: bool = False, finder: Finder | None = None, limit: int | N
         lines.append(f"| {s['name_en']} {s['name_zh']} | {s['region']} | {pick['source']} | {pick['name']} | {pick['km']:.1f} | "
                      f"{'yes' if agree else 'no'} | {pick['url']} |")
         if apply:
-            src = store.upsert("sources", [{"url": pick["url"], "publisher": pick["source"]}], "url")[0]
-            store.update("sites", {"id": s["id"]}, {"location": f"SRID=4326;POINT({pick['lng']} {pick['lat']})",
-                                                   "geo_precision": "street"})
-            store.insert("claims", [{
-                "subject_kind": "site", "subject_id": s["id"], "field": "location",
-                "value": {"lat": pick["lat"], "lng": pick["lng"], "source": pick["source"], "agreed": agree},
-                "source_id": src["id"], "excerpt": f"{pick['source']}: {pick['name']}"[:300], "confidence": 0.8 if agree else 0.6,
-                "status": "verified", "verified_at": dt.datetime.now(dt.timezone.utc).isoformat(), "extracted_by": "geocoder"}])
+            apply_pick(store, s["id"], pick, agree)
             stats["applied"] += 1
     report = "\n".join(lines)
     print(report)

@@ -20,6 +20,7 @@ from .config import (
 from .crawl import load_registry
 from .llm import Req, shared
 from .models import Extraction
+from .pool import pool_or_none, resource_hash
 
 SYSTEM = """You extract historical records of Christian history from source texts for a cited historical map: missions of every
 tradition (Church of the East, Catholic, Protestant, Orthodox), indigenous and independent churches and movements,
@@ -35,8 +36,11 @@ Rules:
 - Record places as written (place_text), including historical romanizations such as "Hangchow" or "Kwang-Chi".
 - Sources may be English or Chinese. Fill name_zh (and summary_zh / description_zh) only with Simplified Chinese
   actually written in the text (convert Traditional characters to Simplified). Leave them empty otherwise.
-- Set `city` to the prefecture-level city the site is in, in lowercase pinyin (e.g. "hangzhou", "ningbo"), using the
-  region notes below for historical spellings. Use "other" if the site is outside the region being mapped.
+- Extract every qualifying site the text describes, wherever it is: the same page is never read twice, so places outside
+  the region named below must be recorded now. Set `province` to the province-level division in lowercase pinyin
+  (e.g. "zhejiang", "fujian"; a municipality such as Shanghai is its own province) and `city` to the prefecture-level
+  city, in lowercase pinyin (e.g. "hangzhou", "ningbo"), using the region notes below for historical spellings.
+  Use "other" for the city only if the text names none.
 - Historical scope only: skip anything after 1952 and anything about present-day religious workers or activity.
   A neutral note on current use ("now a university campus") is allowed in current_status.
 - Use confidence 0.9 for explicit statements, 0.6 for implied or approximate ones, 0.4 for vague ones.
@@ -44,6 +48,34 @@ Rules:
 - Always respond by calling the record_extraction tool exactly once, with empty lists if nothing qualifies."""
 
 MAX_CHARS = 60_000
+CHUNK_OVERLAP = 1_500
+
+
+def chunks(text: str, size: int = MAX_CHARS - 2_000, overlap: int = CHUNK_OVERLAP) -> list[str]:
+    """A long page (e.g. a whole book) as overlapping pieces that each fit the model, split at line breaks where possible."""
+    if len(text) <= MAX_CHARS:
+        return [text]
+    out, start = [], 0
+    while start < len(text):
+        end = min(start + size, len(text))
+        if end < len(text):
+            cut = text.rfind("\n", start + size // 2, end)
+            end = cut if cut > 0 else end
+        out.append(text[start:end])
+        if end >= len(text):
+            break
+        start = max(end - overlap, start + 1)
+    return out
+
+
+def merge(parts: list[Extraction]) -> Extraction:
+    """One extraction from the pieces of a long page. Later pieces repeating a site or person are merged on load."""
+    first = parts[0].model_copy(deep=True)
+    for p in parts[1:]:
+        first.sites += p.sites
+        first.persons += p.persons
+        first.citations_to_follow = sorted(set(first.citations_to_follow) | set(p.citations_to_follow))
+    return first
 
 
 def relevant(text: str, keywords: list[str]) -> bool:
@@ -193,7 +225,8 @@ def run(region: str) -> Path:
     stats = {"pages": 0, "cached": 0, "already_loaded": 0, "irrelevant": 0, "extracted": 0, "escalated": 0,
              "failed": 0, "pending": 0}
     archived = _archived_texts()
-    todo: list[tuple[Path, dict]] = []
+    pool = pool_or_none()
+    files: list[tuple[Path, dict, str]] = []  # (extraction file, page, pool hash)
     for f in sorted(raw.glob("*.json")):
         stats["pages"] += 1
         target = out / f.name
@@ -201,6 +234,10 @@ def run(region: str) -> Path:
             stats["cached"] += 1
             continue  # content-hash keyed: unchanged pages are not re-extracted
         page = json.loads(f.read_text())
+        h = page.get("pool_hash") or resource_hash(page.get("text", ""))
+        if pool and pool.known(h):
+            stats["pool_known"] = stats.get("pool_known", 0) + 1
+            continue  # this text was extracted in an earlier run (any unit): sites on it are already recorded
         if page.get("text") and page["url"] in archived and not same_page(archived[page["url"]], page["text"]):
             stats["changed_since_load"] = stats.get("changed_since_load", 0) + 1
             if stats["changed_since_load"] <= 3:
@@ -211,9 +248,13 @@ def run(region: str) -> Path:
         if page.get("kind") == "bibliography" or not relevant(page["text"], keywords):
             stats["irrelevant"] += 1
             continue
-        todo.append((out / f.name, page))
+        files.append((out / f.name, page, h))
 
-    # Pass 1: every page through the cheap model, as one batch (cached results cost nothing).
+    # A long page (a book) goes in as several overlapping pieces; their results are merged back into one file.
+    todo: list[tuple[int, dict]] = [(i, {**page, "text": piece}) for i, (_, page, _) in enumerate(files) for piece in chunks(page["text"])]
+    stats["chunks"] = len(todo)
+
+    # Pass 1: every piece through the cheap model, as one batch (cached results cost nothing).
     first = llm.run([request(page, system) for _, page in todo])
     results: list[Extraction | None] = []
     redo: list[int] = []
@@ -228,7 +269,7 @@ def run(region: str) -> Path:
         if res is None:
             stats["pending"] += 1
 
-    # Pass 2: the pages that failed the checks, through the stronger model, as one batch.
+    # Pass 2: the pieces that failed the checks, through the stronger model, as one batch.
     if redo:
         second = llm.run([request(todo[n][1], system, EXTRACT_ESCALATE_MODEL) for n in redo])
         for n, res in zip(redo, second, strict=True):
@@ -240,12 +281,21 @@ def run(region: str) -> Path:
                 results[n] = None  # not answered yet: retried next run rather than keeping the weaker result
                 stats["pending"] += 1
 
-    for (target, _page), ex in zip(todo, results, strict=True):
-        if ex is None:
-            continue  # pending (answered in a later run) or malformed twice (retried next run)
+    by_file: dict[int, list[Extraction | None]] = {}
+    for (i, _), ex in zip(todo, results, strict=True):
+        by_file.setdefault(i, []).append(ex)
+    done = 0
+    for i, (target, _page, h) in enumerate(files):
+        parts = by_file.get(i, [])
+        if not parts or any(p is None for p in parts):
+            continue  # a piece is pending (answered in a later run) or malformed twice: the whole page is retried next run
+        merged = merge(parts)
         stats["extracted"] += 1
-        target.write_text(ex.model_dump_json(indent=2))
-    stats["failed"] = len(todo) - stats["extracted"] - stats["pending"]
+        done += 1
+        target.write_text(merged.model_dump_json(indent=2))
+        if pool:
+            pool.mark(h, "extracted", locales=[x for s in merged.sites for x in (s.province, s.city) if x and x != "other"])
+    stats["failed"] = len(files) - stats["extracted"] - sum(1 for i in range(len(files)) if any(p is None for p in by_file.get(i, [])))
     notice(f"extract[{region}]: {stats}")
     llm.report()
     return out

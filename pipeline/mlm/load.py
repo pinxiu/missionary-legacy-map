@@ -52,10 +52,38 @@ def ensure_region(store: Store, region: str, unit: str | None) -> None:
         notice(f"load: added regions {', '.join(r['slug'] for r in rows)}")
 
 
+def unit_for_province(province: str) -> dict | None:
+    from .coverage import units
+    return next((u for u in units() if u["region"] == province), None)
+
+
 def load_extractions(region: str, store: Store | None = None, use_network: bool = True,
                      unit: str | None = None, subregions: list[str] | None = None) -> dict:
     store = store or Store()
-    stats = {"documents": 0, "skipped": 0, "new_sites": 0, "matched_sites": 0, "events": 0, "persons": 0, "dropped": 0}
+    stats = {"documents": 0, "skipped": 0, "new_sites": 0, "matched_sites": 0, "events": 0, "persons": 0, "dropped": 0,
+             "other_units": 0, "unmapped": 0, "pinned": 0}
+    from .locate import Finder, refine
+    from .pool import pool_or_none
+    pool = pool_or_none()
+    finder = Finder() if use_network and unit else None
+    ensured: set[str] = set()
+
+    def place_for(s) -> tuple[str, str | None, list[str] | None, dict | None] | None:
+        """(region, unit id, unit subregions, unit) a site belongs to, or None to skip it. A page is extracted once for
+        every place on it, so a Fujian page found by the Zhejiang search puts its Fujian sites in CN-FJ."""
+        prov = (getattr(s, "province", None) or "").strip().lower()
+        if not unit or not prov or prov == region:
+            return (region, unit, subregions, None) if s.city != "other" or prov == region else None
+        from .coverage import unit as unit_of
+        target = unit_for_province(prov)
+        if not target:
+            stats["unmapped"] += 1
+            return None
+        if target["id"] not in ensured:
+            ensure_region(store, target["region"], target["id"])
+            ensured.add(target["id"])
+        stats["other_units"] += 1
+        return target["region"], target["id"], target.get("subregions", []), unit_of(target["id"])
 
     ensure_region(store, region, unit)
     existing_sites = store.select("sites", select="id,slug,name_en,name_zh,alt_names")
@@ -120,9 +148,11 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                     "excerpt": ev.excerpt[:300], "confidence": ev.confidence, "extracted_by": "llm"})
 
         for s in ex.sites:
-            if s.city == "other":
-                continue  # outside the region being mapped
-            city = resolve_city(s.city, unit, subregions, default=region)
+            placed = place_for(s)
+            if placed is None:
+                continue  # names no place we can map yet (or none in a unit we know)
+            s_region, s_unit, s_subs, s_unit_cfg = placed
+            city = resolve_city(s.city, s_unit, s_subs, default=s_region)
             match = next((e for e in existing_sites
                           if same_entity(_names(e), [s.name_en, *s.alt_names], e.get("name_zh"), s.name_zh)), None)
             if match:
@@ -134,8 +164,19 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                        "alt_names": s.alt_names, "site_type": s.site_type, "location": f"SRID=4326;POINT({lng} {lat})",
                        "geo_precision": precision, "modern_address": s.modern_address,
                        "current_status": s.current_status, "current_status_zh": s.current_status_zh,
-                       "summary": s.summary, "summary_zh": s.summary_zh, "unit": unit}
+                       "summary": s.summary, "summary_zh": s.summary_zh, "unit": s_unit}
                 match = store.insert("sites", [row])[0]
+                if finder and precision in ("city", "province", "district"):
+                    from .coverage import unit as unit_of
+                    from .geocode import CITIES
+                    ucfg = s_unit_cfg or unit_of(s_unit)
+                    china = s_unit.startswith("CN-") or s_unit in ("HK", "MO", "TW")
+                    zh = CITIES.get(city, {}).get("zh") or ucfg["zh"]
+                    site_row = {**match, "name_zh": s.name_zh, "alt_names": s.alt_names, "region": city}
+                    try:
+                        stats["pinned"] += 1 if refine(store, site_row, zh, finder, china) else 0
+                    except Exception as e:  # noqa: BLE001 - a lookup failure leaves the pin at the city; never blocks the load
+                        notice(f"load: pin lookup failed for {s.name_en}: {type(e).__name__}", "warning")
                 existing_sites.append(match)
                 stats["new_sites"] += 1
             for ev in s.evidence:
@@ -162,5 +203,9 @@ def load_extractions(region: str, store: Store | None = None, use_network: bool 
                         "excerpt": evd.excerpt[:300], "confidence": evd.confidence, "extracted_by": "llm"})
         store.upsert("documents", [{"url": ex.document_url, "source_id": source["id"], "content_hash": content_hash,
                                     "text": page_text}], "url")
+        if pool and raw_page.exists():
+            ph = json.loads(raw_page.read_text()).get("pool_hash")
+            if ph:
+                pool.mark(ph, "loaded")
     notice(f"load[{region}]: {json.dumps(stats)}")
     return stats

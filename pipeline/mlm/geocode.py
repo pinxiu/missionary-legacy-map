@@ -25,6 +25,24 @@ REGION_CENTROIDS = {
 }
 
 
+# Province capitals: where a site known only by province is placed (precision 'province'), and the centre of the
+# search area when looking for its real pin (mlm/locate.py).
+PROVINCE_CENTROIDS = {
+    "zhejiang": (29.1832, 120.0934), "jiangsu": (32.0603, 118.7969), "fujian": (26.0745, 119.2965),
+    "guangdong": (23.1291, 113.2644), "shandong": (36.6512, 117.1201), "beijing": (39.9042, 116.4074),
+    "tianjin": (39.3434, 117.3616), "hebei": (38.0428, 114.5149), "henan": (34.7466, 113.6254),
+    "hubei": (30.5928, 114.3055), "hunan": (28.2282, 112.9388), "jiangxi": (28.6820, 115.8579),
+    "anhui": (31.8206, 117.2272), "sichuan": (30.5728, 104.0668), "chongqing": (29.5630, 106.5516),
+    "yunnan": (25.0389, 102.7183), "guizhou": (26.6477, 106.6302), "guangxi": (22.8170, 108.3665),
+    "shanxi": (37.8706, 112.5489), "shaanxi": (34.3416, 108.9398), "gansu": (36.0611, 103.8343),
+    "liaoning": (41.8057, 123.4315), "jilin": (43.8171, 125.3235), "heilongjiang": (45.8038, 126.5350),
+    "inner-mongolia": (40.8426, 111.7492), "ningxia": (38.4872, 106.2309), "qinghai": (36.6171, 101.7782),
+    "xinjiang": (43.8256, 87.6168), "tibet": (29.65, 91.1), "hainan": (20.0440, 110.1999),
+    "hong-kong": (22.3193, 114.1694), "macau": (22.1987, 113.5439), "taiwan": (25.0330, 121.5654),
+}
+REGION_CENTROIDS.update({k: v for k, v in PROVINCE_CENTROIDS.items() if k not in REGION_CENTROIDS})
+
+
 def _load_cities() -> dict[str, dict]:
     """Cities of the provinces added after Zhejiang (coverage/cities.yaml), by slug."""
     p = REPO_ROOT / "coverage" / "cities.yaml"
@@ -108,4 +126,4 @@ def geocode(region: str, name: str, place_text: str = "", modern_address: str | 
         if hit and (centre is None or region in ("china", "zhejiang") or km_apart(centre, hit[:2]) <= 150):
             return hit
     lat, lng = REGION_CENTROIDS.get(region, REGION_CENTROIDS["china"])
-    return lat, lng, "city"
+    return lat, lng, "province" if region in PROVINCE_CENTROIDS and region not in CITIES else "city"

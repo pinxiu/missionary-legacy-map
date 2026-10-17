@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-STAGES = ["crawl", "extract", "translate", "load", "verify", "audit"]
+STAGES = ["crawl", "extract", "translate", "load", "verify", "audit"]  # crawl also runs the per-city discovery
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -38,6 +38,8 @@ def main(argv: list[str] | None = None) -> None:
     lc = sub.add_parser("locate", help="Find real pins for city-centre sites in OSM / Wikidata / Amap (dry run unless --apply)")
     lc.add_argument("--apply", action="store_true")
     lc.add_argument("--limit", type=int, default=None)
+    pl = sub.add_parser("pool", help="The resource pool: what has been fetched and extracted (no model)")
+    pl.add_argument("action", choices=["status", "backfill"])
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
     sub.add_parser("actions-usage", help="Approximate GitHub Actions minutes over 30 days, per workflow (no model)")
     cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
@@ -71,6 +73,13 @@ def main(argv: list[str] | None = None) -> None:
         from . import locate
         from .store import Store
         locate.run(Store(), apply=args.apply, limit=args.limit)
+        return
+    if args.cmd == "pool":
+        from . import pool as pool_mod
+        from .store import Store
+        if args.action == "backfill":
+            pool_mod.backfill(Store())
+        print(pool_mod.Pool(Store()).summary())
         return
     if args.cmd == "refresh-site":
         from .site import refresh
@@ -149,12 +158,16 @@ def main(argv: list[str] | None = None) -> None:
         unit, subregions, region = u["id"], u.get("subregions", []), region or u["region"]
     region = region or "zhejiang"
 
+    coverage_unit = None
+    if args.unit:
+        from . import coverage as cov
+        coverage_unit = cov.unit(args.unit)
     stages = STAGES if args.stage == "all" else [args.stage]
     for stage in stages:
         print(f"=== {stage} ({unit or region}) ===")
         if stage == "crawl":
             from . import crawl
-            crawl.run(region)
+            crawl.run(region, discover_for=coverage_unit)
         elif stage == "extract":
             from . import extract
             extract.run(region)

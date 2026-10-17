@@ -143,16 +143,34 @@ class Crawler:
         return pages
 
 
-def run(region: str, out_dir: Path | None = None) -> Path:
+def run(region: str, out_dir: Path | None = None, pool=None, discover_for: dict | None = None) -> Path:
+    """Fetch the region's registered sources (and, with `discover_for`, a per-city search) into the raw folder.
+    With a resource pool, a page whose text was already extracted or loaded (in any unit) is not written again."""
+    from .pool import pool_or_none
+
     registry = load_registry()["regions"][region]
     out = out_dir or WORK_DIR / "raw" / region
     out.mkdir(parents=True, exist_ok=True)
     crawler = Crawler()
-    for source in registry["sources"]:
+    pool = pool if pool is not None else pool_or_none()
+    sources = list(registry["sources"])
+    if discover_for:
+        from .discover import discovered_sources
+        sources += discovered_sources(discover_for, crawler.client)
+    stats = {"fetched": 0, "known": 0, "new": 0}
+    for source in sources:
         print(f"[crawl] {source['name']}")
         pages = crawler.crawl_source(source)
         notice(f"crawl[{region}] {source['name']}: {len(pages)} pages")
         for page in pages:
+            stats["fetched"] += 1
             rec = page.__dict__ | {"content_hash": page.content_hash, "kind": source.get("kind", "web")}
+            if pool:
+                rec["pool_hash"], needs_work = pool.add(rec, found_for=region)
+                if not needs_work:
+                    stats["known"] += 1
+                    continue
+            stats["new"] += 1
             (out / f"{page.content_hash[:16]}.json").write_text(json.dumps(rec, ensure_ascii=False))
+    notice(f"crawl[{region}]: {stats}")
     return out
