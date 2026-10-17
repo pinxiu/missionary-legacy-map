@@ -43,3 +43,7 @@ Actions secrets `ANTHROPIC_API_KEY`, `SUPABASE_SECRET_KEY`. Vercel env `NEXT_PUB
 cd pipeline && pip install -e ".[dev]" && pytest -q
 cd apps/web && npm ci && npm run dev
 ```
+
+## Licence
+Code: [MIT](LICENSE). Data (records, translations, source links): [CC BY-SA 4.0](LICENSE-DATA.md); photos and third-party
+sources keep their own terms. See [CONTRIBUTING.md](CONTRIBUTING.md) to help.
