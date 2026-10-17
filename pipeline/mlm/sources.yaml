@@ -44,6 +44,59 @@ regions:
         max_pages: 3
         language: en
         kind: journal
+      - name: Moule, A Retrospect of Sixty Years (Hangchow Missionary Association, 1907) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/ldpd_in00033916080_000/ldpd_in00033916080_000_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period primary source; Columbia University Libraries scan
+      - name: Jubilee Papers of the Central China Presbyterian Mission 1844-1894 (1895) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/jubileepapers0000unse/jubileepapers0000unse_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period mission report; Hangchow station sketch
+      - name: De Gruchè, Doctor Apricot of "Heaven-below" (Hangchow CMS Medical Mission, 1910) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/cu31924023491305/cu31924023491305_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period popular account (Cornell scan); pseudonymous narrative, corroborate facts
+      - name: Day, Hangchow University, a Brief History (United Board, 1955) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/hangchowuniversi00dayc/hangchowuniversi00dayc_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book
+      - name: Presbyterian Historical Society — China mission finding aids (Hangchow)
+        start_urls:
+          - https://pcusa.org/historical-society/collections/research-tools/guides-archival-collections/rg-431
+          - https://pcusa.org/historical-society/collections/research-tools/guides-archival-collections/rg-82
+          - https://pcusa.org/historical-society/collections/research-tools/guides-archival-collections/rg-356
+        follow: []
+        max_pages: 3
+        language: en
+        kind: archive   # finding aids: historical notes and folder titles
+      - name: Hoover Institution — Elmer L. Mattox papers (OAC finding aid)
+        start_urls:
+          - https://oac.cdlib.org/findaid/ark:/13030/kt0q2nd7qv/
+        follow: []
+        max_pages: 1
+        language: en
+        kind: archive
+      - name: Wikipedia (ZH) — Hangzhou mission institutions
+        start_urls:
+          - https://zh.wikipedia.org/wiki/之江大学
+          - https://zh.wikipedia.org/wiki/杭州圣母无原罪主教座堂
+          - https://zh.wikipedia.org/wiki/思澄堂
+          - https://zh.wikipedia.org/wiki/浙江大学医学院附属第二医院
+        follow: []
+        max_pages: 4
+        language: zh
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
