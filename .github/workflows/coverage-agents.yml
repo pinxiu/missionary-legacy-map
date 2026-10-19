@@ -4,7 +4,7 @@ name: Coverage agents
 #   1. Pick the active unit (in-progress, else next todo). No unit: stop. (free)
 #   2. If the unit has no sources yet, a source-scout agent proposes some; trusted code validates them.
 #   3. Discover (per city) → crawl → resource pool (hash dedupe) → extract once for all places → pin → translate → load
-      → trusted verifier → independent audit.
+#      → trusted verifier → independent audit.
 #   4. Status job updates the unit issue and STATUS.md; when the gates are met the unit is published and marked done.
 # A unit publishes itself when its gates are met (audit agreement >= 80%); the owner's `approved` label also publishes it
 # (apply-approved.yml, or the status job's catch-up if that event was missed).
