@@ -9,11 +9,11 @@ name: Coverage agents
 # A unit publishes itself when its gates are met (audit agreement >= 80%); the owner's `approved` label also publishes it
 # (apply-approved.yml, or the status job's catch-up if that event was missed).
 
-# GitHub often drops scheduled runs, so the schedule fires every 2 hours and the cheap `due` job lets the real work run
-# only when no run has started in the last ~5.5 hours (about every 6 hours, without depending on any single slot).
+# GitHub often drops scheduled runs, so the schedule fires every hour and the cheap `due` job lets the real work run
+# only when no run has started in the last ~2.5 hours (about every 3 hours, without depending on any single slot).
 on:
   schedule:
-    - cron: "17 */2 * * *"   # each check bills at least a minute; work is due about every 6 hours
+    - cron: "17 * * * *"   # each check bills at least a minute; work is due about every 3 hours
   workflow_dispatch:
     inputs:
       unit:
@@ -50,7 +50,7 @@ jobs:
               | .run_started_at][0] // "1970-01-01T00:00:00Z"')
           age=$(( $(date +%s) - $(date -d "$last" +%s) ))
           echo "last real run started $last ($((age / 60)) min ago)"
-          if [ "$age" -ge 19800 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+          if [ "$age" -ge 9000 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
 
   work:
     needs: due
