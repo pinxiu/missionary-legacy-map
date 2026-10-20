@@ -465,3 +465,70 @@ regions:
         follow: []
         max_pages: 5
         language: zh
+
+  beijing:
+    # Municipality (coverage unit CN-BJ). Each extracted site is assigned to its district by the extractor.
+    name: Beijing 北京
+    extract_hint: >-
+      Municipality of Beijing, historically Peking/Peiping (北平, 1928-1949) and Shuntianfu (順天府); city key: beijing.
+      Districts and old quarters: Xuanwumen (宣武門, Nantang South Church), Xishiku (西什庫, Beitang North Church),
+      Wangfujing (王府井, Dongtang East Church), Xizhimen (西直門, Xitang West Church), Zhalan (柵欄, Zhengfusi/Matteo Ricci
+      cemetery), Legation Quarter (東交民巷), Tongzhou (通州, Tungchow), Haidian (海淀), Fangshan (房山), Changping
+      (昌平), Daxing (大興), Mentougou (門頭溝), Yanqing (延慶).
+      Include the Church of the East (Jingjiao) and Yuan-dynasty Catholic (Franciscan, Khanbaliq/Cambaluc, John of
+      Montecorvino) traces, Jesuit missions (Ricci, Schall, Verbiest), Lazarists, Russian Orthodox Ecclesiastical Mission
+      (Beiguan), Protestant missions (LMS, ABCFM, American Presbyterian, Methodist Episcopal, SPG, Church Missionary Society,
+      YMCA), Yenching (Yanjing) University, North China Union colleges, Tungchow, Peking Union Medical College (PUMC),
+      Peking Union Church, indigenous and independent churches, the Boxer siege of 1900 and its martyrs, schools,
+      hospitals, presses, cemeteries and memorials.
+    keywords: [Beijing, Peking, Peiping, Pekin, Khanbaliq, Cambaluc, 北京, 北平, 順天府, 顺天府, 燕京,
+               Nantang, Beitang, Dongtang, Xitang, Xuanwumen, Xishiku, Wangfujing, 南堂, 北堂, 东堂, 東堂, 西堂, 宣武门, 宣武門,
+               西什库, 西什庫, 王府井, Zhalan, 栅栏, 柵欄, 滕公栅栏, Matteo Ricci, 利玛窦, 利瑪竇, Adam Schall, 汤若望, 湯若望,
+               Verbiest, 南怀仁, 南懷仁, Tungchow, Tongzhou, 通州, Yenching University, Yanjing, 燕京大学, 燕京大學,
+               Peking Union Medical College, PUMC, 协和医学院, 協和醫學院, 北京协和医院, Legation Quarter, 东交民巷, 東交民巷,
+               Boxer, 义和团, 義和團, Jingjiao, 景教, Beiguan, 北馆, 北館, Russian Ecclesiastical Mission, 俄罗斯东正教, Peking Union Church]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Beijing places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/beijing/
+          - https://www.bdcconline.net/zh-hans/places/beijing/?page=2
+          - https://www.bdcconline.net/zh-hans/places/beijing/?page=3
+          - https://www.bdcconline.net/zh-hans/places/beijing/?page=4
+          - https://www.bdcconline.net/zh-hans/places/beijing/?page=5
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 70
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Beijing places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/beijing/
+          - https://www.bdcconline.net/en/places/beijing/?page=2
+          - https://www.bdcconline.net/en/places/beijing/?page=3
+          - https://www.bdcconline.net/en/places/beijing/?page=4
+          - https://www.bdcconline.net/en/places/beijing/?page=5
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 70
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Beijing churches, universities and hospitals
+        start_urls:
+          - https://en.wikipedia.org/wiki/Yenching_University
+          - https://en.wikipedia.org/wiki/Peking_Union_Medical_College
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Beijing
+          - https://en.wikipedia.org/wiki/Church_of_the_Saviour,_Beijing
+          - https://en.wikipedia.org/wiki/Zhalan_Cemetery
+          - https://en.wikipedia.org/wiki/Siege_of_the_International_Legations
+          - https://en.wikipedia.org/wiki/Matteo_Ricci
+        follow: []
+        max_pages: 10
+        language: en
+      - name: Wikipedia (ZH) — Beijing churches, universities and cemeteries
+        start_urls:
+          - https://zh.wikipedia.org/wiki/燕京大学
+          - https://zh.wikipedia.org/wiki/北京协和医学院
+          - https://zh.wikipedia.org/wiki/西什库教堂
+          - https://zh.wikipedia.org/wiki/宣武门天主堂
+          - https://zh.wikipedia.org/wiki/利玛窦墓
+        follow: []
+        max_pages: 6
+        language: zh
