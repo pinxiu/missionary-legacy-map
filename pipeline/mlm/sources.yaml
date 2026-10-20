@@ -401,3 +401,67 @@ regions:
         follow: []
         max_pages: 5
         language: zh
+
+  shandong:
+    # Province-wide crawl (coverage unit CN-SD). Each extracted site is assigned to its city (prefecture) by the extractor.
+    name: Shandong 山东
+    extract_hint: >-
+      Prefectures: jinan, qingdao, zibo, zaozhuang, dongying, yantai, weifang, jining, taian, weihai, rizhao, linyi,
+      dezhou, liaocheng, binzhou, heze.
+      Historical spellings: Shantung (山東), Tsinan/Chinan (濟南 = jinan), Tsingtao (青島 = qingdao), Chefoo/Yentai
+      (芝罘/煙臺 = yantai), Tengchow (登州 = penglai, in yantai), Weihsien (濰縣 = weifang), Weihaiwei (威海衛 = weihai),
+      Tsining (濟寧 = jining), Taian/Taianfu (泰安), Yenchowfu/Yanzhou (兗州, in jining), Tsaochowfu/Caozhou (曹州 = heze),
+      Ichowfu (沂州 = linyi), Tehchow (德州 = dezhou), Linching (臨清, in liaocheng), Chowtsun/Zhoucun (周村, in zibo),
+      Poshan (博山, in zibo), Tsiningchow, Kiaochow/Jiaozhou (膠州 Bay, German concession), Laichow (萊州), Chuchow (諸城),
+      Yantai/Chefoo Convention (1876), Qufu (曲阜, in jining), Chiningchow.
+      Include Jesuit and Steyl (SVD, Southern Shandong vicariate) Catholic missions, Protestant missions (American
+      Presbyterian, English Baptist, Southern Baptist, ABCFM, Methodist, Berlin and Weimar missions, China Inland
+      Mission, Church of Scotland, Anglican/SPG), Cheeloo (Shantung Christian) University and its hospitals, Tengchow
+      College, Chefoo School, indigenous and independent churches (e.g. Jesus Family 耶稣家庭, True Jesus Church),
+      the Shandong revival of the 1930s, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Shandong, Shantung, 山东, 山東, Jinan, Tsinan, Chinan, 济南, 濟南, Qingdao, Tsingtao, Kiaochow, Jiaozhou, 青岛, 青島, 胶州, 膠州,
+               Zibo, 淄博, Zhoucun, Chowtsun, 周村, Boshan, Poshan, 博山, Zaozhuang, 枣庄, 棗莊, Dongying, 东营, 東營,
+               Yantai, Yentai, Chefoo, 烟台, 煙臺, 芝罘, Penglai, Tengchow, Dengzhou, 蓬莱, 蓬萊, 登州,
+               Weifang, Weihsien, 潍坊, 濰縣, 潍县, Jining, Tsining, 济宁, 濟寧, Yanzhou, Yenchowfu, 兖州, 兗州,
+               Qufu, 曲阜, Taian, Tai'an, 泰安, Weihai, Weihaiwei, 威海, 威海卫, 威海衛, Rizhao, 日照,
+               Linyi, Ichowfu, 临沂, 臨沂, 沂州, Dezhou, Tehchow, 德州, Liaocheng, Linching, 聊城, 临清, 臨清,
+               Binzhou, 滨州, 濱州, Heze, Tsaochowfu, Caozhou, 菏泽, 菏澤, 曹州, Cheeloo, 齐鲁大学, 齊魯大學,
+               Tengchow College, 登州文会馆, 登州文會館, Chefoo School, Steyl, SVD, 耶稣家庭, 耶穌家庭]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Shandong places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/shandong/
+          - https://www.bdcconline.net/zh-hans/places/shandong/?page=2
+          - https://www.bdcconline.net/zh-hans/places/shandong/?page=3
+          - https://www.bdcconline.net/zh-hans/places/shandong/?page=4
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 80
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Shandong places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/shandong/
+          - https://www.bdcconline.net/en/places/shandong/?page=2
+          - https://www.bdcconline.net/en/places/shandong/?page=3
+          - https://www.bdcconline.net/en/places/shandong/?page=4
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 80
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Shandong mission institutions and people
+        start_urls:
+          - https://en.wikipedia.org/wiki/Cheeloo_University
+          - https://en.wikipedia.org/wiki/Calvin_Wilson_Mateer
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Jinan
+          - https://en.wikipedia.org/wiki/Chefoo_School
+          - https://en.wikipedia.org/wiki/Weihai
+        follow: []
+        max_pages: 8
+        language: en
+      - name: Wikipedia (ZH) — Shandong mission institutions
+        start_urls:
+          - https://zh.wikipedia.org/wiki/齐鲁大学
+          - https://zh.wikipedia.org/wiki/登州文会馆
+        follow: []
+        max_pages: 5
+        language: zh
