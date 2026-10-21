@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-10-20 23:07 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-21 06:47 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 7 / 45  ·  **Published records:** 214  ·  **Verified, awaiting approval:** 49  ·  **Audited:** 93
+**Units done:** 8 / 45  ·  **Published records:** 248  ·  **Verified, awaiting approval:** 22  ·  **Audited:** 100
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -12,9 +12,9 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-SH | Shanghai 上海 | done | 28 | 3 | 0 | 106 | 90% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 49 | 0 | 0 | 98 | 100% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 37 | 4 | 0 | 71 | 90% | [#6](../../issues/6) |
-| 1 | CN-SD | Shandong 山东 | done | 43 | 0 | 0 | 99 | 100% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 0 | 36 | 0 | 75 | 80% | [#8](../../issues/8) |
-| 1 | CN-TJ | Tianjin 天津 | todo |  |  |  |  |  | [#9](../../issues/9) |
+| 1 | CN-SD | Shandong 山东 | done | 43 | 0 | 0 | 100 | 100% | [#7](../../issues/7) |
+| 1 | CN-BJ | Beijing 北京 | done | 34 | 2 | 0 | 75 | 80% | [#8](../../issues/8) |
+| 1 | CN-TJ | Tianjin 天津 | done | 0 | 7 | 0 | 6 | 86% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | todo |  |  |  |  |  | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | todo |  |  |  |  |  | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | todo |  |  |  |  |  | [#12](../../issues/12) |
