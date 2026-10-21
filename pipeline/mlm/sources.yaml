@@ -586,3 +586,69 @@ regions:
         follow: []
         max_pages: 4
         language: zh
+  hebei:
+    # Province (coverage unit CN-HE). Each extracted site is assigned to its prefecture-level city by the extractor.
+    name: Hebei 河北
+    extract_hint: >-
+      Province of Hebei, historically Chihli (直隸, Zhili) and Pechili; city keys: shijiazhuang (Shihkiachwang, Zhengding
+      正定, Chengting), baoding (Paotingfu, 保定府), tangshan (唐山, Kaiping 開平), qinhuangdao (Shanhaiguan 山海關,
+      Peitaiho 北戴河), handan (邯鄲, Kwangping 廣平), xingtai (邢台, Shuntehfu 順德府), hengshui (衡水, Chichow 冀州),
+      cangzhou (滄州, Hsienhsien 獻縣, Tsangchow), langfang (廊坊), zhangjiakou (張家口, Kalgan, Xuanhua 宣化,
+      Xiwanzi 西灣子), chengde (承德, Jehol 熱河). Include Jesuit (Xianxian/Hsien Hsien mission), Lazarist (Vincentian:
+      Zhengding, Baoding, Xiwanzi/Siwantze) and Scheut Catholic missions, the 1900 Boxer martyrs (Baoding, Zhengding,
+      Zhujiahe 朱家河), Protestant missions (American Board at Tungchow/Paotingfu, Presbyterian, Methodist, Canadian
+      Presbyterian, Brethren, CIM, Swedish Mongol Mission at Kalgan), Jonathan Goforth revivals, James Yen's Dingxian
+      (定縣) mass education experiment, Peitaiho resort, Kailan Mines, mission hospitals, schools, presses,
+      indigenous and independent churches, cemeteries and memorials.
+    keywords: [Hebei, Hopei, Chihli, Zhili, Pechili, 河北, 直隸, 直隶,
+               Shijiazhuang, Shihkiachwang, 石家莊, 石家庄, Zhengding, Chengting, Chengtingfu, 正定, 正定府,
+               Baoding, Paotingfu, Paoting, 保定, 保定府, Tangshan, 唐山, Kaiping, 開平, 开平,
+               Qinhuangdao, Shanhaiguan, Peitaiho, 秦皇島, 秦皇岛, 山海關, 山海关, 北戴河,
+               Handan, 邯鄲, 邯郸, Xingtai, Shunde, Shuntehfu, 邢台, 順德府, 顺德府,
+               Hengshui, Jizhou, 衡水, 冀州, Cangzhou, Tsangchow, 滄州, 沧州, Xianxian, Hsien Hsien, Sienhsien, 獻縣, 献县,
+               Langfang, 廊坊, Zhangjiakou, Kalgan, 張家口, 张家口, Xuanhua, 宣化, Xiwanzi, Siwantze, 西灣子, 西湾子,
+               Chengde, Jehol, 承德, 熱河, 热河, Dingxian, Tinghsien, 定縣, 定县, James Yen, Yan Yangchu, 晏陽初, 晏阳初,
+               Jonathan Goforth, 古約翰, 古约翰, Boxer, 義和團, 义和团, Zhujiahe, 朱家河, Jesuit, 耶穌會, 耶稣会,
+               Lazarist, Vincentian, 遣使會, 遣使会, American Board, 公理會, 公理会]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Hebei places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/hebei/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Hebei places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/hebei/
+          - https://www.bdcconline.net/en/places/hebei/?page=2
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 25
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Hebei Catholic dioceses (Xianxian, Zhengding, Baoding, Xuanhua, Yongnian)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Xianxian
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Zhengding
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Baoding
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Xuanhua
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Yongnian
+        follow: []
+        max_pages: 6
+        language: en
+      - name: Wikipedia (EN) — Jonathan Goforth, Hebei revivals and missionaries
+        start_urls:
+          - https://en.wikipedia.org/wiki/Jonathan_Goforth
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Hebei Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教献县教区
+          - https://zh.wikipedia.org/wiki/天主教正定教区
+          - https://zh.wikipedia.org/wiki/天主教保定教区
+          - https://zh.wikipedia.org/wiki/天主教宣化教区
+          - https://zh.wikipedia.org/wiki/天主教永年教区
+        follow: []
+        max_pages: 6
+        language: zh
