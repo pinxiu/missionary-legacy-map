@@ -532,3 +532,57 @@ regions:
         follow: []
         max_pages: 6
         language: zh
+  tianjin:
+    # Municipality (coverage unit CN-TJ). Each extracted site is assigned to its district by the extractor.
+    name: Tianjin 天津
+    extract_hint: >-
+      Municipality of Tianjin, historically Tientsin (天津, Tien-tsin) and Tianjin Prefecture (天津府);
+      city key: tianjin. Old quarters and districts: the Walled City (天津衛), Hebei (河北, Wanghailou, 望海樓),
+      Heping (和平, Xikai 西開), the foreign concessions (British, French, German, Japanese, Russian, Italian, Belgian,
+      Austro-Hungarian), Hexi (河西), Nankai (南開), Hongqiao (紅橋), Tanggu (塘沽, Taku), Jinghai (靜海), Wuqing (武清),
+      Baodi (寶坻), Ninghe (寧河), Jixian (薊縣), Xiqing (西青), Beichen (北辰), Dongli (東麗), Jinnan (津南).
+      Include French Jesuit and Lazarist Catholic missions (Notre-Dame-des-Victoires, St Joseph's Xikai cathedral,
+      Sisters of Charity orphanage), the 1870 Tientsin Massacre and the 1900 Boxer siege and its martyrs, Protestant
+      missions (LMS, American Board, Methodist Episcopal, Presbyterian, Methodist New Connexion, Salvation Army),
+      Tientsin Union Church, Peiyang University, Nankai schools, YMCA/YWCA, mission hospitals, indigenous and
+      independent churches, Orthodox, schools, presses, cemeteries and memorials.
+    keywords: [Tianjin, Tientsin, Tien-tsin, 天津, 天津衛, 天津卫, 天津府,
+               Wanghailou, Notre-Dame-des-Victoires, Our Lady of Victories, 望海楼, 望海樓, 圣母得胜堂, 聖母得勝堂,
+               Xikai, 西开教堂, 西開教堂, 圣若瑟, Tientsin Massacre, 天津教案, Boxer, 义和团, 義和團,
+               Taku, Tanggu, 塘沽, Peiyang University, 北洋大学, 北洋大學, Nankai, 南开, 南開, Zhang Boling, 张伯苓, 張伯苓,
+               Tientsin Union Church, 天津教会, 天津教會, Timothy Richard, 李提摩太, John Kenneth Mackenzie, 马根济, 馬根濟,
+               Eric Liddell, 李爱锐, 李愛銳, Arthur Smith, 明恩溥, Lazarist, Vincentian, Jesuit, 遣使会, 遣使會,
+               耶稣会, 耶穌會, 天津租界, 租界]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Tianjin places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/tianjin/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 20
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Tianjin places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/tianjin/
+          - https://www.bdcconline.net/en/places/tianjin/?page=2
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Tianjin churches, massacre, university and missionaries
+        start_urls:
+          - https://en.wikipedia.org/wiki/Tientsin_Massacre
+          - https://en.wikipedia.org/wiki/Wanghailou_Church
+          - https://en.wikipedia.org/wiki/Tianjin_University
+          - https://en.wikipedia.org/wiki/Eric_Liddell
+        follow: []
+        max_pages: 6
+        language: en
+      - name: Wikipedia (ZH) — Tianjin churches and the 1870 incident
+        start_urls:
+          - https://zh.wikipedia.org/wiki/望海楼教堂
+          - https://zh.wikipedia.org/wiki/西开教堂
+          - https://zh.wikipedia.org/wiki/天津教案
+        follow: []
+        max_pages: 4
+        language: zh
