@@ -1,21 +1,21 @@
 # Coverage status
 
-_Updated 2026-10-22 04:45 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-22 05:40 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 8 / 45  ·  **Published records:** 252  ·  **Verified, awaiting approval:** 17  ·  **Audited:** 100
+**Units done:** 9 / 45  ·  **Published records:** 254  ·  **Verified, awaiting approval:** 35  ·  **Audited:** 110
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | CN-ZJ | Zhejiang 浙江 | done | 44 | 4 | 0 | 157 | 100% | [#2](../../issues/2) |
 | 1 | CN-JS | Jiangsu 江苏 | done | 13 | 2 | 0 | 82 | 90% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | done | 28 | 3 | 0 | 106 | 90% | [#4](../../issues/4) |
+| 1 | CN-SH | Shanghai 上海 | done | 28 | 4 | 0 | 108 | 90% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 49 | 0 | 0 | 98 | 100% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 37 | 4 | 0 | 71 | 90% | [#6](../../issues/6) |
-| 1 | CN-SD | Shandong 山东 | done | 43 | 0 | 0 | 101 | 100% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 34 | 2 | 0 | 75 | 80% | [#8](../../issues/8) |
-| 1 | CN-TJ | Tianjin 天津 | done | 4 | 2 | 0 | 6 | 86% | [#9](../../issues/9) |
-| 1 | CN-HE | Hebei 河北 | in-progress | 0 | 0 | 0 | 3 | — | [#10](../../issues/10) |
+| 1 | CN-SD | Shandong 山东 | done | 43 | 0 | 0 | 102 | 100% | [#7](../../issues/7) |
+| 1 | CN-BJ | Beijing 北京 | done | 34 | 3 | 0 | 84 | 80% | [#8](../../issues/8) |
+| 1 | CN-TJ | Tianjin 天津 | done | 6 | 6 | 0 | 23 | 86% | [#9](../../issues/9) |
+| 1 | CN-HE | Hebei 河北 | done | 0 | 12 | 0 | 35 | 90% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | todo |  |  |  |  |  | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | todo |  |  |  |  |  | [#12](../../issues/12) |
 | 1 | CN-HN | Hunan 湖南 | todo |  |  |  |  |  | [#13](../../issues/13) |
