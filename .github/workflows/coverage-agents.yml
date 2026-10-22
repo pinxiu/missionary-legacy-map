@@ -154,6 +154,12 @@ jobs:
         if: steps.unit.outputs.id != ''
         run: mlm run --unit "${{ steps.unit.outputs.id }}"
 
+      # Pages found for one unit hold places in others, so units that are already done keep gaining verified records.
+      # Trusted code audits a sample of each such batch and publishes it only if the sample agrees (the 80% gate).
+      - name: Audit and publish new records in finished units (trusted)
+        if: steps.unit.outputs.id != ''
+        run: mlm coverage sweep
+
       - name: Save crawl + extraction cache (also after a failure)
         if: always() && steps.unit.outputs.id != '' && steps.cache.outcome != 'skipped' && hashFiles('.mlm-work/**') != ''
         uses: actions/cache/save@v4

@@ -322,3 +322,36 @@ def test_paging_uses_each_tables_own_unique_column():
 
     assert Store.PAGE_KEY == {"resource_pool": "hash", "extractions": "hash", "llm_cache": "key",
                               "app_settings": "key", "regions": "slug"}
+
+
+def test_done_units_audit_and_publish_new_records_by_sample(monkeypatch):
+    from mlm import audit
+    from mlm import coverage as cov
+
+    store = MemStore({
+        "sites": [{"id": f"s{i}", "status": "verified", "region": "fujian", "unit": "CN-FJ"} for i in range(4)],
+        "audits": [{"unit": "CN-FJ", "subject_id": "old", "agree": True},   # an earlier audit of another record
+                   {"unit": "CN-FJ", "subject_id": "s0", "agree": True}, {"unit": "CN-FJ", "subject_id": "s1", "agree": True},
+                   {"unit": "CN-FJ", "subject_id": "s2", "agree": True}, {"unit": "CN-FJ", "subject_id": "s3", "agree": False}],
+    })
+    ok, n, agreed = cov.batch_gate(store, "CN-FJ", ["s0", "s1", "s2", "s3"])
+    assert (ok, n, agreed) == (False, 4, 3)  # 75% of the NEW records: below the gate, the old audit doesn't dilute it
+    ok, n, agreed = cov.batch_gate(store, "CN-FJ", ["s0", "s1", "s2"])
+    assert ok and (n, agreed) == (3, 3)
+    assert not cov.batch_gate(store, "CN-FJ", ["s9"])[0]  # nothing audited yet: not published
+
+    calls, published = [], []
+    done = {"CN-FJ": {"number": 5, "labels": ["unit", "done"], "state": "CLOSED"}}
+    monkeypatch.setattr(cov, "unit_issues", lambda: done)
+    monkeypatch.setattr(cov, "gh", lambda *a, **k: calls.append(a) or "")
+    monkeypatch.setattr(cov, "publish", lambda st, uid: published.append(uid) or {"sites": 3, "events": 2})
+    monkeypatch.setattr(cov, "held_back", lambda st, uid: {"s3"})
+    monkeypatch.setattr(audit, "run", lambda *a, **k: {})
+    monkeypatch.setattr("mlm.site.refresh", lambda st: None)
+    store.rows["sites"][3]["status"] = "approved"  # only s0..s2 are the new verified batch
+    out = cov.sweep_done(store)
+    assert published == ["CN-FJ"] and out["CN-FJ"]["published"] and out["CN-FJ"]["new_verified"] == 3
+    assert any(c[1] == "comment" and "after it was done" in c[4] for c in calls)
+    store.rows["audits"][1]["agree"] = False  # sample now disagrees: nothing published
+    published.clear()
+    assert not cov.sweep_done(store)["CN-FJ"]["published"] and published == []

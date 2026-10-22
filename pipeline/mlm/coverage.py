@@ -170,6 +170,56 @@ def auto_publish(store, u: dict, issue: dict, m: dict, why: str) -> dict:
     return stats
 
 
+def batch_gate(store, uid: str, verified_ids: list[str]) -> tuple[bool, int, int]:
+    """Gate for records that appear after a unit is done: the auditor must have sampled enough of THESE verified records
+    (up to the catalog's minimum sample) and at least `audit_agreement` of the sample must agree. (ok, audited, agreed)"""
+    g = catalog()["done_when"]
+    ids = set(verified_ids)
+    audits = [a for a in store.select("audits", select="subject_id,agree", unit=f"eq.{uid}") if a["subject_id"] in ids]
+    agreed = sum(1 for a in audits if a["agree"])
+    ok = bool(audits) and len(audits) >= min(g["min_audit_sample"], len(ids)) and agreed / len(audits) >= g["audit_agreement"]
+    return ok, len(audits), agreed
+
+
+def sweep_done(store, sample: int = 10) -> dict:
+    """Pages parsed for one unit often hold places in another that is already done. Those arrive as verified records after
+    the unit was published, so each done unit with new verified records gets an independent audit of a sample of them, and
+    the batch is published only if the sample agrees (records the auditor disagreed with stay held for the owner)."""
+    from . import audit
+
+    issues = unit_issues()
+    out = {}
+    for u in units():
+        i = issues.get(u["id"])
+        if not i or "done" not in i["labels"]:
+            continue
+        regs = regions_of(u)
+        ids = [s["id"] for s in store.select("sites", select="id,status,region,unit")
+               if s["status"] == "verified" and (s.get("unit") == u["id"] or s["region"] in regs)]
+        if not ids:
+            continue
+        audit.run(store, u["id"], regs, sample=sample)
+        ok, audited, agreed = batch_gate(store, u["id"], ids)
+        out[u["id"]] = {"new_verified": len(ids), "audited": audited, "agreed": agreed, "published": False}
+        if not ok:
+            notice(f"sweep[{u['id']}]: {len(ids)} new verified record(s); audit {agreed}/{audited}, not published yet")
+            continue
+        stats = publish(store, u["id"])
+        try:
+            from .site import refresh
+            refresh(store)
+        except Exception as e:  # noqa: BLE001 - the daily backup refresh will pick it up
+            notice(f"coverage: site refresh failed ({type(e).__name__})", "warning")
+        held = len(held_back(store, u["id"]))
+        gh("issue", "comment", str(i["number"]), "--body",
+           f"✅ Later pages added {len(ids)} verified record(s) to {u['id']} after it was done. The auditor agreed with {agreed} of "
+           f"{audited} sampled: published {stats['sites']} sites and {stats['events']} events. {held} record(s) the auditor "
+           "disagreed with stay held until you decide them in their `needs-decision` issues.", check=False)
+        out[u["id"]]["published"] = True
+    notice(f"sweep: {out or 'no done unit has new verified records'}")
+    return out
+
+
 def status(store, write: bool = True) -> str:
     issues = unit_issues()
     rows, totals = [], {"verified": 0, "published": 0, "audited": 0}

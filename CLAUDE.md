@@ -25,7 +25,8 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 6. **Approval before anything goes live.** Visitor changes publish only after the owner labels the issue `approved`.
    Agent-found records publish when the trusted verifier and the independent audit pass the unit's gates (audit agreement
    ≥ 80%, `done_when` in the catalog; the owner delegated unit approval to these gates), or when the owner labels the unit
-   `approved`. A record the auditor disagreed with is held back until the owner rules on it.
+   `approved`. A record the auditor disagreed with is held back until the owner rules on it. Records that later pages add to a
+   unit that is already done are audited the same way: a sample of that batch, published only if ≥ 80% agree (`mlm coverage sweep`).
 7. **Agents never grade their own work.** Verification, audits, gates and publishing are trusted code, not agents.
 8. **Crawl politely.** Respect robots.txt, keep `max_pages` modest, store only short excerpts publicly.
 9. **Correctness over speed.** One coverage unit at a time; reject what can't be verified.

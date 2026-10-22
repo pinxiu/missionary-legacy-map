@@ -54,7 +54,7 @@ def main(argv: list[str] | None = None) -> None:
     dd = sub.add_parser("dedupe", help="Remove exact duplicate events and claims (one-off cleanup, no model)")
     dd.add_argument("--dry-run", action="store_true")
     cov = sub.add_parser("coverage", help="Coverage tracking")
-    cov.add_argument("action", choices=["sync", "status", "next", "publish", "report"])
+    cov.add_argument("action", choices=["sync", "status", "next", "publish", "report", "sweep"])
     cov.add_argument("--unit", default=None)
 
     args = ap.parse_args(argv)
@@ -148,6 +148,8 @@ def main(argv: list[str] | None = None) -> None:
             store = Store()
             if args.action == "status":
                 print(coverage.status(store))
+            elif args.action == "sweep":
+                coverage.sweep_done(store)
             elif args.action == "publish":
                 coverage.publish(store, args.unit)
             elif args.action == "report":
