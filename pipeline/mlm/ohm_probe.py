@@ -43,13 +43,23 @@ class Probe:
     def __init__(self):
         self.c = httpx.Client(headers={"User-Agent": USER_AGENT}, timeout=40, follow_redirects=True)
         self._last = 0.0
+        self.seen: set[str] = set()
 
     def get(self, url: str, **params):
+        """One request; the first of each endpoint is announced (status, size, start of the body) so a failing endpoint is
+        visible in the job annotations instead of reading as 'OHM has nothing'."""
+        host = url.split("/")[2]
         try:
-            return self.c.get(url, params=params)
+            r = self.c.get(url, params=params)
         except httpx.HTTPError as e:
-            print(f"  ! {url}: {type(e).__name__}")
+            if host not in self.seen:
+                self.seen.add(host)
+                notice(f"ohm-probe: {host}: {type(e).__name__}: {str(e)[:150]}", "warning")
             return None
+        if host not in self.seen:
+            self.seen.add(host)
+            notice(f"ohm-probe: {host}: HTTP {r.status_code}, {len(r.content)} bytes: {r.text[:120]!r}")
+        return r
 
     def search(self, q: str, box: tuple[float, float, float, float] | None = None) -> list[dict]:
         wait = 1.1 - (time.monotonic() - self._last)
