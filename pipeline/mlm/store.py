@@ -75,20 +75,31 @@ class Store:
         r.raise_for_status()
         return r.json()
 
-    def select(self, table: str, **params) -> list[dict]:
+    # Unique column per table, for stable paging (everything else has an `id`).
+    PAGE_KEY = {"resource_pool": "hash", "llm_cache": "key", "app_settings": "key", "regions": "slug"}
+
+    def _get(self, table: str, params: dict) -> list[dict]:
         r = self.http.get(f"/{table}", params=params)
         r.raise_for_status()
         return r.json()
 
-    def select_all(self, table: str, page: int = 1000, order: str = "id", **params) -> list[dict]:
-        """Every matching row, paged (PostgREST caps a single response, usually at 1000 rows). `order` must be a unique
-        column of the table (`id` for most; `hash` for resource_pool)."""
+    def select(self, table: str, page: int = 1000, **params) -> list[dict]:
+        """Matching rows. PostgREST caps one response (1000 rows) and truncates silently, which once hid the newest sites
+        from the coverage counts, so this pages through the whole result unless the caller passes its own `limit`."""
+        if "limit" in params or "offset" in params:
+            return self._get(table, params)
+        key = self.PAGE_KEY.get(table, "id")
+        order = f"{params.pop('order')},{key}" if "order" in params else key
         out: list[dict] = []
         while True:
-            rows = self.select(table, order=order, limit=str(page), offset=str(len(out)), **params)
+            rows = self._get(table, {**params, "order": order, "limit": str(page), "offset": str(len(out))})
             out += rows
             if len(rows) < page:
                 return out
+
+    def select_all(self, table: str, page: int = 1000, order: str | None = None, **params) -> list[dict]:
+        """Every matching row (same as `select` without a limit; kept for existing callers)."""
+        return self.select(table, page=page, **({"order": order} if order and order != self.PAGE_KEY.get(table, "id") else {}), **params)
 
     def update(self, table: str, match: dict, values: dict) -> None:
         params = {k: f"eq.{v}" for k, v in match.items()}

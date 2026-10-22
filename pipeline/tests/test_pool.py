@@ -189,3 +189,22 @@ def test_auto_publish_closes_the_unit_issue(monkeypatch):
     edit = next(c for c in calls if c[1] == "edit")
     assert "--add-label" in edit and "done" in edit and any(c[1] == "close" for c in calls)
     json.dumps(calls)
+
+
+def test_select_pages_past_the_postgrest_cap():
+    from mlm.store import Store
+
+    rows = [{"id": f"{i:05d}"} for i in range(2350)]
+    calls = []
+
+    class S(Store):
+        def __init__(self): pass
+        def _get(self, table, params):
+            calls.append(params)
+            lo, n = int(params.get("offset", 0)), int(params["limit"])
+            return rows[lo:lo + n]
+
+    s = S()
+    assert len(s.select("sites", select="id")) == 2350
+    assert calls[0]["order"] == "id"
+    assert s.select("sites", limit="1") == rows[:1]
