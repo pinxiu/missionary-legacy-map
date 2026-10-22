@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import argparse
 
-STAGES = ["crawl", "extract", "translate", "load", "verify", "audit"]  # crawl also runs the per-city discovery
+# find (+ per-city discovery) → parse (every place on every unread page) → translate → resolve (entities, units, pins) → verify → audit.
+# find is the only stage that knows the unit; parse and resolve work on the whole pool. The old names still work.
+STAGES = ["find", "parse", "translate", "resolve", "verify", "audit"]
+ALIASES = {"crawl": "find", "extract": "parse", "load": "resolve"}
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -12,9 +15,10 @@ def main(argv: list[str] | None = None) -> None:
     run = sub.add_parser("run", help="Run pipeline stages for a coverage unit (or a raw sources.yaml region)")
     run.add_argument("--unit", default=None, help="Coverage unit id, e.g. CN-ZJ (sets region, subregions, unit tag)")
     run.add_argument("--region", default=None, help="sources.yaml region key (default: the unit's region)")
-    run.add_argument("--stage", choices=STAGES + ["all"], default="all")
+    run.add_argument("--stage", choices=STAGES + list(ALIASES) + ["all"], default="all")
     run.add_argument("--no-network-geocode", action="store_true")
     run.add_argument("--audit-sample", type=int, default=10)
+    run.add_argument("--max-pages", type=int, default=None, help="parse at most this many unread pages (default MLM_PARSE_MAX_PAGES, 200)")
 
     seed = sub.add_parser("seed", help="Publish the editorial seed (data/seed) to Supabase")
     seed.add_argument("--region", default=None, help="One seed file (e.g. hangzhou); default: all files")
@@ -150,33 +154,33 @@ def main(argv: list[str] | None = None) -> None:
                 print(coverage.report(store, args.unit))
         return
 
-    unit = subregions = None
+    unit = None
     region = args.region
     if args.unit:
         from . import coverage
         u = coverage.unit(args.unit)
-        unit, subregions, region = u["id"], u.get("subregions", []), region or u["region"]
+        unit, region = u["id"], region or u["region"]
     region = region or "zhejiang"
 
     coverage_unit = None
     if args.unit:
         from . import coverage as cov
         coverage_unit = cov.unit(args.unit)
-    stages = STAGES if args.stage == "all" else [args.stage]
+    stages = STAGES if args.stage == "all" else [ALIASES.get(args.stage, args.stage)]
     for stage in stages:
         print(f"=== {stage} ({unit or region}) ===")
-        if stage == "crawl":
+        if stage == "find":
             from . import crawl
             crawl.run(region, discover_for=coverage_unit)
-        elif stage == "extract":
+        elif stage == "parse":
             from . import extract
-            extract.run(region)
+            extract.run(_pool(), limit=args.max_pages, prefer=region)
         elif stage == "translate":
             from . import translate
-            translate.run(region)
-        elif stage == "load":
+            translate.run(_pool())
+        elif stage == "resolve":
             from . import load
-            load.load_extractions(region, use_network=not args.no_network_geocode, unit=unit, subregions=subregions)
+            load.resolve_pending(use_network=not args.no_network_geocode)
         elif stage == "verify":
             from . import verify
             from .store import Store
@@ -186,6 +190,14 @@ def main(argv: list[str] | None = None) -> None:
             from . import coverage as cov_mod
             from .store import Store
             audit.run(Store(), unit, cov_mod.regions_of(cov_mod.unit(unit)), sample=args.audit_sample)
+
+
+def _pool():
+    from .pool import pool_or_none
+    pool = pool_or_none()
+    if pool is None:
+        raise SystemExit("parse/translate/resolve work on the resource pool: SUPABASE_URL and SUPABASE_SECRET_KEY are required")
+    return pool
 
 
 def entry() -> None:

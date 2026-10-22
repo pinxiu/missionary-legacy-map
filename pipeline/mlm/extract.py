@@ -1,26 +1,25 @@
-"""LLM extraction: turn a crawled page into structured, evidence-backed mentions.
+"""The parse stage: turn a pool page into structured, evidence-backed mentions of EVERY place on it.
 
-Uses Claude tool-use with the Extraction JSON schema so output is always parseable.
-Pages with no region keyword are skipped before any API call.
+Uses Claude tool-use with the Extraction JSON schema so output is always parseable. Parsing is independent of finding
+(which unit's search fetched the page) and of entity resolution (which site a mention is, and which unit it belongs to):
+the prompt names no region, so a page's result is the same whoever asked, and one reading serves the whole world.
+Pages showing no sign of Christian history are skipped before any API call.
 """
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
+import os
 
 from .config import (
     ANTHROPIC_API_KEY,
     EXTRACT_ESCALATE_MODEL,
     EXTRACT_MIN_EXCERPT_RATE,
     EXTRACT_MODEL,
-    WORK_DIR,
     notice,
 )
 from .crawl import load_registry
 from .llm import Req, shared
 from .models import Extraction
-from .pool import pool_or_none, resource_hash
 
 SYSTEM = """You extract historical records of Christian history from source texts for a cited historical map: missions of every
 tradition (Church of the East, Catholic, Protestant, Orthodox), indigenous and independent churches and movements,
@@ -36,11 +35,12 @@ Rules:
 - Record places as written (place_text), including historical romanizations such as "Hangchow" or "Kwang-Chi".
 - Sources may be English or Chinese. Fill name_zh (and summary_zh / description_zh) only with Simplified Chinese
   actually written in the text (convert Traditional characters to Simplified). Leave them empty otherwise.
-- Extract every qualifying site the text describes, wherever it is: the same page is never read twice, so places outside
-  the region named below must be recorded now. Set `province` to the province-level division in lowercase pinyin
-  (e.g. "zhejiang", "fujian"; a municipality such as Shanghai is its own province) and `city` to the prefecture-level
-  city, in lowercase pinyin (e.g. "hangzhou", "ningbo"), using the region notes below for historical spellings.
-  Use "other" for the city only if the text names none.
+- Extract every qualifying site the text describes, wherever in the world it is: each page is read once, for everyone, so
+  nothing may be left out because it is far from the page's main subject. For each site give `country` (ISO 3166-1 alpha-2
+  code, lowercase, of where it is today: "cn", "kr", "in"), `province` (the first-level division today, lowercase
+  romanization: "zhejiang", "fujian", "gyeonggi"; a municipality such as Shanghai is its own province) and `city` (the
+  city or town, lowercase romanization, e.g. "hangzhou"). Use historical spellings only to work out the modern place
+  ("Hangchow" is hangzhou, "Foochow" is fuzhou); use "other" for the city only if the text names none.
 - Historical scope only: skip anything after 1952 and anything about present-day religious workers or activity.
   A neutral note on current use ("now a university campus") is allowed in current_status.
 - Use confidence 0.9 for explicit statements, 0.6 for implied or approximate ones, 0.4 for vague ones.
@@ -78,7 +78,18 @@ def merge(parts: list[Extraction]) -> Extraction:
     return first
 
 
-def relevant(text: str, keywords: list[str]) -> bool:
+# A page is skipped before any model call only if it shows no sign of Christian history anywhere in the world.
+CHRISTIAN_TERMS = ["church", "chapel", "cathedral", "mission", "missionary", "monastery", "seminary", "parish", "diocese",
+                   "bishop", "christian", "catholic", "protestant", "jesuit", "nestorian", "gospel", "baptis",
+                   "教堂", "教会", "教會", "礼拜堂", "禮拜堂", "传教", "傳教", "宣教", "天主", "基督", "福音", "神父", "主教",
+                   "差会", "差會",
+                   "景教", "修道", "神学", "神學", "牧师", "牧師", "教士"]
+# Many hits for these with an empty result mean the cheap model probably missed something.
+PLACE_TERMS = ["church", "chapel", "cathedral", "hospital", "seminary", "school", "cemetery", "monastery",
+               "教堂", "礼拜堂", "禮拜堂", "医院", "醫院", "神学院", "神學院", "学校", "學校", "墓地", "修道院"]
+
+
+def relevant(text: str, keywords: list[str] = CHRISTIAN_TERMS) -> bool:
     lower = text.lower()
     return any(k.lower() in lower for k in keywords)
 
@@ -88,11 +99,17 @@ def keyword_hits(text: str, keywords: list[str]) -> int:
     return sum(lower.count(k.lower()) for k in keywords if k)
 
 
-def system_prompt(region_cfg: dict) -> str:
+def place_hints() -> str:
+    """Historical spellings and city notes for every registered region (not just the unit being worked on), so a place
+    anywhere on a page is named correctly. Grows as the scouts add regions; it is not part of the parser version."""
+    notes = [f"- {cfg.get('name', slug)}: {' '.join(str(cfg['extract_hint']).split())}"
+             for slug, cfg in sorted(load_registry()["regions"].items()) if cfg.get("extract_hint")]
+    return "\n\nHistorical spellings and city notes, by region:\n" + "\n".join(notes) if notes else ""
+
+
+def system_prompt() -> str:
     from .decisions import rulings_text
-    note = region_cfg.get("extract_hint", "")
-    region = f"\n\nRegion being mapped: {region_cfg.get('name', '')}\n{note}" if note or region_cfg.get("name") else ""
-    return SYSTEM + region + rulings_text()
+    return SYSTEM + place_hints() + rulings_text()
 
 
 def request(page: dict, system: str = SYSTEM, model: str = EXTRACT_MODEL) -> Req:
@@ -155,7 +172,7 @@ def excerpt_rate(ex: Extraction, text: str) -> tuple[int, int]:
     return sum(excerpt_found(e.excerpt, text) for e in evs), len(evs)
 
 
-def needs_escalation(result: dict | None, ex: Extraction | None, page: dict, keywords: list[str]) -> str:
+def needs_escalation(result: dict | None, ex: Extraction | None, page: dict, keywords: list[str] = PLACE_TERMS) -> str:
     """Why the cheap model's result should be redone with the stronger one ('' = keep it)."""
     if result is None:
         return ""  # not answered this run (e.g. batch still running): retried next run, not escalated
@@ -166,7 +183,7 @@ def needs_escalation(result: dict | None, ex: Extraction | None, page: dict, key
     found, total = excerpt_rate(ex, page["text"][:MAX_CHARS])
     if total and found / total < EXTRACT_MIN_EXCERPT_RATE:
         return f"only {found}/{total} excerpts found in the page"
-    if not (ex.sites or ex.persons) and keyword_hits(page["text"][:MAX_CHARS], keywords) >= 3:
+    if not (ex.sites or ex.persons) and keyword_hits(page["text"][:MAX_CHARS], keywords) >= 5:
         return "nothing found on a clearly relevant page"
     return ""
 
@@ -200,58 +217,29 @@ def overlap(old: str, new: str) -> float:
     return sum(len(x) for x in a & b) / union if union else 0.0
 
 
-def _archived_texts() -> dict[str, str]:
-    """Page text already loaded into the database, by URL. Empty when the database isn't configured."""
-    from .config import SUPABASE_SECRET_KEY, SUPABASE_URL
-    if not (SUPABASE_URL and SUPABASE_SECRET_KEY):
-        return {}
-    try:
-        from .store import Store
-        return {d["url"]: d.get("text") or "" for d in Store().select("documents", select="url,text")}
-    except Exception as e:  # noqa: BLE001 - fall back to the local cache only
-        notice(f"extract: could not read loaded documents ({type(e).__name__}); relying on the local cache", "warning")
-        return {}
-
-
-def run(region: str) -> Path:
+def run(pool, limit: int | None = None, prefer: str | None = None, llm=None) -> dict:
+    """The parse stage. Reads up to `limit` pool pages that the current parser hasn't read, each in full, and stores every
+    place found on them. It knows nothing about units: `prefer` (the unit being worked on) only decides which pages come
+    first when there is a backlog. Pages found by any unit's search are served by one pass."""
     if not ANTHROPIC_API_KEY:
-        raise SystemExit("ANTHROPIC_API_KEY is not set; skipping extraction.")
-    cfg = load_registry()["regions"][region]
-    keywords, system = cfg["keywords"], system_prompt(cfg)
-    raw = WORK_DIR / "raw" / region
-    out = WORK_DIR / "extracted" / region
-    out.mkdir(parents=True, exist_ok=True)
-    llm = shared()
-    stats = {"pages": 0, "cached": 0, "already_loaded": 0, "irrelevant": 0, "extracted": 0, "escalated": 0,
-             "failed": 0, "pending": 0}
-    archived = _archived_texts()
-    pool = pool_or_none()
-    files: list[tuple[Path, dict, str]] = []  # (extraction file, page, pool hash)
-    for f in sorted(raw.glob("*.json")):
-        stats["pages"] += 1
-        target = out / f.name
-        if target.exists():
-            stats["cached"] += 1
-            continue  # content-hash keyed: unchanged pages are not re-extracted
-        page = json.loads(f.read_text())
-        h = page.get("pool_hash") or resource_hash(page.get("text", ""))
-        if pool and pool.known(h):
-            stats["pool_known"] = stats.get("pool_known", 0) + 1
-            continue  # this text was extracted in an earlier run (any unit): sites on it are already recorded
-        if page.get("text") and page["url"] in archived and not same_page(archived[page["url"]], page["text"]):
-            stats["changed_since_load"] = stats.get("changed_since_load", 0) + 1
-            if stats["changed_since_load"] <= 3:
-                print(f"[extract] changed since load ({overlap(archived[page['url']], page['text']):.0%} lines shared): {page['url']}")
-        if page.get("text") and same_page(archived.get(page["url"]), page["text"]):
-            stats["already_loaded"] += 1
-            continue  # same text already extracted and loaded in an earlier run (work cache was lost); don't pay twice
-        if page.get("kind") == "bibliography" or not relevant(page["text"], keywords):
+        raise SystemExit("ANTHROPIC_API_KEY is not set; skipping parsing.")
+    limit = limit or int(os.environ.get("MLM_PARSE_MAX_PAGES", "100"))
+    llm = llm or shared()
+    system = system_prompt()
+    stats = {"pending": 0, "irrelevant": 0, "parsed": 0, "escalated": 0, "unanswered": 0, "chunks": 0, "backlog": 0}
+    pages = pool.pending_parse(limit, prefer)
+    stats["pending"] = len(pages)
+    stats["backlog"] = sum(1 for h in pool._rows() if not pool.parsed(h)) - len(pages)
+    files: list[dict] = []
+    for page in pages:
+        if page.get("kind") == "bibliography" or not relevant(page.get("text") or ""):
             stats["irrelevant"] += 1
+            pool.mark(page["hash"], "extracted", locales=[])  # read, nothing to find: not read again
             continue
-        files.append((out / f.name, page, h))
+        files.append(page)
 
-    # A long page (a book) goes in as several overlapping pieces; their results are merged back into one file.
-    todo: list[tuple[int, dict]] = [(i, {**page, "text": piece}) for i, (_, page, _) in enumerate(files) for piece in chunks(page["text"])]
+    # A long page (a book) goes in as several overlapping pieces; their results are merged back into one extraction.
+    todo: list[tuple[int, dict]] = [(i, {**page, "text": piece}) for i, page in enumerate(files) for piece in chunks(page["text"])]
     stats["chunks"] = len(todo)
 
     # Pass 1: every piece through the cheap model, as one batch (cached results cost nothing).
@@ -260,14 +248,12 @@ def run(region: str) -> Path:
     redo: list[int] = []
     for n, ((_, page), res) in enumerate(zip(todo, first, strict=True)):
         ex = parse(res, page)
-        why = needs_escalation(res, ex, page, keywords) if EXTRACT_ESCALATE_MODEL != EXTRACT_MODEL else ""
+        why = needs_escalation(res, ex, page) if EXTRACT_ESCALATE_MODEL != EXTRACT_MODEL else ""
         if why:
             redo.append(n)
             if len(redo) <= 5:
-                print(f"[extract] escalating ({why}): {page['url']}")
+                print(f"[parse] escalating ({why}): {page['url']}")
         results.append(ex if res is not None else None)
-        if res is None:
-            stats["pending"] += 1
 
     # Pass 2: the pieces that failed the checks, through the stronger model, as one batch.
     if redo:
@@ -279,23 +265,17 @@ def run(region: str) -> Path:
                 stats["escalated"] += 1
             elif res is None:
                 results[n] = None  # not answered yet: retried next run rather than keeping the weaker result
-                stats["pending"] += 1
 
     by_file: dict[int, list[Extraction | None]] = {}
     for (i, _), ex in zip(todo, results, strict=True):
         by_file.setdefault(i, []).append(ex)
-    done = 0
-    for i, (target, _page, h) in enumerate(files):
+    for i, page in enumerate(files):
         parts = by_file.get(i, [])
         if not parts or any(p is None for p in parts):
-            continue  # a piece is pending (answered in a later run) or malformed twice: the whole page is retried next run
-        merged = merge(parts)
-        stats["extracted"] += 1
-        done += 1
-        target.write_text(merged.model_dump_json(indent=2))
-        if pool:
-            pool.mark(h, "extracted", locales=[x for s in merged.sites for x in (s.province, s.city) if x and x != "other"])
-    stats["failed"] = len(files) - stats["extracted"] - sum(1 for i in range(len(files)) if any(p is None for p in by_file.get(i, [])))
-    notice(f"extract[{region}]: {stats}")
+            stats["unanswered"] += 1
+            continue  # a piece is pending (batch still running) or malformed twice: the whole page is retried next run
+        pool.save_extraction(page["hash"], merge(parts))
+        stats["parsed"] += 1
+    notice(f"parse: {stats}")
     llm.report()
-    return out
+    return stats

@@ -3,8 +3,8 @@ name: Coverage agents
 # Background workers for expanding coverage (coverage/catalog.yaml), ONE unit at a time, correctness first.
 #   1. Pick the active unit (in-progress, else next todo). No unit: stop. (free)
 #   2. If the unit has no sources yet, a source-scout agent proposes some; trusted code validates them.
-#   3. Discover (per city) → crawl → resource pool (hash dedupe) → extract once for all places → pin → translate → load
-#      → trusted verifier → independent audit.
+#   3. Find (per city, into the resource pool) → parse every unread page once for all places worldwide → translate → resolve
+#      (match, file under each place's unit, pin) → trusted verifier → independent audit.
 #   4. Status job updates the unit issue and STATUS.md; when the gates are met the unit is published and marked done.
 # A unit publishes itself when its gates are met (audit agreement >= 80%); the owner's `approved` label also publishes it
 # (apply-approved.yml, or the status job's catch-up if that event was missed).
@@ -150,7 +150,7 @@ jobs:
           key: mlm-work-${{ steps.unit.outputs.region }}-${{ github.run_id }}
           restore-keys: mlm-work-${{ steps.unit.outputs.region }}-
 
-      - name: Pipeline (crawl → extract → translate → load → verify → audit)
+      - name: Pipeline (find → parse → translate → resolve → verify → audit)
         if: steps.unit.outputs.id != ''
         run: mlm run --unit "${{ steps.unit.outputs.id }}"
 

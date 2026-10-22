@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import os
 
-from .config import DATA_DIR, TRANSLATE_FALLBACK_MODEL, TRANSLATE_MODEL, WORK_DIR, notice
+from .config import DATA_DIR, TRANSLATE_FALLBACK_MODEL, TRANSLATE_MODEL, notice
 from .llm import Req, item_key, parse_json, shared
 from .models import Extraction
 from .resolve import normalize
@@ -234,21 +234,23 @@ def translate_all(exs: list[Extraction], llm=None, gloss: dict | None = None, wi
     return stats
 
 
-def run(region: str) -> None:
+def run(pool) -> dict:
+    """Fill the missing Chinese on every parsed page that hasn't been through translation (any unit), before resolution."""
     llm = shared()
     stats = {"documents": 0, "translated": 0, "skipped": 0, "incomplete": 0}
-    files, exs = [], []
-    for f in sorted((WORK_DIR / "extracted" / region).glob("*.json")):
+    hashes, exs = [], []
+    for row in pool.pending_resolution():
         stats["documents"] += 1
-        ex = Extraction.model_validate_json(f.read_text())
+        ex = Extraction.model_validate(row["data"])
         if ex.translated or not (ex.sites or ex.persons):
             stats["skipped"] += 1
             continue
-        files.append(f)
+        hashes.append(row["hash"])
         exs.append(ex)
     how = translate_all(exs, llm) if exs else {}
-    for f, ex in zip(files, exs, strict=True):
+    for h, ex in zip(hashes, exs, strict=True):
         stats["translated" if ex.translated else "incomplete"] += 1
-        f.write_text(ex.model_dump_json(indent=2))
-    notice(f"translate[{region}]: {stats} {how}")
+        pool.update_extraction(h, ex)
+    notice(f"translate: {stats} {how}")
     llm.report()
+    return stats

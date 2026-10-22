@@ -144,8 +144,10 @@ class Crawler:
 
 
 def run(region: str, out_dir: Path | None = None, pool=None, discover_for: dict | None = None) -> Path:
-    """Fetch the region's registered sources (and, with `discover_for`, a per-city search) into the raw folder.
-    With a resource pool, a page whose text was already extracted or loaded (in any unit) is not written again."""
+    """The find stage: fetch the region's registered sources (and, with `discover_for`, a per-city search).
+    With a resource pool, every page goes into the pool (where the parse stage picks it up, whichever unit found it) and
+    nothing is written locally; a page the current parser has already read counts as `known`. Without a database
+    (local runs) pages are written to the raw folder instead."""
     from .pool import pool_or_none
 
     registry = load_registry()["regions"][region]
@@ -166,10 +168,9 @@ def run(region: str, out_dir: Path | None = None, pool=None, discover_for: dict 
             stats["fetched"] += 1
             rec = page.__dict__ | {"content_hash": page.content_hash, "kind": source.get("kind", "web")}
             if pool:
-                rec["pool_hash"], needs_work = pool.add(rec, found_for=region)
-                if not needs_work:
-                    stats["known"] += 1
-                    continue
+                rec["pool_hash"], needs_parse = pool.add(rec, found_for=region)
+                stats["new" if needs_parse else "known"] += 1
+                continue
             stats["new"] += 1
             (out / f"{page.content_hash[:16]}.json").write_text(json.dumps(rec, ensure_ascii=False))
     notice(f"crawl[{region}]: {stats}")

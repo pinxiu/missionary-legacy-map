@@ -74,13 +74,12 @@ jobs:
       - name: Crawl
         if: env.STAGE == 'all' || env.STAGE == 'crawl'
         run: |
-          mlm run --unit "$UNIT" --region "$REGION" --stage crawl
-          n=$(ls ../.mlm-work/raw/"$REGION" 2>/dev/null | wc -l)
-          echo "### Crawl: $n pages cached for $REGION" >> "$GITHUB_STEP_SUMMARY"
+          mlm run --unit "$UNIT" --region "$REGION" --stage find
+          echo "### Find: pages for $REGION added to the resource pool" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Extract
         if: (env.STAGE == 'all' || env.STAGE == 'extract') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
-        run: mlm run --unit "$UNIT" --region "$REGION" --stage extract
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage parse
 
       - name: Translate (glossary, Wikidata, then Gemini free tier or Haiku)
         if: (env.STAGE == 'all' || env.STAGE == 'translate') && !contains(steps.secrets.outputs.missing, 'ANTHROPIC')
@@ -88,7 +87,7 @@ jobs:
 
       - name: Load
         if: (env.STAGE == 'all' || env.STAGE == 'load') && steps.secrets.outputs.missing == ''
-        run: mlm run --unit "$UNIT" --region "$REGION" --stage load
+        run: mlm run --unit "$UNIT" --region "$REGION" --stage resolve
 
       - name: Verify (trusted)
         if: (env.STAGE == 'all' || env.STAGE == 'verify') && steps.secrets.outputs.missing == ''

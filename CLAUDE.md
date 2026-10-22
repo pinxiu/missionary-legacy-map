@@ -32,16 +32,22 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 10. **Follow the owner's rulings.** `coverage/rulings.md` holds general decisions from `needs-decision` issues; they
     override your own judgement in every extraction, verification and audit.
 
-## How a unit is researched (the resource pool)
-1. **Discover** per province, then per city in it (`discover.py`: Wikipedia search in English and Chinese), plus the
-   curated sources in `sources.yaml`.
-2. **Pool** (`resource_pool` table, `pool.py`): every fetched page is stored under a hash of its normalised text. A page
-   already `extracted`/`loaded` is never read by a model again, whichever unit's search finds it.
-3. **Extract once, for every place on the page** (long pages in overlapping chunks). Each site carries `province` and
-   `city`; load files it under that province's unit, so a Fujian page found while working on Zhejiang fills CN-FJ.
-4. **Pin** each new site: gazetteer, then `locate.py` by Chinese name: Amap in China (needs `AMAP_KEY`), OpenStreetMap
-   and Wikidata everywhere else; the pin is `street` precision with a cited `location` claim, else the city/province centre.
-5. Verify, audit and publish per unit as below; the unit being worked on is still one at a time.
+## How a unit is researched (find → parse → resolve)
+The map is for the whole world, so the three jobs are separate stages that meet only in the database (`pool.py`):
+1. **Find** (`crawl.py`, `discover.py`): the only stage that knows the unit. Searches the province, then each city in it
+   (Wikipedia in English and Chinese), plus the curated sources in `sources.yaml`, and adds every page to `resource_pool`
+   under a hash of its normalised text. Nothing is read by a model here.
+2. **Parse** (`extract.py`): reads every pool page that the current `PARSER_VERSION` hasn't read, whichever unit's search found
+   it, and records EVERY place on it (`extractions`: country, first-level region, city, evidence). The prompt names no region,
+   so the result is the same whoever asked and a page is paid for once for the whole world. Pages read by an older, narrower
+   parser are read again; bump `PARSER_VERSION` when the prompt or schema changes. A backlog is worked off
+   `MLM_PARSE_MAX_PAGES` (100) pages per run, the active unit's pages first.
+3. **Resolve** (`load.py`): matches each parsed place to a known site or person (`resolve.py`), files it under the unit of its
+   country/region, pins it (gazetteer, then `locate.py`: Amap in China (needs `AMAP_KEY`), OpenStreetMap and Wikidata
+   everywhere else; `street` precision with a cited `location` claim, else the city/region centre). A place whose
+   country/region has no unit yet waits in the extraction's `unplaced` list and is resolved, with no new parse, once a unit
+   for it is added to the catalog.
+4. Translate, verify, audit and publish per unit as below; the unit being worked on is still one at a time.
 
 ## Model costs
 Every model call goes through `pipeline/mlm/llm.py`: results are cached (`.mlm-work/llm-cache` and the `llm_cache` table),
@@ -60,7 +66,7 @@ results unused for 180 days are pruned daily (`mlm cache prune`).
 
 ## Commands
 - `cd pipeline && pip install -e ".[dev]" && pytest -q && ruff check .`
-- `mlm run --unit CN-ZJ [--stage crawl|extract|translate|load|verify|audit|all]`
+- `mlm run --unit CN-ZJ [--stage find|parse|translate|resolve|verify|audit|all] [--max-pages N]` (old names crawl/extract/load work)
 - `mlm coverage sync|status|next|publish --unit X|report --unit X`
 - `mlm seed` (publish data/seed), `mlm submissions`, `mlm apply --issue N`
 - `cd apps/web && npm ci && npm run build`

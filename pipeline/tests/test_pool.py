@@ -19,7 +19,14 @@ class MemStore:
         for k, v in params.items():
             if k in ("limit", "offset", "order"):
                 continue
-            rows = [r for r in rows if str(r.get(k)) == v.removeprefix("eq.")]
+            if v == "is.null":
+                rows = [r for r in rows if r.get(k) is None]
+            elif v.startswith("gt."):
+                rows = [r for r in rows if (r.get(k) or 0) > float(v[3:])]
+            elif v.startswith("in."):
+                rows = [r for r in rows if str(r.get(k)) in v[4:-1].split(",")]
+            else:
+                rows = [r for r in rows if str(r.get(k)) == v.removeprefix("eq.")]
         return rows
 
     def select_all(self, table, page=1000, order="id", **params):
@@ -208,3 +215,102 @@ def test_select_pages_past_the_postgrest_cap():
     assert len(s.select("sites", select="id")) == 2350
     assert calls[0]["order"] == "id"
     assert s.select("sites", limit="1") == rows[:1]
+
+
+class FakeLLM:
+    """Stands in for llm.shared(): answers every request with `answer(req)` as a tool result."""
+
+    def __init__(self, answer):
+        self.answer, self.seen = answer, []
+
+    def run(self, reqs):
+        self.seen += reqs
+        return [{"tool_input": self.answer(r), "stop_reason": "end_turn"} for r in reqs]
+
+    def report(self):
+        pass
+
+
+def _mention(name, province, city, text, country="cn"):
+    return {"name_en": name, "site_type": "church", "country": country, "province": province, "city": city,
+            "evidence": [{"source_url": "u", "excerpt": text}]}
+
+
+def test_pages_read_by_an_older_unit_scoped_parser_are_parsed_again():
+    from mlm.pool import PARSER_VERSION, Pool
+
+    page = {"url": "https://x.org/a", "title": "A", "text": "The Foochow church and the Hangchow church, mission stations."}
+    store = MemStore()
+    pool = Pool(store)
+    h, _ = pool.add(page, "CN-ZJ")
+    # what the first design did: marked "loaded" after parsing only the Zhejiang places on the page
+    store.rows["resource_pool"][0].update(status="loaded", parsed_version=1)
+    again = Pool(store)
+    assert again.add(page, "CN-FJ") == (h, True) and not again.parsed(h)
+    assert [p["hash"] for p in again.pending_parse(10)] == [h]
+    again.mark(h, "extracted")
+    assert Pool(store).parsed(h) and store.rows["resource_pool"][0]["parsed_version"] == PARSER_VERSION
+    assert Pool(store).add(page, "CN-GD")[1] is False
+
+
+def test_parser_reads_every_place_on_a_page_whoever_asked(monkeypatch):
+    from mlm import extract
+    from mlm.pool import Pool
+
+    monkeypatch.setattr(extract, "ANTHROPIC_API_KEY", "test")
+    text = "The mission built a church at Hangchow, a hospital church at Foochow and a chapel at Seoul in 1890."
+    store = MemStore()
+    pool = Pool(store)
+    h, _ = pool.add({"url": "https://x.org/a", "title": "A", "text": text, "kind": "web"}, "CN-ZJ")
+    answer = {"sites": [_mention("Hangchow church", "zhejiang", "hangzhou", text),
+                        _mention("Foochow hospital church", "fujian", "fuzhou", text),
+                        _mention("Seoul chapel", "seoul", "seoul", text, country="kr")]}
+    llm = FakeLLM(lambda r: answer)
+    stats = extract.run(pool, limit=10, prefer="zhejiang", llm=llm)
+    assert stats["parsed"] == 1
+    assert "Region being mapped" not in llm.seen[0].system  # no unit in the prompt: the result is the same whoever asked
+    row = store.rows["extractions"][0]
+    assert row["hash"] == h and row["resolved_at"] is None
+    assert {s["country"] for s in row["data"]["sites"]} == {"cn", "kr"}
+    assert extract.run(pool, limit=10, llm=llm)["pending"] == 0  # read once: not read again
+
+
+def test_resolution_files_places_by_unit_and_keeps_the_rest_for_later(monkeypatch):
+    from mlm import load
+    from mlm.pool import Pool
+
+    text = "A church at Hangchow and a chapel at Seoul."
+    store = MemStore({"regions": [{"slug": "zhejiang"}, {"slug": "hangzhou"}]})
+    pool = Pool(store)
+    h, _ = pool.add({"url": "https://x.org/a", "title": "A", "text": text}, "CN-ZJ")
+    ex = Extraction(document_url="https://x.org/a", sites=[
+        SiteMention(name_en="Hangchow church", country="cn", province="zhejiang", city="hangzhou",
+                    evidence=[Evidence(source_url="u", excerpt="A church at Hangchow")]),
+        SiteMention(name_en="Seoul chapel", country="kr", province="seoul", city="seoul",
+                    evidence=[Evidence(source_url="u", excerpt="a chapel at Seoul")])])
+    pool.save_extraction(h, ex)
+
+    stats = load.resolve_pending(store=store, use_network=False)
+    assert [s["name_en"] for s in store.rows["sites"]] == ["Hangchow church"]
+    assert store.rows["sites"][0]["unit"] == "CN-ZJ"
+    row = store.rows["extractions"][0]
+    assert row["resolved_at"] and row["unplaced"] == ["kr|seoul"] and stats["pages_waiting_for_a_unit"] == 1
+    # nothing changed: the waiting page is not touched again
+    assert Pool(store).pending_resolution(placeable=load.key_is_placeable) == []
+
+    # a Korea unit appears: the same page is resolved again, with no new parse, and only the new place is added
+    monkeypatch.setattr(load, "unit_for_place", lambda c, p: {"id": "KR", "region": "seoul", "subregions": [], "zh": "首尔", "en": "Seoul"}
+                        if c == "kr" else None)
+    monkeypatch.setattr(load, "ensure_region", lambda *a, **k: None)
+    monkeypatch.setattr("mlm.coverage.unit", lambda u: {"id": u, "zh": "首尔", "en": "Seoul", "region": "seoul"})
+    assert [r["hash"] for r in Pool(store).pending_resolution(placeable=load.key_is_placeable)] == [h]
+
+
+def test_every_workflow_file_is_valid_yaml():
+    """A comment line that lost its `#` once made every coverage run fail at parse time, before any job started."""
+    from pathlib import Path
+
+    import yaml
+
+    for f in sorted((Path(__file__).resolve().parents[2] / ".github" / "workflows").glob("*.yml")):
+        assert isinstance(yaml.safe_load(f.read_text()), dict), f.name
