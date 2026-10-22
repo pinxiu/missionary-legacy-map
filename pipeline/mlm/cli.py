@@ -39,6 +39,7 @@ def main(argv: list[str] | None = None) -> None:
 
     rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
     rg.add_argument("--unit", required=True)
+    sub.add_parser("ohm-probe", help="Report how much OpenHistoricalMap helps (tiles, name search, old names); writes nothing")
     lc = sub.add_parser("locate", help="Find real pins for city-centre sites in OSM / Wikidata / Amap (dry run unless --apply)")
     lc.add_argument("--apply", action="store_true")
     lc.add_argument("--limit", type=int, default=None)
@@ -72,6 +73,11 @@ def main(argv: list[str] | None = None) -> None:
         from . import regeocode
         from .store import Store
         regeocode.run(Store(), args.unit)
+        return
+    if args.cmd == "ohm-probe":
+        from . import ohm_probe
+        from .store import Store
+        ohm_probe.run(Store())
         return
     if args.cmd == "locate":
         from . import locate

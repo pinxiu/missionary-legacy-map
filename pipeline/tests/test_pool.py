@@ -355,3 +355,35 @@ def test_done_units_audit_and_publish_new_records_by_sample(monkeypatch):
     store.rows["audits"][1]["agree"] = False  # sample now disagrees: nothing published
     published.clear()
     assert not cov.sweep_done(store)["CN-FJ"]["published"] and published == []
+
+
+def test_ohm_probe_reports_without_writing(monkeypatch):
+    import httpx
+
+    from mlm import ohm_probe
+
+    assert ohm_probe.tile_xy(30.27, 120.16, 14) == (13660, 6745)
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        if "nominatim" in req.url.host:
+            q = req.url.params["q"]
+            if q in ("Hangchow", "杭州天主堂"):
+                return httpx.Response(200, json=[{"name": q, "display_name": "Hangzhou", "lat": "30.27", "lon": "120.16",
+                                                  "osm_type": "node", "osm_id": 1}])
+            return httpx.Response(200, json=[])
+        if "overpass" in req.url.host:
+            return httpx.Response(200, json={"elements": [{"tags": {"total": "42"}}]})
+        return httpx.Response(200, content=b"x" * 10)
+
+    monkeypatch.setattr(ohm_probe.time, "sleep", lambda s: None)
+    real_client = httpx.Client
+    monkeypatch.setattr(ohm_probe.httpx, "Client", lambda **k: real_client(transport=httpx.MockTransport(handler)))
+    store = MemStore({"public_sites": [
+        {"id": "a", "name_en": "Bell Tower", "name_zh": "杭州天主堂", "alt_names": [], "region": "hangzhou", "lat": 30.2701, "lng": 120.1601,
+         "geo_precision": "city"},
+        {"id": "b", "name_en": "Nowhere Chapel", "name_zh": None, "alt_names": [], "region": "hangzhou", "lat": 30.3, "lng": 120.2,
+         "geo_precision": "street"}]})
+    out = ohm_probe.run(store, sample=10)
+    assert out["name_hits"] == 1 and out["within_300m"] == 1 and out["coarse_hits"] == 1
+    assert out["old_names_resolved"].startswith("1/") and out["china_places_of_worship"] == "42"
+    assert "public_sites" in store.rows and "sites" not in store.rows
