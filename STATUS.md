@@ -1,22 +1,22 @@
 # Coverage status
 
-_Updated 2026-10-22 08:44 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-22 11:38 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 9 / 45  ·  **Published records:** 301  ·  **Verified, awaiting approval:** 27  ·  **Audited:** 164
+**Units done:** 9 / 45  ·  **Published records:** 320  ·  **Verified, awaiting approval:** 30  ·  **Audited:** 184
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | CN-ZJ | Zhejiang 浙江 | done | 53 | 1 | 3 | 158 | 97% | [#2](../../issues/2) |
-| 1 | CN-JS | Jiangsu 江苏 | done | 16 | 0 | 11 | 84 | 92% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | done | 35 | 0 | 5 | 114 | 93% | [#4](../../issues/4) |
-| 1 | CN-FJ | Fujian 福建 | done | 54 | 1 | 6 | 101 | 94% | [#5](../../issues/5) |
-| 1 | CN-GD | Guangdong 广东 | done | 37 | 5 | 6 | 75 | 90% | [#6](../../issues/6) |
-| 1 | CN-SD | Shandong 山东 | done | 49 | 0 | 3 | 110 | 100% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 34 | 9 | 9 | 84 | 88% | [#8](../../issues/8) |
-| 1 | CN-TJ | Tianjin 天津 | done | 12 | 1 | 0 | 25 | 92% | [#9](../../issues/9) |
-| 1 | CN-HE | Hebei 河北 | done | 11 | 3 | 1 | 37 | 92% | [#10](../../issues/10) |
-| 1 | CN-HA | Henan 河南 | in-progress | 0 | 7 | 0 | 25 | 71% | [#11](../../issues/11) |
+| 1 | CN-ZJ | Zhejiang 浙江 | done | 53 | 1 | 4 | 161 | 97% | [#2](../../issues/2) |
+| 1 | CN-JS | Jiangsu 江苏 | done | 18 | 0 | 2 | 93 | 93% | [#3](../../issues/3) |
+| 1 | CN-SH | Shanghai 上海 | done | 39 | 1 | 8 | 115 | 91% | [#4](../../issues/4) |
+| 1 | CN-FJ | Fujian 福建 | done | 58 | 1 | 9 | 105 | 95% | [#5](../../issues/5) |
+| 1 | CN-GD | Guangdong 广东 | done | 44 | 1 | 7 | 80 | 94% | [#6](../../issues/6) |
+| 1 | CN-SD | Shandong 山东 | done | 51 | 0 | 2 | 111 | 100% | [#7](../../issues/7) |
+| 1 | CN-BJ | Beijing 北京 | done | 34 | 15 | 3 | 91 | 88% | [#8](../../issues/8) |
+| 1 | CN-TJ | Tianjin 天津 | done | 12 | 1 | 1 | 26 | 92% | [#9](../../issues/9) |
+| 1 | CN-HE | Hebei 河北 | done | 11 | 3 | 0 | 38 | 92% | [#10](../../issues/10) |
+| 1 | CN-HA | Henan 河南 | in-progress | 0 | 7 | 2 | 25 | 71% | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | todo |  |  |  |  |  | [#12](../../issues/12) |
 | 1 | CN-HN | Hunan 湖南 | todo |  |  |  |  |  | [#13](../../issues/13) |
 | 1 | CN-JX | Jiangxi 江西 | todo |  |  |  |  |  | [#14](../../issues/14) |
