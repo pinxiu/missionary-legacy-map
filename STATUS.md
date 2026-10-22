@@ -1,19 +1,19 @@
 # Coverage status
 
-_Updated 2026-10-22 18:33 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-22 20:41 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 9 / 45  ·  **Published records:** 332  ·  **Verified, awaiting approval:** 47  ·  **Audited:** 191
+**Units done:** 9 / 45  ·  **Published records:** 332  ·  **Verified, awaiting approval:** 61  ·  **Audited:** 207
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | CN-ZJ | Zhejiang 浙江 | done | 53 | 7 | 0 | 171 | 97% | [#2](../../issues/2) |
-| 1 | CN-JS | Jiangsu 江苏 | done | 18 | 3 | 0 | 98 | 93% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | done | 39 | 6 | 1 | 130 | 91% | [#4](../../issues/4) |
-| 1 | CN-FJ | Fujian 福建 | done | 58 | 6 | 1 | 111 | 95% | [#5](../../issues/5) |
-| 1 | CN-GD | Guangdong 广东 | done | 44 | 6 | 0 | 86 | 94% | [#6](../../issues/6) |
-| 1 | CN-SD | Shandong 山东 | done | 51 | 2 | 0 | 114 | 100% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 46 | 3 | 1 | 95 | 87% | [#8](../../issues/8) |
+| 1 | CN-ZJ | Zhejiang 浙江 | done | 53 | 8 | 0 | 176 | 92% | [#2](../../issues/2) |
+| 1 | CN-JS | Jiangsu 江苏 | done | 18 | 4 | 0 | 99 | 94% | [#3](../../issues/3) |
+| 1 | CN-SH | Shanghai 上海 | done | 39 | 9 | 0 | 140 | 91% | [#4](../../issues/4) |
+| 1 | CN-FJ | Fujian 福建 | done | 58 | 10 | 0 | 120 | 95% | [#5](../../issues/5) |
+| 1 | CN-GD | Guangdong 广东 | done | 44 | 10 | 0 | 94 | 86% | [#6](../../issues/6) |
+| 1 | CN-SD | Shandong 山东 | done | 51 | 2 | 0 | 114 | 95% | [#7](../../issues/7) |
+| 1 | CN-BJ | Beijing 北京 | done | 46 | 4 | 0 | 100 | 88% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 12 | 3 | 0 | 26 | 92% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | done | 11 | 3 | 0 | 38 | 92% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | in-progress | 0 | 8 | 0 | 26 | 75% | [#11](../../issues/11) |
