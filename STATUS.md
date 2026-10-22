@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-10-22 05:40 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-10-22 06:06 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 9 / 45  ·  **Published records:** 254  ·  **Verified, awaiting approval:** 35  ·  **Audited:** 110
+**Units done:** 9 / 45  ·  **Published records:** 265  ·  **Verified, awaiting approval:** 24  ·  **Audited:** 110
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -15,8 +15,8 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-SD | Shandong 山东 | done | 43 | 0 | 0 | 102 | 100% | [#7](../../issues/7) |
 | 1 | CN-BJ | Beijing 北京 | done | 34 | 3 | 0 | 84 | 80% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 6 | 6 | 0 | 23 | 86% | [#9](../../issues/9) |
-| 1 | CN-HE | Hebei 河北 | done | 0 | 12 | 0 | 35 | 90% | [#10](../../issues/10) |
-| 1 | CN-HA | Henan 河南 | todo |  |  |  |  |  | [#11](../../issues/11) |
+| 1 | CN-HE | Hebei 河北 | done | 11 | 1 | 0 | 35 | 90% | [#10](../../issues/10) |
+| 1 | CN-HA | Henan 河南 | in-progress | 0 | 0 | 0 | 1 | — | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | todo |  |  |  |  |  | [#12](../../issues/12) |
 | 1 | CN-HN | Hunan 湖南 | todo |  |  |  |  |  | [#13](../../issues/13) |
 | 1 | CN-JX | Jiangxi 江西 | todo |  |  |  |  |  | [#14](../../issues/14) |
