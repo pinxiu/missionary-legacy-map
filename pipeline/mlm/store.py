@@ -76,7 +76,7 @@ class Store:
         return r.json()
 
     # Unique column per table, for stable paging (everything else has an `id`).
-    PAGE_KEY = {"resource_pool": "hash", "llm_cache": "key", "app_settings": "key", "regions": "slug"}
+    PAGE_KEY = {"resource_pool": "hash", "extractions": "hash", "llm_cache": "key", "app_settings": "key", "regions": "slug"}
 
     def _get(self, table: str, params: dict) -> list[dict]:
         r = self.http.get(f"/{table}", params=params)

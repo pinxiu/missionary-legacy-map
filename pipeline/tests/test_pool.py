@@ -314,3 +314,11 @@ def test_every_workflow_file_is_valid_yaml():
 
     for f in sorted((Path(__file__).resolve().parents[2] / ".github" / "workflows").glob("*.yml")):
         assert isinstance(yaml.safe_load(f.read_text()), dict), f.name
+
+
+def test_paging_uses_each_tables_own_unique_column():
+    """Tables with no `id` column (checked against the live schema) would 400 on order=id."""
+    from mlm.store import Store
+
+    assert Store.PAGE_KEY == {"resource_pool": "hash", "extractions": "hash", "llm_cache": "key",
+                              "app_settings": "key", "regions": "slug"}
