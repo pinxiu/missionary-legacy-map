@@ -652,3 +652,81 @@ regions:
         follow: []
         max_pages: 6
         language: zh
+  henan:
+    # Province (coverage unit CN-HA). Each extracted site is assigned to its prefecture-level city by the extractor.
+    name: Henan 河南
+    extract_hint: >-
+      Province of Henan, historically Honan (河南); city keys: zhengzhou (Chengchow 鄭州), kaifeng (開封, Kaifengfu),
+      luoyang (Loyang 洛陽, Honanfu 河南府), anyang (Changte 彰德, Changtefu), xinxiang (Sinsiang 新鄉),
+      jiaozuo (焦作), puyang (濮陽), hebi (鶴壁), xuchang (許昌, Hsuchang), luohe (漯河), pingdingshan (平頂山),
+      nanyang (南陽, Nanyangfu), shangqiu (商丘, Kweiteh 歸德), xinyang (信陽, Sinyang, Hsinyang), zhoukou (周口,
+      Chowkiakow 周家口), zhumadian (駐馬店, Chumatien), sanmenxia (三門峽, Shanchow 陝州), jiyuan (濟源), plus
+      Weihui (衛輝, Weihwei) and Huaiqing (懷慶, Hwaiking, Qinyang 沁陽). Include Catholic missions and dioceses
+      (Nanyang, Zhengzhou, Kaifeng, Weihui, Luoyang, Xinyang, Zhumadian), Protestant missions (Canadian Presbyterian
+      in North Honan, Jonathan Goforth and the 1908 Honan revival, Canadian Anglican, Scandinavian and other societies,
+      CIM), the Kaifeng Jewish community, mission hospitals, schools and universities, presses, indigenous and
+      independent churches, cemeteries and memorials.
+    keywords: [Henan, Honan, 河南, Zhengzhou, Chengchow, 鄭州, 郑州, Kaifeng, Kaifengfu, 開封, 开封,
+               Luoyang, Loyang, Honanfu, 洛陽, 洛阳, Anyang, Changte, Changtefu, 彰德, 安陽, 安阳,
+               Xinxiang, Sinsiang, 新鄉, 新乡, Jiaozuo, 焦作, Puyang, 濮陽, 濮阳, Hebi, 鶴壁, 鹤壁,
+               Xuchang, Hsuchang, 許昌, 许昌, Luohe, 漯河, Pingdingshan, 平頂山, 平顶山,
+               Nanyang, Nanyangfu, 南陽, 南阳, Shangqiu, Kweiteh, 商丘, 歸德, 归德,
+               Xinyang, Sinyang, Hsinyang, 信陽, 信阳, Zhoukou, Chowkiakow, 周口, 周家口,
+               Zhumadian, Chumatien, 駐馬店, 驻马店, Sanmenxia, Shanchow, 三門峽, 三门峡, Jiyuan, 濟源, 济源,
+               Weihui, Weihwei, 衛輝, 卫辉, Huaiqing, Hwaiking, 懷慶, 怀庆, Qinyang, 沁陽, 沁阳,
+               Kaifeng Jews, 開封猶太人, 开封犹太人, Jonathan Goforth, 古約翰, 古约翰,
+               Canadian Presbyterian Mission, 加拿大長老會, 加拿大长老会, Canadian Anglican, 加拿大聖公會, 加拿大圣公会,
+               PIME, Milan Foreign Missions, 米蘭外方傳教會, 米兰外方传教会]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Henan places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/henan/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Henan places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/henan/
+          - https://www.bdcconline.net/en/places/henan/?page=2
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 25
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Henan Catholic dioceses (Kaifeng, Nanyang, Zhengzhou, Luoyang, Weihui, Xinyang, Zhumadian)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Kaifeng
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Nanyang
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Zhengzhou
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Luoyang
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Weihui
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Xinyang
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Zhumadian
+        follow: []
+        max_pages: 8
+        language: en
+      - name: Wikipedia (ZH) — Henan Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教开封教区
+          - https://zh.wikipedia.org/wiki/天主教南阳教区
+          - https://zh.wikipedia.org/wiki/天主教郑州教区
+          - https://zh.wikipedia.org/wiki/天主教洛阳教区
+          - https://zh.wikipedia.org/wiki/天主教卫辉教区
+          - https://zh.wikipedia.org/wiki/天主教驻马店教区
+        follow: []
+        max_pages: 7
+        language: zh
+      - name: Wikipedia — Kaifeng Jews, Canadian Presbyterian Mission, Jonathan Goforth
+        start_urls:
+          - https://en.wikipedia.org/wiki/Kaifeng_Jews
+          - https://en.wikipedia.org/wiki/Canadian_Presbyterian_Mission
+          - https://en.wikipedia.org/wiki/Jonathan_Goforth
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Kaifeng Jews
+        start_urls:
+          - https://zh.wikipedia.org/wiki/开封犹太人
+        follow: []
+        max_pages: 2
+        language: zh
