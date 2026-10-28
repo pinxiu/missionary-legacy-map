@@ -97,6 +97,42 @@ regions:
         follow: []
         max_pages: 4
         language: zh
+      - name: Cloud, Hangchow, the "City of Heaven" (Presbyterian Mission Press, 1906) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/cu31924023488715/cu31924023488715_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # by the US vice-consul; chapter "Christian Missions" (Catholic and Protestant); Cornell scan
+      - name: Moule, The Story of the Cheh-kiang Mission of the CMS (4th ed., 1891) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/storychehkiangm00moulgoog/storychehkiangm00moulgoog_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period mission history by a CMS missionary at Ningpo and Hang-chow
+      - name: Lyon, Hangchow Journal of 1870 (White Cloud Papers, 1936) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/hangchowjournalo00lyon/hangchowjournalo00lyon_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # diary of Presbyterian missionary D. N. Lyon; primary source, noisy OCR
+      - name: Wikipedia (EN) — Jesuit-era Hangzhou (Martini, Yang Tingyun)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Martino_Martini
+          - https://en.wikipedia.org/wiki/Yang_Tingyun
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Hangzhou mission sites (卫匡国墓, 司徒雷登故居, 蕙兰中学堂旧址)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/卫匡国墓
+          - https://zh.wikipedia.org/wiki/司徒雷登故居
+          - https://zh.wikipedia.org/wiki/蕙兰中学堂旧址
+        follow: []
+        max_pages: 3
+        language: zh
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
