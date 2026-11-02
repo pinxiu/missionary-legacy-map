@@ -75,6 +75,8 @@ jobs:
           done
       - if: inputs.task == 'ohm-planet-list'
         run: |
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/list.js" | grep -oE "(https?://[^'\" ]+|'[a-zA-Z0-9_./-]*(planet|xml|pbf|bz2)[^']*')" | sort -u | head -15 | tr '\n' ' ' > /tmp/js.txt || true
+          echo "::notice::ohm-js $(cat /tmp/js.txt)"
           curl -sS -m 30 "https://planet.openhistoricalmap.org/?list-type=2&max-keys=1000" -o /tmp/l.xml || true
           curl -sS -m 30 "https://planet.openhistoricalmap.org/" | grep -oE "(src|href)=\"[^\"]+\"" | head -20 | tr '\n' ' ' > /tmp/refs.txt || true
           echo "::notice::ohm-refs $(cat /tmp/refs.txt)"
