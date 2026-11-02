@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -81,6 +81,12 @@ jobs:
           curl -sS -m 30 "https://planet.openhistoricalmap.org/" | grep -oE "(src|href)=\"[^\"]+\"" | head -20 | tr '\n' ' ' > /tmp/refs.txt || true
           echo "::notice::ohm-refs $(cat /tmp/refs.txt)"
           echo "::notice::ohm-list $(grep -oE '<Key>[^<]+</Key>' /tmp/l.xml | sed 's/<[^>]*>//g' | head -40 | tr '\n' ' ')"
+      - if: inputs.task == 'ohm-planet-files'
+        run: |
+          for pre in planet/ historical-osm-data/; do
+            curl -sS -m 30 "https://planet.openhistoricalmap.org/?prefix=$pre&delimiter=/" -o /tmp/p.xml || true
+            echo "::notice::ohm-files $pre $(grep -oE '<Key>[^<]+</Key><LastModified>[^<]+</LastModified><ETag>[^<]*</ETag><Size>[0-9]+' /tmp/p.xml | sed -E 's/<Key>([^<]+)<\/Key>.*<Size>/\1 /' | head -25 | tr '\n' ';') $(head -c 150 /tmp/p.xml | tr '\n' ' ')"
+          done
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
       - if: inputs.task == 'pool-backfill'
