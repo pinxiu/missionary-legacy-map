@@ -70,7 +70,8 @@ jobs:
       - if: inputs.task == 'ohm-planet-check'
         run: |
           for u in https://planet.openhistoricalmap.org/ https://planet.openhistoricalmap.org/planet/ ; do
-            echo "== $u"; curl -sS -m 30 -A "missionary-legacy-map/1.0 (github.com/pinxiu/missionary-legacy-map)" -o /tmp/o.html -w "HTTP %{http_code} %{size_download} bytes\n" "$u"; head -c 500 /tmp/o.html; echo
+            echo "== $u"; curl -sS -m 30 -A "missionary-legacy-map/1.0 (github.com/pinxiu/missionary-legacy-map)" -o /tmp/o.html -w "HTTP %{http_code}" "$u" > /tmp/code.txt || true
+            echo "::notice::ohm-planet $u $(cat /tmp/code.txt) $(head -c 200 /tmp/o.html | tr '\n' ' ')"
           done
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
