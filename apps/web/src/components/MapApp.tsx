@@ -234,23 +234,37 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
     );
   }
 
+  /** Choosing a province (from anywhere, including another province's city view) resets to that whole province. */
   function chooseProvince(slug: string | null) {
     setProvince(slug);
     setCity(null);
     setSelected(null);
-    if (!slug) return fitHome();
-    fitArea(areas.find((a) => a.slug === slug) ?? null, sites.filter((s) => provinceOf.get(s.region) === slug));
   }
 
   /** null = back to the whole province. */
   function chooseCity(slug: string | null) {
     setCity(slug);
     setSelected(null);
-    if (!slug) return province ? fitArea(provinceArea, sites.filter((s) => provinceOf.get(s.region) === province)) : fitHome();
-    const inCity = sites.filter((s) => s.region === slug);
-    const shown = inCity.filter((s) => !types.size || types.has(s.type));
-    fit(shown.length ? shown : inCity);
   }
+
+  // The map follows the menu: whenever the province or city changes, refocus on it. Done here, after the state has
+  // committed, so it always uses the new province's sites and cancels any animation still running from the old view.
+  const focusReady = useRef(false);
+  useEffect(() => {
+    if (!focusReady.current) { focusReady.current = true; return; }
+    if (!map.current) return;
+    map.current.stop();
+    if (city) {
+      const inCity = sites.filter((s) => s.region === city);
+      const shown = inCity.filter((s) => !types.size || types.has(s.type));
+      fit(shown.length ? shown : inCity);
+    } else if (province) {
+      fitArea(provinceArea, sites.filter((s) => provinceOf.get(s.region) === province));
+    } else {
+      fitHome();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [province, city]);
 
   const nearestKm = me && visible[0] ? km(me, [visible[0].lat, visible[0].lng]) : null;
   const other = (en: string | null | undefined, zh: string | null | undefined) => (lang === "zh" ? en : zh);
