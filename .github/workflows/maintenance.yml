@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -60,6 +60,18 @@ jobs:
         run: |
           mlm locate --apply
           mlm refresh-site
+      - if: inputs.task == 'amap-check'
+        env:
+          AMAP_KEY: ${{ secrets.AMAP_KEY }}
+        run: |
+          [ -n "$AMAP_KEY" ] || { echo "::error::AMAP_KEY secret is not set"; exit 1; }
+          curl -sS "https://restapi.amap.com/v3/place/text?key=$AMAP_KEY&keywords=%E5%A4%A9%E4%B8%BB%E5%A0%82&city=%E6%9D%AD%E5%B7%9E&offset=3" | head -c 600
+          echo; echo "If status is 1 above the key works; then run locate-dry-run."
+      - if: inputs.task == 'ohm-planet-check'
+        run: |
+          for u in https://planet.openhistoricalmap.org/ https://planet.openhistoricalmap.org/planet/ ; do
+            echo "== $u"; curl -sS -m 30 -A "missionary-legacy-map/1.0 (github.com/pinxiu/missionary-legacy-map)" -o /tmp/o.html -w "HTTP %{http_code} %{size_download} bytes\n" "$u"; head -c 500 /tmp/o.html; echo
+          done
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
       - if: inputs.task == 'pool-backfill'
