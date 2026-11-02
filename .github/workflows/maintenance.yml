@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -73,6 +73,12 @@ jobs:
             echo "== $u"; curl -sS -m 30 -A "missionary-legacy-map/1.0 (github.com/pinxiu/missionary-legacy-map)" -o /tmp/o.html -w "HTTP %{http_code}" "$u" > /tmp/code.txt || true
             echo "::notice::ohm-planet $u $(cat /tmp/code.txt) $(head -c 200 /tmp/o.html | tr '\n' ' ')"
           done
+      - if: inputs.task == 'ohm-planet-list'
+        run: |
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/?list-type=2&max-keys=1000" -o /tmp/l.xml || true
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/" | grep -oE "(src|href)=\"[^\"]+\"" | head -20 | tr '\n' ' ' > /tmp/refs.txt || true
+          echo "::notice::ohm-refs $(cat /tmp/refs.txt)"
+          echo "::notice::ohm-list $(grep -oE '<Key>[^<]+</Key>' /tmp/l.xml | sed 's/<[^>]*>//g' | head -40 | tr '\n' ' ')"
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
       - if: inputs.task == 'pool-backfill'
