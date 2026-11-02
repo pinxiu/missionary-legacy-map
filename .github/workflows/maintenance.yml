@@ -65,8 +65,8 @@ jobs:
           AMAP_KEY: ${{ secrets.AMAP_KEY }}
         run: |
           [ -n "$AMAP_KEY" ] || { echo "::error::AMAP_KEY secret is not set"; exit 1; }
-          curl -sS "https://restapi.amap.com/v3/place/text?key=$AMAP_KEY&keywords=%E5%A4%A9%E4%B8%BB%E5%A0%82&city=%E6%9D%AD%E5%B7%9E&offset=3" | head -c 600
-          echo; echo "If status is 1 above the key works; then run locate-dry-run."
+          curl -sS "https://restapi.amap.com/v3/place/text?key=$AMAP_KEY&keywords=%E5%A4%A9%E4%B8%BB%E5%A0%82&city=%E6%9D%AD%E5%B7%9E&offset=3"
+          > /tmp/amap.json; echo "::notice::amap-check $(head -c 300 /tmp/amap.json)"
       - if: inputs.task == 'ohm-planet-check'
         run: |
           for u in https://planet.openhistoricalmap.org/ https://planet.openhistoricalmap.org/planet/ ; do
