@@ -43,9 +43,13 @@ def main(argv: list[str] | None = None) -> None:
     op = sub.add_parser("ohm-planet", help="Match city-pinned sites against a filtered OHM planet GeoJSON-seq file")
     op.add_argument("path")
     op.add_argument("--apply", action="store_true")
+    rp = sub.add_parser("replace", help="Re-place coarse pins: real city centres, then modern place queries from the source text")
+    rp.add_argument("--apply", action="store_true")
+    rp.add_argument("--limit", type=int, default=None)
     lc = sub.add_parser("locate", help="Find real pins for city-centre sites in OSM / Wikidata / Amap (dry run unless --apply)")
     lc.add_argument("--apply", action="store_true")
     lc.add_argument("--limit", type=int, default=None)
+    lc.add_argument("--approx", action="store_true", help="also place unambiguous partial-name matches at district precision")
     pl = sub.add_parser("pool", help="The resource pool: what has been fetched and extracted (no model)")
     pl.add_argument("action", choices=["status", "backfill"])
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
@@ -87,10 +91,15 @@ def main(argv: list[str] | None = None) -> None:
         from .store import Store
         ohm_planet.match(Store(), args.path, apply=args.apply)
         return
+    if args.cmd == "replace":
+        from . import replace
+        from .store import Store
+        replace.run(Store(), apply=args.apply, limit=args.limit)
+        return
     if args.cmd == "locate":
         from . import locate
         from .store import Store
-        locate.run(Store(), apply=args.apply, limit=args.limit)
+        locate.run(Store(), apply=args.apply, limit=args.limit, approx=args.approx)
         return
     if args.cmd == "pool":
         from . import pool as pool_mod

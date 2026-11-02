@@ -428,3 +428,42 @@ def test_ohm_planet_index_matches_a_site_by_old_name(tmp_path):
     hits = idx.osm("圣保罗堂", (31.23, 121.47))
     assert [h["url"] for h in hits] == ["https://www.openhistoricalmap.org/way/42"] and hits[0]["source"] == "ohm"
     assert idx.osm("圣保罗堂", (39.9, 116.4)) == []
+
+
+def test_unknown_city_gets_a_real_centre_and_a_region(monkeypatch):
+    from mlm import places
+    from mlm.geocode import CITIES, REGION_CENTROIDS
+
+    monkeypatch.setattr(places, "lookup", lambda c, en, slug, client=None: {"lat": 36.2, "lng": 117.1, "name_zh": "泰安市"})
+    store = MemStore()
+    unit = {"id": "CN-SD", "region": "shandong", "en": "Shandong"}
+    try:
+        assert places.ensure_city(store, "taian", unit) == "taian"
+        assert REGION_CENTROIDS["taian"] == (36.2, 117.1) and CITIES["taian"]["zh"] == "泰安市"
+        row = store.rows["regions"][0]
+        assert row["parent"] == "shandong" and row["lat"] == 36.2 and row["name_zh"] == "泰安市"
+        assert places.ensure_city(store, "other", unit) is None
+        monkeypatch.setattr(places, "lookup", lambda *a, **k: None)
+        assert places.ensure_city(store, "nowhere", unit) is None
+    finally:
+        CITIES.pop("taian", None)
+        REGION_CENTROIDS.pop("taian", None)
+
+
+def test_replace_classifies_amap_hits_by_how_well_they_match_the_lead():
+    from mlm.replace import classify
+
+    assert classify("解放公园路12号", {"source": "geocode", "level": "门牌号", "name": "x"}) == "street"
+    assert classify("通伸村", {"source": "geocode", "level": "村庄", "name": "x"}) == "district"
+    assert classify("通伸村", {"source": "geocode", "level": "市", "name": "x"}) is None
+    assert classify("武汉大学医院", {"source": "amap", "name": "武汉大学医院"}) == "street"
+    assert classify("武汉大学医院", {"source": "amap", "name": "武汉大学校医院北门"}) == "district"
+    assert classify("武汉大学医院", {"source": "amap", "name": "星巴克"}) is None
+
+
+def test_locate_approx_needs_a_single_place():
+    from mlm.locate import unambiguous
+
+    pick = {"lat": 30.0, "lng": 120.0}
+    assert unambiguous([pick, {"lat": 30.001, "lng": 120.001}], pick)
+    assert not unambiguous([pick, {"lat": 30.05, "lng": 120.05}], pick)

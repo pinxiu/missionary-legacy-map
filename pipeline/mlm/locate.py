@@ -158,10 +158,10 @@ class Finder:
                 glng, glat = (float(x) for x in g["location"].split(","))
             except (KeyError, ValueError):
                 continue
-            if g.get("level") in ("省", "市", "区县"):  # a city or district centre is no better than what we have
+            if g.get("level") in ("国家", "省", "市", "区县", "开发区", "未知"):  # a city or district centre is no better than what we have
                 continue
             lat, lng = _gcj_to_wgs(glat, glng)
-            out.append({"source": "geocode", "name": g.get("formatted_address", ""), "lat": lat, "lng": lng,
+            out.append({"source": "geocode", "level": g.get("level", ""), "name": g.get("formatted_address", ""), "lat": lat, "lng": lng,
                         "url": f"https://www.amap.com/search?query={address}"})
         return out
 
@@ -243,15 +243,21 @@ def confident(site: dict, pick: dict, agree: bool) -> bool:
     return any(n not in generic and len(n) >= 4 and (n == h or _fuzzy(n, h) >= 92) for n in names)
 
 
-def apply_pick(store, site_id: str, pick: dict, agree: bool) -> None:
+def unambiguous(hits: list[dict], pick: dict) -> bool:
+    """Every candidate lies within 500 m of the pick: one place, not several same-named ones in the city."""
+    return all(km_apart((pick["lat"], pick["lng"]), (h["lat"], h["lng"])) <= 0.5 for h in hits)
+
+
+def apply_pick(store, site_id: str, pick: dict, agree: bool, precision: str = "street", note: str = "") -> None:
     """Move a site's pin to a found place and record a `location` claim naming where the pin came from."""
     src = store.upsert("sources", [{"url": pick["url"], "publisher": pick["source"]}], "url")[0]
     store.update("sites", {"id": site_id}, {"location": f"SRID=4326;POINT({pick['lng']} {pick['lat']})",
-                                           "geo_precision": "street"})
+                                           "geo_precision": precision})
     store.insert("claims", [{
         "subject_kind": "site", "subject_id": site_id, "field": "location",
-        "value": {"lat": pick["lat"], "lng": pick["lng"], "source": pick["source"], "agreed": agree},
-        "source_id": src["id"], "excerpt": f"{pick['source']}: {pick['name']}"[:300], "confidence": 0.8 if agree else 0.6,
+        "value": {"lat": pick["lat"], "lng": pick["lng"], "source": pick["source"], "agreed": agree, "precision": precision},
+        "source_id": src["id"], "excerpt": f"{pick['source']}: {pick['name']}{note}"[:300],
+        "confidence": 0.8 if agree else (0.6 if precision == "street" else 0.4),
         "status": "verified", "verified_at": dt.datetime.now(dt.timezone.utc).isoformat(), "extracted_by": "geocoder"}])
 
 
@@ -267,8 +273,11 @@ def refine(store, site: dict, city_zh: str, finder: Finder, china: bool = True) 
     return pick
 
 
-def run(store, apply: bool = False, finder: Finder | None = None, limit: int | None = None, strict: bool = True) -> dict:
+def run(store, apply: bool = False, finder: Finder | None = None, limit: int | None = None, strict: bool = True,
+        approx: bool = False) -> dict:
     finder = finder or Finder()
+    from .places import load_known
+    load_known(store)
     regions = {r["slug"]: r for r in store.select("regions", select="slug,name_zh")}
     cols = "id,slug,region,name_en,name_zh,alt_names,modern_address,geo_precision,status,unit"
     sites = [s for s in store.select_all("sites", select=cols)
@@ -297,6 +306,10 @@ def run(store, apply: bool = False, finder: Finder | None = None, limit: int | N
         if apply and (sure or not strict):
             apply_pick(store, s["id"], pick, agree)
             stats["applied"] += 1
+        elif apply and approx and unambiguous(hits, pick):
+            # a partial name match inside the right city: shown as "approximate (district)", never as a street-level pin
+            apply_pick(store, s["id"], pick, agree, precision="district", note=" (approximate: partial name match)")
+            stats["approx"] = stats.get("approx", 0) + 1
     stats["amap_hits"] = sum(1 for ln in lines if "| amap |" in ln)
     report = "\n".join(lines)
     print(report)

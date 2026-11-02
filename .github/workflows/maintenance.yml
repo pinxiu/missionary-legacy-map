@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, ohm-planet-dry-run, ohm-planet-apply, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 240
     env:
       AMAP_KEY: ${{ secrets.AMAP_KEY }}  # optional: Amap POI search
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # place leads (Haiku, cached)
+      MLM_BATCH_WAIT_MIN: "25"
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
@@ -116,6 +118,15 @@ jobs:
           osmium export /tmp/cn.pbf -f geojsonseq --geometry-types=point,polygon -o /tmp/cn.geojsonseq --overwrite
           echo "::notice::ohm-planet features: $(wc -l < /tmp/cn.geojsonseq)"
           if [ "${{ inputs.task }}" = ohm-planet-apply ]; then mlm ohm-planet /tmp/cn.geojsonseq --apply && mlm refresh-site; else mlm ohm-planet /tmp/cn.geojsonseq; fi
+      - if: inputs.task == 'pins-dry-run'
+        run: |
+          mlm replace
+          mlm locate --approx
+      - if: inputs.task == 'pins-apply'
+        run: |
+          mlm replace --apply
+          mlm locate --apply --approx
+          mlm refresh-site
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
       - if: inputs.task == 'pool-backfill'
