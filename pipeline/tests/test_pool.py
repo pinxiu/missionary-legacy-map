@@ -387,3 +387,13 @@ def test_ohm_probe_reports_without_writing(monkeypatch):
     assert out["name_hits"] == 1 and out["within_300m"] == 1 and out["coarse_hits"] == 1
     assert out["old_names_resolved"].startswith("1/") and out["china_places_of_worship"] == "42"
     assert "public_sites" in store.rows and "sites" not in store.rows
+
+
+def test_locate_only_moves_confident_pins():
+    from mlm.locate import confident
+
+    site = {"name_zh": "天主堂", "alt_names": ["圣母无原罪堂"]}
+    assert not confident(site, {"name": "天主堂"}, False)            # generic name: matches every church in town
+    assert confident(site, {"name": "天主堂"}, True)                 # but two sources agree
+    assert confident(site, {"name": "圣母无原罪堂"}, False)         # exact, specific name
+    assert not confident(site, {"name": "圣母无原罪堂天主教会"}, False)  # only a partial match

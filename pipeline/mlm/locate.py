@@ -158,6 +158,19 @@ def best(hits: list[dict]) -> tuple[dict | None, bool]:
     return pick, agree
 
 
+GENERIC = {"天主堂", "教堂", "福音堂", "礼拜堂", "基督教堂", "医院", "学校", "小学", "中学", "大学", "墓地", "公墓", "神学院", "修道院"}
+
+
+def confident(site: dict, pick: dict, agree: bool) -> bool:
+    """Safe to move a pin automatically: two sources agree, or the hit's name equals one of the site's own specific names
+    (a generic name such as 天主堂 matches every church in the city, so it never counts)."""
+    if agree:
+        return True
+    h = norm(pick["name"])
+    names = [norm(n) for n in [site.get("name_zh"), *(site.get("alt_names") or [])] if n]
+    return any(n == h and n not in {norm(g) for g in GENERIC} and len(n) >= 4 for n in names)
+
+
 def apply_pick(store, site_id: str, pick: dict, agree: bool) -> None:
     """Move a site's pin to a found place and record a `location` claim naming where the pin came from."""
     src = store.upsert("sources", [{"url": pick["url"], "publisher": pick["source"]}], "url")[0]
@@ -182,7 +195,7 @@ def refine(store, site: dict, city_zh: str, finder: Finder, china: bool = True) 
     return pick
 
 
-def run(store, apply: bool = False, finder: Finder | None = None, limit: int | None = None) -> dict:
+def run(store, apply: bool = False, finder: Finder | None = None, limit: int | None = None, strict: bool = True) -> dict:
     finder = finder or Finder()
     regions = {r["slug"]: r for r in store.select("regions", select="slug,name_zh")}
     sites = [s for s in store.select_all("sites", select="id,slug,region,name_en,name_zh,alt_names,geo_precision,status,unit")
@@ -206,9 +219,12 @@ def run(store, apply: bool = False, finder: Finder | None = None, limit: int | N
         stats["agreed"] += agree
         lines.append(f"| {s['name_en']} {s['name_zh']} | {s['region']} | {pick['source']} | {pick['name']} | {pick['km']:.1f} | "
                      f"{'yes' if agree else 'no'} | {pick['url']} |")
-        if apply:
+        sure = confident(s, pick, agree)
+        stats["confident"] = stats.get("confident", 0) + sure
+        if apply and (sure or not strict):
             apply_pick(store, s["id"], pick, agree)
             stats["applied"] += 1
+    stats["amap_hits"] = sum(1 for ln in lines if "| amap |" in ln)
     report = "\n".join(lines)
     print(report)
     if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
