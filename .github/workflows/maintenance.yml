@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -87,6 +87,14 @@ jobs:
             curl -sS -m 30 "https://planet.openhistoricalmap.org/?prefix=$pre&delimiter=/" -o /tmp/p.xml || true
             echo "::notice::ohm-files $pre $(grep -oE '<Key>[^<]+</Key><LastModified>[^<]+</LastModified><ETag>[^<]*</ETag><Size>[0-9]+' /tmp/p.xml | sed -E 's/<Key>([^<]+)<\/Key>.*<Size>/\1 /' | head -25 | tr '\n' ';') $(head -c 150 /tmp/p.xml | tr '\n' ' ')"
           done
+      - if: inputs.task == 'ohm-planet-guess'
+        run: |
+          for f in planet/planet-latest.osm.pbf planet/planet-latest.osm.bz2 planet/latest/planet-latest.osm.pbf historical-osm-data/planet-latest.osm.pbf planet/ohm-planet-latest.osm.pbf planet/current/planet-latest.osm.pbf planet/planet.osm.pbf; do
+            c=$(curl -sS -m 30 -I -o /tmp/h.txt -w "%{http_code}" "https://planet.openhistoricalmap.org/$f" || echo err)
+            echo "::notice::ohm-guess $f $c $(grep -i content-length /tmp/h.txt | tr -d '\r')"
+          done
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/list.js" -o /tmp/list.js || true
+          echo "::notice::ohm-listjs $(wc -c < /tmp/list.js) $(grep -oE "(fetch|ajax|url)[^;]{0,120}" /tmp/list.js | head -5 | tr '\n' ' ')"
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
       - if: inputs.task == 'pool-backfill'
