@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, ohm-planet-dry-run, ohm-planet-apply, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
@@ -20,7 +20,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 240
     env:
       AMAP_KEY: ${{ secrets.AMAP_KEY }}  # optional: Amap POI search
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
@@ -95,6 +95,27 @@ jobs:
           done
           curl -sS -m 30 "https://planet.openhistoricalmap.org/list.js" -o /tmp/list.js || true
           echo "::notice::ohm-listjs $(wc -c < /tmp/list.js) $(grep -oE "(fetch|ajax|url)[^;]{0,120}" /tmp/list.js | head -5 | tr '\n' ' ')"
+      - if: inputs.task == 'ohm-planet-dry-run' || inputs.task == 'ohm-planet-apply'
+        run: |
+          sudo apt-get install -y -qq osmium-tool > /dev/null
+          B=https://planet.openhistoricalmap.org
+          # newest daily file: the name ends in a minute-of-day suffix we can't know, so try the S3 listing, then probe
+          curl -sS -m 60 "https://s3.amazonaws.com/planet.openhistoricalmap.org?prefix=planet/planet-26&max-keys=1000" -o /tmp/l.xml || true
+          F=$(grep -oE 'planet/planet-[0-9]{6}_[0-9]{4}\.osm\.pbf' /tmp/l.xml | sort | tail -1)
+          if [ -z "$F" ]; then
+            for d in 0 1 2 3 4; do D=$(date -u -d "-$d day" +%y%m%d); for m in $(seq -w 0 99); do
+              c=$(curl -s -m 10 -I -o /dev/null -w "%{http_code}" "$B/planet/planet-${D}_00${m}.osm.pbf"); [ "$c" = 200 ] && F="planet/planet-${D}_00${m}.osm.pbf" && break 2
+            done; done
+          fi
+          echo "::notice::ohm-planet file: ${F:-NONE FOUND}"
+          [ -n "$F" ] || exit 1
+          curl -sS -m 1200 -o /tmp/planet.pbf "$B/$F"
+          ls -l /tmp/planet.pbf
+          osmium tags-filter /tmp/planet.pbf nwr/amenity=place_of_worship nwr/building=church,chapel,cathedral,temple nwr/amenity=school,college,university,hospital,clinic,cemetery nwr/landuse=cemetery nwr/historic nwr/religion=christian -o /tmp/f.pbf --overwrite
+          osmium extract -b 73,18,135,54 /tmp/f.pbf -o /tmp/cn.pbf --overwrite
+          osmium export /tmp/cn.pbf -f geojsonseq --geometry-types=point,polygon -o /tmp/cn.geojsonseq --overwrite
+          echo "::notice::ohm-planet features: $(wc -l < /tmp/cn.geojsonseq)"
+          if [ "${{ inputs.task }}" = ohm-planet-apply ]; then mlm ohm-planet /tmp/cn.geojsonseq --apply && mlm refresh-site; else mlm ohm-planet /tmp/cn.geojsonseq; fi
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap
       - if: inputs.task == 'pool-backfill'

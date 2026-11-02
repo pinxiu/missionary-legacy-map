@@ -194,7 +194,8 @@ class Resolver:
                     ucfg = s_unit_cfg or unit_of(s_unit)
                     china = s_unit.startswith("CN-") or s_unit in ("HK", "MO", "TW")
                     zh = CITIES.get(city, {}).get("zh") or ucfg["zh"]
-                    site_row = {**match, "name_zh": s.name_zh, "alt_names": s.alt_names, "region": city}
+                    site_row = {**match, "name_zh": s.name_zh, "alt_names": s.alt_names, "region": city, "modern_address": s.modern_address,
+                                "name_en": s.name_en}
                     try:
                         stats["pinned"] += 1 if refine(store, site_row, zh, self.finder, china) else 0
                     except Exception as e:  # noqa: BLE001 - a lookup failure leaves the pin at the city; never blocks the load

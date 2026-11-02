@@ -397,3 +397,34 @@ def test_locate_only_moves_confident_pins():
     assert confident(site, {"name": "天主堂"}, True)                 # but two sources agree
     assert confident(site, {"name": "圣母无原罪堂"}, False)         # exact, specific name
     assert not confident(site, {"name": "圣母无原罪堂天主教会"}, False)  # only a partial match
+
+
+def test_name_variants_and_fuzzy_match():
+    from mlm.locate import confident, name_variants
+
+    v = name_variants({"name_zh": "上海圣保罗堂", "alt_names": []})
+    assert "圣保罗堂" in v
+    v = name_variants({"name_zh": "朱泾布道站（Shangyuantang）", "alt_names": []})
+    assert "朱泾布道站" in v
+    v = name_variants({"name_zh": "上海路中华基督教会教堂及尚德小学", "alt_names": []})
+    assert "上海路中华基督教会教堂" in v
+    site = {"name_zh": "上海圣保罗堂", "alt_names": []}
+    assert confident(site, {"name": "圣保罗堂", "source": "amap"}, False)
+    assert not confident(site, {"name": "圣保罗医院", "source": "amap"}, False)
+    assert confident({"name_zh": None}, {"name": "x", "source": "geocode"}, False)
+
+
+def test_ohm_planet_index_matches_a_site_by_old_name(tmp_path):
+    import json as _json
+
+    from mlm.ohm_planet import OhmIndex
+
+    f = tmp_path / "x.geojsonseq"
+    feats = [{"type": "Feature", "id": "w42", "properties": {"name": "St Paul's", "old_name:zh": "圣保罗堂", "start_date": "1900"},
+              "geometry": {"type": "Point", "coordinates": [121.47, 31.23]}},
+             {"type": "Feature", "id": "n7", "properties": {"name": "圣保罗医院"}, "geometry": {"type": "Point", "coordinates": [121.4, 31.2]}}]
+    f.write_text("\n".join("\x1e" + _json.dumps(x) for x in feats))
+    idx = OhmIndex(str(f))
+    hits = idx.osm("圣保罗堂", (31.23, 121.47))
+    assert [h["url"] for h in hits] == ["https://www.openhistoricalmap.org/way/42"] and hits[0]["source"] == "ohm"
+    assert idx.osm("圣保罗堂", (39.9, 116.4)) == []

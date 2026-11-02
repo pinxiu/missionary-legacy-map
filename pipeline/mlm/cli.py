@@ -40,6 +40,9 @@ def main(argv: list[str] | None = None) -> None:
     rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
     rg.add_argument("--unit", required=True)
     sub.add_parser("ohm-probe", help="Report how much OpenHistoricalMap helps (tiles, name search, old names); writes nothing")
+    op = sub.add_parser("ohm-planet", help="Match city-pinned sites against a filtered OHM planet GeoJSON-seq file")
+    op.add_argument("path")
+    op.add_argument("--apply", action="store_true")
     lc = sub.add_parser("locate", help="Find real pins for city-centre sites in OSM / Wikidata / Amap (dry run unless --apply)")
     lc.add_argument("--apply", action="store_true")
     lc.add_argument("--limit", type=int, default=None)
@@ -78,6 +81,11 @@ def main(argv: list[str] | None = None) -> None:
         from . import ohm_probe
         from .store import Store
         ohm_probe.run(Store())
+        return
+    if args.cmd == "ohm-planet":
+        from . import ohm_planet
+        from .store import Store
+        ohm_planet.match(Store(), args.path, apply=args.apply)
         return
     if args.cmd == "locate":
         from . import locate
