@@ -211,7 +211,13 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
 
   useEffect(() => {
     if (site && map.current) {
-      map.current.flyTo({ center: coords.get(site.slug) ?? [site.lng, site.lat], zoom: Math.max(map.current.getZoom(), 13), padding: padding() });
+      // Centre the site in the part of the map the panel leaves free. An offset, not the camera `padding` option: that
+      // would stay on the map and make every later fitBounds (e.g. choosing another province) fail to fit.
+      const pad = padding();
+      map.current.flyTo({
+        center: coords.get(site.slug) ?? [site.lng, site.lat], zoom: Math.max(map.current.getZoom(), 13),
+        offset: [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site]);
