@@ -730,3 +730,276 @@ regions:
         follow: []
         max_pages: 2
         language: zh
+  hubei:
+    # Province (coverage unit CN-HB). Each extracted site is assigned to its prefecture-level city by the extractor.
+    name: Hubei 湖北
+    extract_hint: >-
+      Province of Hubei, historically Hupeh/Hupei (湖北); city keys: wuhan (Hankow 漢口, Wuchang 武昌, Hanyang 漢陽;
+      the "Wuhan cities"), huangshi (黃石, Hwangshih, Shihhweiyao), shiyan (十堰), yichang (宜昌, Ichang), xiangyang
+      (襄陽, Siangyang, Hsiangyang, Fancheng 樊城), ezhou (鄂州), jingmen (荊門), xiaogan (孝感, Hsiaokan), jingzhou
+      (荊州, Shasi/Shashi 沙市, Kingchow), huanggang (黃岡, Hwangchow), xianning (咸寧, Hsienning), suizhou (隨州),
+      enshi (恩施, Shihnan), plus Laohokow (老河口, Guanghua), Yunyang (鄖陽), Tianmen (天門), Qianjiang (潛江),
+      Xiantao (仙桃, Mienyang), Shennongjia (神農架). Include the Vicariates of Hupeh (Hankow, Wuchang, Hanyang,
+      Ichang, Shasi, Laohokow, Yunyang) and Franciscan, Italian and Belgian-Dutch Catholic missions, Protestant missions
+      (London Missionary Society with Griffith John at Hankow, Wesleyan Methodist, Church Missionary Society and American
+      Episcopal at Wuchang, Church of Scotland, Norwegian, Swedish, Augustana, Friends, Lutheran and Free Methodist),
+      Boone University and Huachung (Central China) University, Wesley College, Hankow Union Hospital, Wuhan Y.M.C.A.,
+      Orthodox churches (Hankow Russian community), Hankow Bible translations and presses, indigenous and independent
+      churches, the 1911 revolution and missionary relief, schools, hospitals, cemeteries and memorials.
+    keywords: [Hubei, Hupeh, Hupei, 湖北, Wuhan, 武汉, 武漢, Hankow, Hankou, 汉口, 漢口, Wuchang, 武昌, Hanyang, 汉阳, 漢陽,
+               Huangshi, Hwangshih, 黄石, 黃石, Shiyan, 十堰, Yichang, Ichang, 宜昌, Xiangyang, Siangyang, Hsiangyang,
+               襄阳, 襄陽, Fancheng, 樊城, Ezhou, 鄂州, Jingmen, 荆门, 荊門, Xiaogan, Hsiaokan, 孝感,
+               Jingzhou, Kingchow, 荆州, 荊州, Shashi, Shasi, 沙市, Huanggang, Hwangchow, 黄冈, 黃岡,
+               Xianning, Hsienning, 咸宁, 咸寧, Suizhou, 随州, 隨州, Enshi, Shihnan, 恩施,
+               Laohokow, 老河口, Yunyang, 郧阳, 鄖陽, Tianmen, 天门, Xiantao, Mienyang, 仙桃, Qianjiang, 潜江,
+               Griffith John, 杨格非, 楊格非, Boone University, 文华书院, 文華書院, Huachung University, 华中大学, 華中大學,
+               Wesley College, 博学书院, 博學書院, Hankow Union Hospital, 仁济医院, London Missionary Society, 伦敦会, 倫敦會,
+               Wesleyan Methodist, 循道公会, 循道公會, Hupeh Mission, 湖北教区, 湖北教區]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Hubei places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/hubei/
+          - https://www.bdcconline.net/zh-hans/places/hubei/?page=2
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Hubei places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/hubei/
+          - https://www.bdcconline.net/en/places/hubei/?page=2
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Hubei missions, Huachung University and Griffith John
+        start_urls:
+          - https://en.wikipedia.org/wiki/Huachung_University
+          - https://en.wikipedia.org/wiki/Griffith_John
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Huachung University and the Wuhan Catholic diocese
+        start_urls:
+          - https://zh.wikipedia.org/wiki/华中大学
+          - https://zh.wikipedia.org/wiki/天主教武汉教区
+        follow: []
+        max_pages: 4
+        language: zh
+  hunan:
+    # Province (coverage unit CN-HN). Each extracted site is assigned to its prefecture-level city by the extractor.
+    name: Hunan 湖南
+    extract_hint: >-
+      Province of Hunan (湖南), long closed to missionaries (Changsha riots of 1910); city keys: changsha (Chang-sha,
+      Siangtan/Xiangtan 湘潭 nearby), zhuzhou (株洲, Chuchow), xiangtan (湘潭, Siangtan), hengyang (衡陽, Hengchow,
+      Hengzhou), shaoyang (邵陽, Paoking/Baoqing 寶慶), yueyang (岳陽, Yochow, Yuezhou), changde (常德, Changteh,
+      Changtefu), zhangjiajie (張家界, Tsingshih), yiyang (益陽), chenzhou (郴州, Chenchow), yongzhou (永州, Lingling,
+      Yungchow), huaihua (懷化, Chihkiang/Zhijiang 芷江), loudi (婁底), xiangxi (湘西, Kienyang, Yuanling 沅陵). Include
+      Spanish Dominican and Franciscan Catholic missions (Changsha and Hengchow vicariates, Yuanling), Protestant
+      missions (Yale-in-China (Yali 雅禮) and Xiangya Hospital 湘雅, Presbyterian (Cumberland) at Changsha and
+      Hengchow, Norwegian Lutheran, Augustana, Church of Scotland, Methodist, Christian and Missionary Alliance,
+      Reformed Church in the US at Yochow, China Inland Mission at Changsha, Hunan Bible Institute 湖南聖經學院),
+      Hsiang-Ya Medical College, Hunan-Yale Hospital, Changsha fire of 1938, independent churches, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Hunan, 湖南, Changsha, Chang-sha, 长沙, 長沙, Zhuzhou, Chuchow, 株洲, Xiangtan, Siangtan, 湘潭,
+               Hengyang, Hengchow, Hengzhou, 衡阳, 衡陽, Shaoyang, Paoking, Baoqing, 邵阳, 邵陽, 宝庆, 寶慶,
+               Yueyang, Yochow, Yuezhou, 岳阳, 岳陽, 岳州, Changde, Changteh, Changtefu, 常德, Zhangjiajie, 张家界, 張家界,
+               Yiyang, 益阳, 益陽, Chenzhou, Chenchow, 郴州, Yongzhou, Lingling, Yungchow, 永州, 零陵,
+               Huaihua, Chihkiang, Zhijiang, 怀化, 懷化, 芷江, Loudi, 娄底, 婁底, Xiangxi, Yuanling, Kienyang, 湘西, 沅陵,
+               Yale-in-China, Yali, 雅礼, 雅禮, Xiangya, Hsiang-Ya, 湘雅, Hunan Bible Institute, 湖南圣经学院, 湖南聖經學院,
+               Dominican, 多明我会, 多明我會, Cumberland Presbyterian, 坎伯兰长老会, Norwegian Lutheran, 挪威信义会, 挪威信義會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Hunan places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/hunan/
+          - https://www.bdcconline.net/zh-hans/places/hunan/?page=2
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Hunan places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/hunan/
+          - https://www.bdcconline.net/en/places/hunan/?page=2
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Hunan Yale-in-China and the Changsha archdiocese
+        start_urls:
+          - https://en.wikipedia.org/wiki/Yale-China_Association
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Changsha
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Xiangya Medical College
+        start_urls:
+          - https://zh.wikipedia.org/wiki/湘雅医学院
+        follow: []
+        max_pages: 2
+        language: zh
+  jiangxi:
+    # Province (coverage unit CN-JX). Each extracted site is assigned to its prefecture-level city by the extractor.
+    name: Jiangxi 江西
+    extract_hint: >-
+      Province of Jiangxi, historically Kiangsi (江西); city keys: nanchang (Nanchang 南昌, Nanchangfu), jingdezhen
+      (景德鎮, Kingtehchen), pingxiang (萍鄉, Pinghsiang), jiujiang (九江, Kiukiang, incl. Lushan/Kuling/Guling 牯嶺
+      summer resort), xinyu (新余), yingtan (鷹潭, Kweichi/Guixi 貴溪), ganzhou (贛州, Kanchow, Kanchowfu), jian (吉安,
+      Kian, Kianfu), yichun (宜春, Ichun), fuzhou-jx (撫州, Fuchow, Linchuan 臨川), shangrao (上饒, Kwangsin/Guangxin 廣信,
+      Yushan 玉山, Hokow 河口). Include Catholic missions (Lazarists/Vincentians (Congregation of the Mission) in
+      Kiangsi, vicariates of Nanchang, Kanchow, Kian, Yukiang/Yujiang, Fuchow/Nancheng and Kiukiang), Protestant
+      missions (Methodist Episcopal at Kiukiang and Nanchang, American Presbyterian, China Inland Mission, Church of
+      Scotland, Methodist New Connexion, Free Methodist, Swedish, Southern Presbyterian), Kuling American School and
+      the Kuling Estate, Kiukiang Institute, William Nast College, Nanchang Union Hospital, the 1930s Communist-era
+      captures and martyrs, independent churches, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Jiangxi, Kiangsi, 江西, Nanchang, Nanchangfu, 南昌, Jingdezhen, Kingtehchen, 景德镇, 景德鎮,
+               Pingxiang, Pinghsiang, 萍乡, 萍鄉, Jiujiang, Kiukiang, 九江, Lushan, Kuling, Guling, 庐山, 廬山, 牯岭, 牯嶺,
+               Xinyu, 新余, Yingtan, Kweichi, Guixi, 鹰潭, 鷹潭, 贵溪, 貴溪, Ganzhou, Kanchow, Kanchowfu, 赣州, 贛州,
+               Ji'an, Kian, Kianfu, 吉安, Yichun, Ichun, 宜春, Fuzhou Jiangxi, Linchuan, Fuchow, 抚州, 撫州, 临川, 臨川,
+               Shangrao, Kwangsin, Guangxin, Yushan, Hokow, 上饶, 上饒, 广信, 廣信, 玉山, 河口,
+               Nancheng, 南城, Yujiang, Yukiang, 余江, 餘江, William Nast College, 南昌基督教学校,
+               Lazarists, Vincentians, 遣使会, 遣使會, Methodist Episcopal, 美以美会, 美以美會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Jiangxi places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/jiangxi/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 20
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Jiangxi places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/jiangxi/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 20
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Jiangxi Catholic dioceses and the Kuling resort
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Nanchang
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Ganzhou
+          - https://en.wikipedia.org/wiki/Kuling
+        follow: []
+        max_pages: 5
+        language: en
+      - name: Wikipedia (ZH) — Nanchang archdiocese and Guling
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教南昌总教区
+          - https://zh.wikipedia.org/wiki/牯岭
+        follow: []
+        max_pages: 3
+        language: zh
+  anhui:
+    # Province (coverage unit CN-AH). Each extracted site is assigned to its prefecture-level city by the extractor.
+    name: Anhui 安徽
+    extract_hint: >-
+      Province of Anhui, historically Anhwei (安徽); city keys: hefei (合肥, Luchow 廬州), wuhu (蕪湖, Wuhu), bengbu
+      (蚌埠, Pengpu), huainan (淮南), maanshan (馬鞍山), huaibei (淮北), tongling (銅陵), anqing (安慶, Anking), huangshan
+      (黃山, Hweichow/Huizhou 徽州, Tunki/Tunxi 屯溪), chuzhou (滁州, Chuchow), fuyang (阜陽, Funing, Yingchow
+      潁州), suzhou-ah (宿州, Suchow), luan (六安, Luan), bozhou (亳州, Pochow), chizhou (池州, Chichow), xuancheng
+      (宣城, Hsuancheng, Ningkuo 寧國), plus Chaohu (巢湖), Ningguo (寧國), Hweiyuan (懷遠) and Taiping (太平). Include
+      the Spanish Jesuit Catholic mission of Anhwei (Vicariates of Wuhu, Anqing, Bengbu/Pengpu), French Jesuit
+      influence from Jiangnan, Protestant missions (Christian Church (Disciples of Christ) at Wuhu and Luchow, China
+      Inland Mission, Northern Presbyterian at Hwaiyuan/Huaiyuan, Methodist at Nanking-Anhwei, Southern Presbyterian,
+      Seventh-day Adventist), Wuhu General Hospital, Hefei, Anqing and Bengbu missions, Christian schools and
+      hospitals, presses, indigenous and independent churches, cemeteries and memorials.
+    keywords: [Anhui, Anhwei, 安徽, Hefei, Luchow, 合肥, 庐州, 廬州, Wuhu, 芜湖, 蕪湖, Bengbu, Pengpu, 蚌埠,
+               Huainan, 淮南, Maanshan, 马鞍山, 馬鞍山, Huaibei, 淮北, Tongling, 铜陵, 銅陵, Anqing, Anking, 安庆, 安慶,
+               Huangshan, Hweichow, Huizhou, Tunxi, Tunki, 黄山, 黃山, 徽州, 屯溪, Chuzhou, Chuchow, 滁州,
+               Fuyang, Yingchow, 阜阳, 阜陽, 颍州, 潁州, Suzhou Anhui, Suchow, 宿州, Luan, Lu'an, 六安,
+               Bozhou, Pochow, 亳州, Chizhou, Chichow, 池州, Xuancheng, Hsuancheng, Ningkuo, Ningguo, 宣城, 宁国, 寧國,
+               Chaohu, 巢湖, Hweiyuan, Huaiyuan, 怀远, 懷遠, Taiping, 太平,
+               Wuhu General Hospital, 芜湖弋矶山医院, Disciples of Christ, 基督会, 基督會, Spanish Jesuit, 西班牙耶稣会, 西班牙耶穌會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Anhui places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/anhui/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 20
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Anhui places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/anhui/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 20
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Anhui Catholic dioceses (Anqing, Wuhu)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Wuhu
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Anqing
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Anhui Catholic dioceses (Anqing, Wuhu)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教芜湖教区
+          - https://zh.wikipedia.org/wiki/天主教安庆教区
+        follow: []
+        max_pages: 3
+        language: zh
+  sichuan:
+    # Province (coverage unit CN-SC). Each extracted site is assigned to its prefecture-level city by the extractor.
+    # Historically Chongqing (Chungking) belonged to Sichuan until 1997; Tibetan-border Kham counties (Kangding/Tatsienlu,
+    # Batang) and Ya'an (Yachow) are in scope.
+    name: Sichuan 四川
+    extract_hint: >-
+      Province of Sichuan, historically Szechwan/Szechuan (四川); city keys: chengdu (Chengtu 成都, Pixian 郫縣, Shuangliu),
+      zigong (自貢), panzhihua (攀枝花), luzhou (瀘州, Luchow), deyang (德陽, Tehyang), mianyang (綿陽, Mienchow), guangyuan
+      (廣元, Kwangyuan), suining (遂寧, Suiling), neijiang (內江), leshan (樂山, Kiating/Jiading 嘉定), nanchong (南充,
+      Shunking/Shunqing 順慶), meishan (眉山), yibin (宜賓, Suifu 敘府), guangan (廣安), dazhou (達州, Tachow), yaan
+      (雅安, Yachow), bazhong (巴中, Paochow/Pachow), ziyang (資陽), aba (阿壩, Maoxian), ganzi (甘孜, Kangding/Tatsienlu
+      打箭爐, Batang 巴塘), liangshan (涼山, Ningyuan/Xichang 西昌), and, for the historical province, Chongqing
+      (重慶, Chungking) and Wanxian (萬縣, Wanzhou). Include Jesuit and Paris Foreign Missions Society Catholic missions
+      (vicariates of Chengdu, Chongqing, Suifu, Ningyuan, Kiating, Shunking, Kangding/Tibet), the 1815 martyrs of Chengdu,
+      Protestant missions (China Inland Mission, Church Missionary Society, American Baptist, Canadian Methodist,
+      American Methodist, Friends Foreign Mission, Church of the Brethren, Seventh-day Adventist, Church of Scotland),
+      West China Union University (Huaxi), Canadian School in Chengdu, Chengdu and Chongqing mission hospitals, Tibetan
+      border missions (Batang, Tatsienlu, Ya'an), the Miao/Qiang/Yi (Lolo) tribal missions (Gospel in the Ko Hsien),
+      indigenous and independent churches (Little Flock), the wartime Chongqing universities and relief organizations,
+      schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Sichuan, Szechwan, Szechuan, 四川, Chengdu, Chengtu, 成都, Pixian, 郫县, 郫縣, Zigong, 自贡, 自貢,
+               Panzhihua, 攀枝花, Luzhou, Luchow, 泸州, 瀘州, Deyang, Tehyang, 德阳, 德陽, Mianyang, Mienchow, 绵阳, 綿陽,
+               Guangyuan, Kwangyuan, 广元, 廣元, Suining, Suiling, 遂宁, 遂寧, Neijiang, 内江, 內江,
+               Leshan, Kiating, Jiading, 乐山, 樂山, 嘉定, Nanchong, Shunking, Shunqing, 南充, 顺庆, 順慶,
+               Meishan, 眉山, Yibin, Suifu, 宜宾, 宜賓, 叙府, 敘府, Guangan, 广安, 廣安, Dazhou, Tachow, 达州, 達州,
+               Yaan, Yachow, 雅安, 雅州, Bazhong, Paochow, 巴中, 保宁, Ziyang, 资阳, 資陽,
+               Aba, Maoxian, 阿坝, 阿壩, 茂县, Ganzi, Kangding, Tatsienlu, 甘孜, 康定, 打箭炉, 打箭爐, Batang, 巴塘,
+               Liangshan, Ningyuan, Xichang, 凉山, 涼山, 西昌, 宁远, 寧遠, Chongqing, Chungking, 重庆, 重慶,
+               Wanxian, Wanzhou, 万县, 萬縣, 万州, West China Union University, 华西协合大学, 華西協合大學, 华西坝, 華西壩,
+               Paris Foreign Missions Society, MEP, 巴黎外方传教会, 巴黎外方傳教會, China Inland Mission, 中国内地会, 中國內地會,
+               Canadian Methodist, 加拿大美道会, 加拿大美道會, Gospel in the Ko Hsien, Little Flock, 聚会处, 聚會處]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Sichuan places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/sichuan/
+          - https://www.bdcconline.net/zh-hans/places/sichuan/?page=2
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Sichuan places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/sichuan/
+          - https://www.bdcconline.net/en/places/sichuan/?page=2
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 30
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — West China Union University and Sichuan Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/West_China_Union_University
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Chongqing
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Yibin
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Chengdu
+        follow: []
+        max_pages: 6
+        language: en
+      - name: Wikipedia (ZH) — West China Union University and Sichuan Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/华西协合大学
+          - https://zh.wikipedia.org/wiki/天主教重庆教区
+          - https://zh.wikipedia.org/wiki/天主教成都教区
+        follow: []
+        max_pages: 5
+        language: zh
