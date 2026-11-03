@@ -12,6 +12,7 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 - `coverage/catalog.yaml`: units of work and the themes each unit is researched for; gates for "done".
 - `data/seed`: hand-curated, cited, bilingual records (`hangzhou.json`, `zhejiang.json`). Published by seed-sync.
 - `docs/contributions.md`: the visitor contribution flow, labels, and the proposal JSON format.
+- `docs/pin-precision.md`: what each `geo_precision` level means, how pins are found, current counts.
 - `supabase/migrations`: schema. `claims` hold the evidence; `sites`/`persons`/`events` are the resolved view.
 
 ## Rules that never bend
