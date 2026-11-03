@@ -7,11 +7,11 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, ohm-index, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
-  contents: read
+  contents: write  # ohm-index commits data/ohm/china.geojsonl
 
 concurrency:
   group: coverage-agents  # never alongside the worker
@@ -97,7 +97,7 @@ jobs:
           done
           curl -sS -m 30 "https://planet.openhistoricalmap.org/list.js" -o /tmp/list.js || true
           echo "::notice::ohm-listjs $(wc -c < /tmp/list.js) $(grep -oE "(fetch|ajax|url)[^;]{0,120}" /tmp/list.js | head -5 | tr '\n' ' ')"
-      - if: inputs.task == 'ohm-planet-dry-run' || inputs.task == 'ohm-planet-apply'
+      - if: inputs.task == 'ohm-planet-dry-run' || inputs.task == 'ohm-planet-apply' || inputs.task == 'ohm-index'
         run: |
           sudo apt-get install -y -qq osmium-tool > /dev/null
           B=https://planet.openhistoricalmap.org
@@ -117,7 +117,32 @@ jobs:
           osmium extract -b 73,18,135,54 /tmp/f.pbf -o /tmp/cn.pbf --overwrite
           osmium export /tmp/cn.pbf -f geojsonseq --geometry-types=point,polygon -o /tmp/cn.geojsonseq --overwrite
           echo "::notice::ohm-planet features: $(wc -l < /tmp/cn.geojsonseq)"
-          if [ "${{ inputs.task }}" = ohm-planet-apply ]; then mlm ohm-planet /tmp/cn.geojsonseq --apply && mlm refresh-site; else mlm ohm-planet /tmp/cn.geojsonseq; fi
+          if [ "${{ inputs.task }}" = ohm-index ]; then
+            # keep only features with a name, as compact one-line GeoJSON, so new pins can be checked against OHM everywhere
+            mkdir -p data/ohm
+          python3 - <<'PY'
+          import json
+          keys = ("name", "name:zh", "name:zh-Hans", "name:zh-Hant", "name:en", "old_name", "old_name:zh", "alt_name", "alt_name:zh", "official_name", "short_name")
+          n = 0
+          with open("/tmp/cn.geojsonseq", encoding="utf-8") as f, open("data/ohm/china.geojsonl", "w", encoding="utf-8") as out:
+              for line in f:
+                  line = line.strip().lstrip("\x1e")
+                  try:
+                      ft = json.loads(line)
+                  except ValueError:
+                      continue
+                  pr = ft.get("properties") or {}
+                  if not any(pr.get(k) for k in keys):
+                      continue
+                  keep = {k: pr[k] for k in (*keys, "start_date", "end_date") if pr.get(k)}
+                  out.write(json.dumps({"id": ft.get("id"), "properties": keep, "geometry": ft.get("geometry")}, ensure_ascii=False, separators=(",", ":")) + "\n")
+                  n += 1
+          print("named features kept:", n)
+          PY
+            ls -l data/ohm/china.geojsonl
+            git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+            git add data/ohm/china.geojsonl && git commit -qm "OpenHistoricalMap extract for China (CC0, credit: OpenHistoricalMap contributors)" && git pull --rebase -q && git push -q
+          elif [ "${{ inputs.task }}" = ohm-planet-apply ]; then mlm ohm-planet /tmp/cn.geojsonseq --apply && mlm refresh-site; else mlm ohm-planet /tmp/cn.geojsonseq; fi
       - if: inputs.task == 'pins-dry-run'
         run: |
           mlm replace

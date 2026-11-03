@@ -22,6 +22,7 @@ import os
 import re
 import time
 from math import cos, pi, sin, sqrt
+from pathlib import Path
 
 import httpx
 
@@ -121,6 +122,18 @@ class Finder:
         except (httpx.HTTPError, ValueError):
             return {}
 
+    def ohm(self, name: str, centre: tuple[float, float], box: float = BOX) -> list[dict]:
+        """OpenHistoricalMap (CC0) from the committed planet extract `data/ohm/china.geojsonl` (OHM's web services
+        refuse automated clients). Nothing when the extract isn't there. Credit: OpenHistoricalMap contributors."""
+        if not hasattr(self, "_ohm"):
+            path = os.environ.get("MLM_OHM_INDEX") or str(Path(__file__).resolve().parents[2] / "data" / "ohm" / "china.geojsonl")
+            try:
+                from .ohm_planet import OhmIndex
+                self._ohm = OhmIndex(path) if Path(path).exists() else None
+            except (OSError, ValueError):
+                self._ohm = None
+        return self._ohm.osm(name, centre, box) if self._ohm else []
+
     def osm(self, name: str, centre: tuple[float, float], box: float = BOX) -> list[dict]:
         wait = 1.1 - (time.monotonic() - self._last)  # Nominatim policy: one request a second
         if wait > 0:
@@ -200,7 +213,10 @@ def candidates(finder: Finder, site: dict, city_zh: str, centre: tuple[float, fl
             out.append(hit)
 
     for i, q in enumerate(names[:3]):
-        for hit in [*finder.osm(q, centre, box), *(finder.wikidata(q) if i == 0 else []), *(finder.amap(q, city_zh) if china else [])]:
+        ohm = finder.ohm(q, centre, box) if hasattr(finder, "ohm") else []
+        wiki = finder.wikidata(q) if i == 0 else []
+        amap = finder.amap(q, city_zh) if china else []
+        for hit in [*finder.osm(q, centre, box), *ohm, *wiki, *amap]:
             add(hit)
     if china and site.get("modern_address"):  # a street address is the most exact thing a source can give us
         for hit in finder.amap_geocode(site["modern_address"], city_zh):

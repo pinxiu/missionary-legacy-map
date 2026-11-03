@@ -467,3 +467,25 @@ def test_locate_approx_needs_a_single_place():
     pick = {"lat": 30.0, "lng": 120.0}
     assert unambiguous([pick, {"lat": 30.001, "lng": 120.001}], pick)
     assert not unambiguous([pick, {"lat": 30.05, "lng": 120.05}], pick)
+
+
+def test_finder_reads_ohm_extract(tmp_path, monkeypatch):
+    import json
+
+    from mlm.locate import Finder
+    f = tmp_path / "ohm.geojsonl"
+    f.write_text(json.dumps({"id": "w1", "properties": {"name": "圣三一堂"}, "geometry": {"type": "Point", "coordinates": [120.17, 30.25]}},
+                            ensure_ascii=False) + "\n", encoding="utf-8")
+    monkeypatch.setenv("MLM_OHM_INDEX", str(f))
+    hits = Finder(amap_key="").ohm("圣三一堂", (30.25, 120.16))
+    assert hits and hits[0]["source"] == "ohm" and "openhistoricalmap.org/way/1" in hits[0]["url"]
+    monkeypatch.setenv("MLM_OHM_INDEX", str(tmp_path / "missing"))
+    assert Finder(amap_key="").ohm("圣三一堂", (30.25, 120.16)) == []
+
+
+def test_upcoming_lists_in_progress_first(monkeypatch):
+    from mlm import coverage
+    monkeypatch.setattr(coverage, "unit_issues", lambda: {
+        "CN-ZJ": {"state": "CLOSED", "labels": ["done"]}, "CN-JS": {"state": "OPEN", "labels": ["todo"]},
+        "CN-SH": {"state": "OPEN", "labels": ["in-progress"]}, "CN-FJ": {"state": "OPEN", "labels": ["todo"]}})
+    assert [u["id"] for u in coverage.upcoming(3)] == ["CN-SH", "CN-JS", "CN-FJ"]

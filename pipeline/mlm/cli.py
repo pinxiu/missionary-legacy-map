@@ -62,8 +62,9 @@ def main(argv: list[str] | None = None) -> None:
     dd = sub.add_parser("dedupe", help="Remove exact duplicate events and claims (one-off cleanup, no model)")
     dd.add_argument("--dry-run", action="store_true")
     cov = sub.add_parser("coverage", help="Coverage tracking")
-    cov.add_argument("action", choices=["sync", "status", "next", "publish", "report", "sweep"])
+    cov.add_argument("action", choices=["sync", "status", "next", "upcoming", "publish", "report", "sweep"])
     cov.add_argument("--unit", default=None)
+    cov.add_argument("--n", type=int, default=5)
 
     args = ap.parse_args(argv)
 
@@ -166,6 +167,11 @@ def main(argv: list[str] | None = None) -> None:
         elif args.action == "next":
             u = coverage.active_unit()
             print(u["id"] if u else "")
+        elif args.action == "upcoming":
+            from .crawl import load_registry
+            have = load_registry()["regions"]
+            for u in coverage.upcoming(args.n):  # "<unit> <region> <yes|no: has sources>"
+                print(u["id"], u["region"], "yes" if u["region"] in have else "no")
         else:
             from .store import Store
             store = Store()

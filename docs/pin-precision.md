@@ -21,7 +21,10 @@ the pin can be audited. City and province centres come from the gazetteer or fro
   generic names ("the church", "mission school") never do (`locate.GENERIC`).
 - Amap returns GCJ-02 coordinates; they are converted to WGS-84 before storing. Results that are only a city, district
   or development-zone centre are ignored, since they are no better than what we have.
-- OpenHistoricalMap was evaluated and is not used (1 match across ~1,057 named China features).
+- OpenHistoricalMap (CC0, credit "OpenHistoricalMap contributors"): its web services refuse automated clients, so new
+  locations are also checked against a committed planet extract, `data/ohm/china.geojsonl` (build or refresh it with the
+  `ohm-index` maintenance task). It is a small source (~1,000 named China features, few match our sites) but costs nothing.
+  Every new location is looked up in OpenStreetMap, OHM, Wikidata and (China) Amap, and only confident matches move a pin.
 - Visitors can correct a pin through the in-app edit card; the change goes live only after the owner approves it.
 
 ## Current numbers (public sites, 2026-11-03)
