@@ -26,10 +26,6 @@ permissions:
   issues: write
   id-token: write
 
-concurrency:
-  group: coverage-agents
-  cancel-in-progress: false
-
 jobs:
   due:
     runs-on: ubuntu-latest
@@ -56,6 +52,11 @@ jobs:
   work:
     needs: due
     if: needs.due.outputs.run == 'true'
+    # Only the real work waits in the queue. At workflow level every hourly check queued behind a running job and replaced
+    # the one waiting run, which cancelled queued maintenance tasks (like the reprocess).
+    concurrency:
+      group: coverage-agents
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
