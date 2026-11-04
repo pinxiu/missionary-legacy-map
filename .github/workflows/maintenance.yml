@@ -7,16 +7,17 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, ohm-index, reprocess, publish-agreed, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, ohm-index, reprocess, publish-agreed, photos-test, photos, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
   contents: write  # ohm-index commits data/ohm/china.geojsonl
+  issues: write    # photos: "Photo options" issues
 
 concurrency:
   # never alongside the worker, except the quick publish-agreed (idempotent database writes), which must not wait hours behind it
   # or replace a queued heavy task: only one run can wait per group
-  group: ${{ inputs.task == 'publish-agreed' && 'maintenance-quick' || 'coverage-agents' }}
+  group: ${{ (inputs.task == 'publish-agreed' || startsWith(inputs.task, 'photos')) && 'maintenance-quick' || 'coverage-agents' }}
   cancel-in-progress: false
 
 jobs:
@@ -24,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
       AMAP_KEY: ${{ secrets.AMAP_KEY }}  # optional: Amap POI search
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # place leads (Haiku, cached)
       MLM_BATCH_WAIT_MIN: "25"
@@ -37,6 +40,10 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/pyproject.toml
       - run: pip install -e pipeline
+      - if: inputs.task == 'photos-test'
+        run: mlm photos --apply --limit 60
+      - if: inputs.task == 'photos'
+        run: mlm photos --apply
       - if: inputs.task == 'dedupe-dry-run'
         run: mlm dedupe --dry-run
       - if: inputs.task == 'dedupe'
