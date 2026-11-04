@@ -184,6 +184,22 @@ def auto_publish(store, u: dict, issue: dict, m: dict, why: str) -> dict:
     return stats
 
 
+def publish_agreed(store) -> int:
+    """Publish every verified record the auditor has already agreed with, in every unit (no new audit)."""
+    total = 0
+    for u in units():
+        regs = regions_of(u)
+        ids = {s["id"] for s in store.select("sites", select="id,status,region,unit")
+               if s["status"] == "verified" and (s.get("unit") == u["id"] or s["region"] in regs)}
+        if ids & agreed_ids(store, u["id"]):
+            total += publish(store, u["id"])["sites"]
+    if total:
+        from .site import refresh
+        refresh(store)
+    notice(f"publish-agreed: {total} record(s) published")
+    return total
+
+
 def sweep_done(store, sample: int = 100000) -> dict:
     """Audit every verified record that has not been audited yet, in every unit, and publish the ones the independent auditor
     AGREED with. Records it disagreed with stay hidden and get a `needs-decision` issue (`mlm decisions sync`) for the owner."""
