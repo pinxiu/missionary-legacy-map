@@ -1084,3 +1084,53 @@ regions:
         follow: []
         max_pages: 5
         language: zh
+  chongqing:
+    # Municipality (coverage unit CN-CQ), part of Sichuan until 1997. Sites are assigned to districts/counties by the extractor.
+    name: Chongqing 重庆
+    extract_hint: >-
+      Chongqing municipality (重慶, Chungking, Chongking; districts and counties: Yuzhong 渝中, Jiangbei 江北, Nan'an 南岸,
+      Beibei 北碚, Shapingba 沙坪壩, Jiulongpo 九龍坡, Fuling 涪陵 Fuchow, Wanzhou 萬州 Wanhsien/Wanxian 萬縣, Hechuan 合川
+      Hochow, Jiangjin 江津 Kiangtsin, Yongchuan 永川, Dazu 大足, Bishan 璧山, Tongliang 銅梁, Qianjiang 黔江, Zhongxian 忠縣,
+      Kaixian 開縣, Liangping 梁平, Fengdu 酆都, Changshou 長壽, Nanchuan 南川, Qijiang 綦江, Wushan 巫山, Yunyang 雲陽,
+      Fengjie 奉節). Include Paris Foreign Missions Society Catholic missions (vicariates of Chongqing/Eastern Szechwan and
+      Wanxian), the 1863-1900 anti-missionary incidents (Chongqing riots), Protestant missions (China Inland Mission,
+      Methodist Episcopal, Friends, Church of England, American Baptist), wartime Chongqing (1937-45) churches, relief and
+      universities, Chungking mission hospitals, indigenous and independent churches, schools, presses, cemeteries
+      and memorials.
+    keywords: [Chongqing, Chungking, Chongking, 重庆, 重慶, Yuzhong, 渝中, Jiangbei, 江北, Beibei, 北碚,
+               Shapingba, 沙坪坝, 沙坪壩, Fuling, Fuchow, 涪陵, Wanzhou, Wanxian, Wanhsien, 万州, 万县, 萬縣,
+               Hechuan, Hochow, 合川, Jiangjin, Kiangtsin, 江津, Yongchuan, 永川, Dazu, 大足, Qianjiang, 黔江,
+               Zhongxian, 忠县, 忠縣, Fengdu, 丰都, 酆都, Nanchuan, 南川, Qijiang, 綦江,
+               Paris Foreign Missions Society, 巴黎外方传教会, 巴黎外方傳教會, China Inland Mission, 中国内地会, 中國內地會,
+               Eastern Szechwan, 川东, 川東, 重庆教案, 重慶教案]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Chongqing places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/chongqing/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Chongqing places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/chongqing/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Chongqing Catholic dioceses and city history
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Chongqing
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Wanzhou
+          - https://en.wikipedia.org/wiki/History_of_Chongqing
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Chongqing Catholic dioceses and municipality
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教重庆教区
+          - https://zh.wikipedia.org/wiki/天主教万县教区
+          - https://zh.wikipedia.org/wiki/重庆市
+        follow: []
+        max_pages: 4
+        language: zh
