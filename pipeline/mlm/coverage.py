@@ -167,7 +167,7 @@ def held_back(store, uid: str) -> set[str]:
 
 def auto_publish(store, u: dict, issue: dict, m: dict, why: str) -> dict:
     """Publish a unit whose gates are met (or whose `approved` label the owner added but the event was missed)."""
-    stats = publish(store, u["id"])
+    stats = publish(store, u["id"], agreed_only=why != "Approved by the owner")
     try:
         from .site import refresh
         refresh(store)
@@ -184,53 +184,33 @@ def auto_publish(store, u: dict, issue: dict, m: dict, why: str) -> dict:
     return stats
 
 
-def batch_gate(store, uid: str, verified_ids: list[str]) -> tuple[bool, int, int]:
-    """Gate for records that appear after a unit is done: the auditor must have sampled enough of THESE verified records
-    (up to the catalog's minimum sample) and at least `audit_agreement` of the sample must agree. (ok, audited, agreed)"""
-    g = catalog()["done_when"]
-    ids = set(verified_ids)
-    audits = [a for a in store.select("audits", select="subject_id,agree", unit=f"eq.{uid}") if a["subject_id"] in ids]
-    agreed = sum(1 for a in audits if a["agree"])
-    ok = bool(audits) and len(audits) >= min(g["min_audit_sample"], len(ids)) and agreed / len(audits) >= g["audit_agreement"]
-    return ok, len(audits), agreed
-
-
-def sweep_done(store, sample: int = 10) -> dict:
-    """Pages parsed for one unit often hold places in another that is already done. Those arrive as verified records after
-    the unit was published, so each done unit with new verified records gets an independent audit of a sample of them, and
-    the batch is published only if the sample agrees (records the auditor disagreed with stay held for the owner)."""
+def sweep_done(store, sample: int = 100000) -> dict:
+    """Audit every verified record that has not been audited yet, in every unit, and publish the ones the independent auditor
+    AGREED with. Records it disagreed with stay hidden and get a `needs-decision` issue (`mlm decisions sync`) for the owner."""
     from . import audit
 
-    issues = unit_issues()
     out = {}
     for u in units():
-        i = issues.get(u["id"])
-        if not i or "done" not in i["labels"]:
-            continue
         regs = regions_of(u)
         ids = [s["id"] for s in store.select("sites", select="id,status,region,unit")
                if s["status"] == "verified" and (s.get("unit") == u["id"] or s["region"] in regs)]
         if not ids:
             continue
         audit.run(store, u["id"], regs, sample=sample)
-        ok, audited, agreed = batch_gate(store, u["id"], ids)
-        out[u["id"]] = {"new_verified": len(ids), "audited": audited, "agreed": agreed, "published": False}
+        ok = agreed_ids(store, u["id"]) & set(ids)
+        out[u["id"]] = {"verified": len(ids), "agreed": len(ok), "published": 0}
         if not ok:
-            notice(f"sweep[{u['id']}]: {len(ids)} new verified record(s); audit {agreed}/{audited}, not published yet")
             continue
         stats = publish(store, u["id"])
+        out[u["id"]]["published"] = stats["sites"]
+    published = sum(v["published"] for v in out.values())
+    if published:
         try:
             from .site import refresh
             refresh(store)
         except Exception as e:  # noqa: BLE001 - the daily backup refresh will pick it up
             notice(f"coverage: site refresh failed ({type(e).__name__})", "warning")
-        held = len(held_back(store, u["id"]))
-        gh("issue", "comment", str(i["number"]), "--body",
-           f"✅ Later pages added {len(ids)} verified record(s) to {u['id']} after it was done. The auditor agreed with {agreed} of "
-           f"{audited} sampled: published {stats['sites']} sites and {stats['events']} events. {held} record(s) the auditor "
-           "disagreed with stay held until you decide them in their `needs-decision` issues.", check=False)
-        out[u["id"]]["published"] = True
-    notice(f"sweep: {out or 'no done unit has new verified records'}")
+    notice(f"sweep: published {published} audited-and-agreed record(s): {out or 'no verified records waiting'}")
     return out
 
 
@@ -280,19 +260,30 @@ the verifier, an independent audit, and the owner's approval of the unit._
     return text
 
 
-def publish(store, uid: str) -> dict:
-    """Owner approved the unit: verified -> approved, founding-year disagreements -> conflict (visible, labeled)."""
+def agreed_ids(store, uid: str) -> set[str]:
+    """Sites the independent auditor has checked and agreed with (and not later disagreed with)."""
+    rows = store.select("audits", select="subject_id,agree,resolved_at", unit=f"eq.{uid}")
+    no = {a["subject_id"] for a in rows if not a["agree"] and not a.get("resolved_at")}
+    return {a["subject_id"] for a in rows if a["agree"]} - no
+
+
+def publish(store, uid: str, agreed_only: bool = True) -> dict:
+    """verified -> approved, founding-year disagreements -> conflict (visible, labeled). By default only records the
+    independent auditor checked and AGREED with are published; the rest wait to be audited, and the ones it disagreed with
+    stay hidden for the owner (`needs-decision` issues). `agreed_only=False` is the owner's own approval of a whole unit."""
     from .review import founding_conflicts
 
     u = unit(uid)
     regs = regions_of(u)
     sites = [s for s in store.select("sites", select="id,status,region,unit") if s.get("unit") == uid or s["region"] in regs]
     held = held_back(store, uid)
-    site_ids = [s["id"] for s in sites if s["status"] == "verified" and s["id"] not in held]
+    ok = agreed_ids(store, uid) if agreed_only else None
+    site_ids = [s["id"] for s in sites if s["status"] == "verified" and s["id"] not in held and (ok is None or s["id"] in ok)]
     stats = {"sites": 0, "events": 0}
     subject_ids = list(site_ids)
     # Verified events can also attach to sites that are already public (e.g. curated seed sites).
-    for sid in [s["id"] for s in sites if s["status"] in ("verified", "approved", "conflict") and s["id"] not in held]:
+    for sid in [s["id"] for s in sites if s["status"] in ("verified", "approved", "conflict") and s["id"] not in held
+                and (s["status"] != "verified" or s["id"] in site_ids)]:
         if sid in site_ids:
             store.update("sites", {"id": sid}, {"status": "approved"})
             stats["sites"] += 1

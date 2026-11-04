@@ -19,7 +19,7 @@ def main(argv: list[str] | None = None) -> None:
     run.add_argument("--all-regions", action="store_true",
                      help="find: fetch the sources of EVERY registered region, not just this unit's (pages hold places of any region)")
     run.add_argument("--no-network-geocode", action="store_true")
-    run.add_argument("--audit-sample", type=int, default=10)
+    run.add_argument("--audit-sample", type=int, default=100000, help="verified records to audit per run (default: all)")
     run.add_argument("--max-pages", type=int, default=None, help="parse at most this many unread pages (default MLM_PARSE_MAX_PAGES, 200)")
 
     seed = sub.add_parser("seed", help="Publish the editorial seed (data/seed) to Supabase")
