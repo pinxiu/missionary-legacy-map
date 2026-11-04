@@ -163,21 +163,19 @@ jobs:
       - name: Pipeline (find → parse → translate → resolve → verify → audit)
         if: steps.unit.outputs.id != ''
         run: |
-          # Work through the units in order, one at a time (each unit finishes its own find → audit before the next starts),
-          # until the time budget is used. `coverage status` after each unit publishes it if its gates are met.
-          start=$(date +%s); u="${{ steps.unit.outputs.id }}"; n=0
-          while [ -n "$u" ] && [ "$n" -lt 6 ]; do
-            region=$(python3 -c "from mlm import coverage as c; print(c.unit('$u')['region'])")
-            has=$(python3 -c "from mlm.crawl import load_registry as r; print('yes' if '$region' in r()['regions'] else 'no')")
-            [ "$has" = yes ] || { echo "unit $u has no sources yet; the next run's scout adds them"; break; }
+          # Work through the upcoming units in order, one at a time (each unit finishes its own find → audit before the next
+          # starts), until the time budget is used. A unit that is still short of its gates after its run (say the audit
+          # agreement is under 80%) stays open for the next run but no longer holds the others back. `coverage status`
+          # after each unit publishes it if its gates are met.
+          start=$(date +%s); n=0
+          if [ -n "${{ inputs.unit }}" ]; then list="${{ inputs.unit }} x yes"; else list=$(mlm coverage upcoming --n 8); fi
+          echo "$list" | while read -r u region has; do
+            [ -n "$u" ] || continue
+            [ "$has" = yes ] || { echo "unit $u has no sources yet; the next run's scout adds them"; continue; }
+            [ $(( $(date +%s) - start )) -lt 12000 ] || { echo "time budget used; $u waits for the next run"; break; }
             echo "### unit $u" >> "$GITHUB_STEP_SUMMARY"
-            mlm run --unit "$u" || echo "unit $u failed; continuing with the next"
-            mlm coverage status > /dev/null || true
-            n=$((n + 1))
-            [ $(( $(date +%s) - start )) -lt 12000 ] || break      # no new unit after ~3h20m (the job limit is 5h)
-            [ -z "${{ inputs.unit }}" ] || break                   # a manual run for one unit does only that unit
-            nu=$(mlm coverage next); [ "$nu" != "$u" ] || break    # the same unit still in progress: it needs another run
-            u="$nu"
+            mlm run --unit "$u" < /dev/null || echo "unit $u failed; continuing with the next"
+            mlm coverage status < /dev/null > /dev/null || true
           done
 
       # Pages found for one unit hold places in others, so units that are already done keep gaining verified records.
