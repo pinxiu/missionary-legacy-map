@@ -482,3 +482,91 @@ def test_upcoming_lists_in_progress_first(monkeypatch):
         "CN-ZJ": {"state": "CLOSED", "labels": ["done"]}, "CN-JS": {"state": "OPEN", "labels": ["todo"]},
         "CN-SH": {"state": "OPEN", "labels": ["in-progress"]}, "CN-FJ": {"state": "OPEN", "labels": ["todo"]}})
     assert [u["id"] for u in coverage.upcoming(3)] == ["CN-SH", "CN-JS", "CN-FJ"]
+
+
+def test_photo_licences_and_dates():
+    from mlm import photos as ph
+    assert all(ph.license_ok(x) for x in ("CC BY-SA 4.0", "CC BY 3.0", "CC0", "Public domain", "PD-old-70"))
+    assert not any(ph.license_ok(x) for x in ("CC BY-NC 2.0", "CC BY-ND 4.0", "Non-free", "Fair use", "", None, "All rights reserved"))
+    assert ph.year_of("circa 1923") == 1923 and ph.year_of("2019-05-04 14:00:00") == 2019 and ph.year_of("1920-1925") == 1920
+    assert ph.year_of("no date") is None
+    assert [ph.kind_of(y) for y in (1900, 1952, 1953, 2004, 2005, 2020, None)] == [
+        "historical", "historical", None, None, "current", "current", None]
+
+
+def _photo_site(**kw):
+    return {"id": "s1", "slug": "gulou", "name_en": "Gulou Church", "name_zh": "鼓楼堂", "alt_names": [], "region": "hangzhou",
+            "unit": "CN-ZJ", "geo_precision": "street", "lat": 30.25, "lng": 120.17, **kw}
+
+
+class FakeCommons:
+    def __init__(self, ents=None, files=None, geo=(), pages=None):
+        self.ents, self.files, self.geo, self.pages = ents or {}, files or {}, list(geo), pages or {}
+
+    def wikidata_search(self, name, lang):
+        return list(self.ents)
+
+    def wikidata_items(self, ids):
+        return {i: self.ents[i] for i in ids if i in self.ents}
+
+    def page_images(self, lang, title):
+        return self.pages.get(title, [])
+
+    def geosearch(self, lat, lng, radius=250):
+        return self.geo
+
+    def file_info(self, titles):
+        return {t: self.files[t] for t in titles if t in self.files}
+
+
+def _info(title, year="1920", lic="Public domain", desc="Gulou Church in 1920", **kw):
+    return {"title": title, "page": "https://commons.wikimedia.org/wiki/" + title, "thumb": "https://upload.wikimedia.org/x.jpg",
+            "license": lic, "nonfree": False, "restricted": False, "artist": "A. Photographer", "date": year, "description": desc, **kw}
+
+
+def _ent(label, lat, lng, image):
+    return {"labels": {"zh": {"value": label}}, "aliases": {}, "claims": {
+        "P625": [{"mainsnak": {"datavalue": {"value": {"latitude": lat, "longitude": lng}}}}],
+        "P18": [{"mainsnak": {"datavalue": {"value": image}}}]}}
+
+
+def test_photo_high_confidence_needs_same_name_and_place():
+    from mlm import photos as ph
+    site = _photo_site()
+    good = FakeCommons({"Q1": _ent("鼓楼堂", 30.251, 120.171, "Gulou 1920.jpg")}, {"File:Gulou 1920.jpg": _info("File:Gulou 1920.jpg")})
+    c = ph.candidates(good, site, [])
+    assert [(x["file"], x["strength"]) for x in c] == [("File:Gulou 1920.jpg", "high")]
+    v = ph.judge(c[0], good.file_info(["File:Gulou 1920.jpg"])["File:Gulou 1920.jpg"])
+    assert v["add"]["kind"] == "historical" and v["add"]["year_taken"] == 1920 and v["add"]["license"] == "Public domain"
+    far = FakeCommons({"Q1": _ent("鼓楼堂", 31.5, 121.4, "Other.jpg")})  # same name, 150 km away: only an option
+    assert ph.candidates(far, site, [])[0]["strength"] == "option"
+    other = FakeCommons({"Q1": _ent("天水堂", 30.251, 120.171, "Other.jpg")})  # a different church nearby
+    assert ph.candidates(other, site, []) == []
+
+
+def test_photo_judge_drops_unfree_and_holds_back_doubtful():
+    from mlm import photos as ph
+    high = {"file": "File:A.jpg", "strength": "high", "why": "x"}
+    assert ph.judge(high, _info("File:A.jpg", lic="CC BY-NC 4.0")) is None
+    assert ph.judge(high, None) is None
+    assert "option" in ph.judge(high, _info("File:A.jpg", year="1990"))            # neither historical nor current
+    assert "option" in ph.judge(high, _info("File:A.jpg", year="", desc="old"))    # undated
+    assert "option" in ph.judge(high, _info("File:A.jpg", year="2019", desc="Sunday worship service"))
+    assert "add" in ph.judge(high, _info("File:A.jpg", year="2019", desc="Exterior of the church"))
+    assert ph.judge({**high, "strength": "option"}, _info("File:A.jpg"))["option"] == "x"
+
+
+def test_photo_run_adds_once_and_lists_options(monkeypatch):
+    from mlm import photos as ph
+    store = MemStore({
+        "public_sites": [{"id": "s1", "lat": 30.25, "lng": 120.17}],
+        "sites": [{**_photo_site(), "status": "approved"}], "photos": [], "claims": [], "sources": []})
+    store.select_all = store.select
+    api = FakeCommons({"Q1": _ent("鼓楼堂", 30.251, 120.171, "Gulou 1920.jpg")}, {"File:Gulou 1920.jpg": _info("File:Gulou 1920.jpg")})
+    written = []
+    monkeypatch.setattr(ph, "write_issues", lambda opts: written.append(opts))
+    stats = ph.run(store, apply=True, api=api)
+    assert stats["added"] == 1 and stats["historical"] == 1 and len(store.rows["photos"]) == 1
+    assert store.rows["photos"][0]["status"] == "approved" and store.rows["photos"][0]["kind"] == "historical"
+    again = ph.run(store, apply=True, api=api)
+    assert again["added"] == 0 and len(store.rows["photos"]) == 1  # never twice

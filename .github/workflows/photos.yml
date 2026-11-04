@@ -1,0 +1,50 @@
+name: Photos
+
+# Backfill of openly licensed photos (historical, and what the site looks like now) from Wikimedia, separate from the coverage
+# worker. Strict matches are added; plausible but uncertain ones are listed in "Photo options" issues (one per coverage unit).
+# Correctness over quantity: nothing is added unless the image is of this very site and its licence is open.
+on:
+  schedule:
+    - cron: "41 7 * * *"   # daily; only sites that do not have photos yet cost anything
+  workflow_dispatch:
+    inputs:
+      accept:
+        description: "Add photos the owner picked from an options issue: one per line, `site-slug | File:Name.jpg`"
+        default: ""
+      limit:
+        description: Only the first N sites (default all)
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: photos
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e pipeline
+      - name: Add the photos the owner picked
+        if: inputs.accept != ''
+        env:
+          ACCEPT: ${{ inputs.accept }}
+        run: mlm photos --accept "$ACCEPT"
+      - name: Backfill
+        if: inputs.accept == ''
+        run: mlm photos --apply ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}

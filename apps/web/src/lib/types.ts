@@ -20,7 +20,7 @@ export type LegacyEvent = {
 export type Photo = {
   id: string;
   url: string;
-  kind: "historical" | "visitor";
+  kind: "historical" | "current" | "visitor";
   caption: string | null;
   captionZh: string | null;
   credit: string | null;

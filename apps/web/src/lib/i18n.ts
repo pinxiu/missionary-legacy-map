@@ -47,6 +47,7 @@ const UI = {
   needsPhoto: ["needs a photo", "待补照片"],
   photoCta: ["{n} sites still need photos. Visiting one? Add yours.", "还有 {n} 处遗迹缺少照片。路过时，欢迎拍一张上传。"],
   credit: ["Credit", "来源"],
+  photoHistoric: ["Historic photo", "历史照片"], photoToday: ["Photo today", "现状照片"],
   addSite: ["Add a site", "添加遗迹"], feedback: ["Feedback", "意见反馈"],
 } as const;
 

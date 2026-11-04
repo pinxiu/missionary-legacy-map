@@ -336,6 +336,7 @@ export default function MapApp({ sites, regions, areas, live }: { sites: Site[];
                       <img src={p.url} alt={pick(lang, p.caption, p.captionZh) || pick(lang, site.nameEn, site.nameZh)} loading="lazy" />
                     </button>
                     <figcaption>
+                      {p.kind !== "visitor" && <strong className="photo-kind">{t(lang, p.kind === "current" ? "photoToday" : "photoHistoric")}. </strong>}
                       {pick(lang, p.caption, p.captionZh)}{p.yearTaken ? ` (${p.yearTaken})` : ""}
                       <span className="credit">
                         {p.credit ? ` ${t(lang, "credit")}: ${p.credit}` : ""}{p.license ? ` · ${p.license}` : ""}

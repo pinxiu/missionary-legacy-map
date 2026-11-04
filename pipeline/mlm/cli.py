@@ -52,6 +52,11 @@ def main(argv: list[str] | None = None) -> None:
     lc.add_argument("--apply", action="store_true")
     lc.add_argument("--limit", type=int, default=None)
     lc.add_argument("--approx", action="store_true", help="also place unambiguous partial-name matches at district precision")
+    ph = sub.add_parser("photos", help="Backfill openly licensed historical and present-day photos (strict matches; the rest go to issues)")
+    ph.add_argument("--apply", action="store_true")
+    ph.add_argument("--limit", type=int, default=None)
+    ph.add_argument("--unit", default=None)
+    ph.add_argument("--accept", default=None, help="'site-slug | File:Name.jpg' per line: photos the owner picked")
     pl = sub.add_parser("pool", help="The resource pool: what has been fetched and extracted (no model)")
     pl.add_argument("action", choices=["status", "backfill"])
     rpr = sub.add_parser("reprocess", help="Re-read every source and re-file every place on it under all its regions, then re-pin")
@@ -105,6 +110,19 @@ def main(argv: list[str] | None = None) -> None:
         from . import locate
         from .store import Store
         locate.run(Store(), apply=args.apply, limit=args.limit, approx=args.approx)
+        return
+    if args.cmd == "photos":
+        from . import photos
+        from .store import Store
+        store = Store()
+        if args.accept:
+            ok = [photos.accept(store, ln) for ln in args.accept.splitlines() if ln.strip()]
+            print(f"accepted {sum(ok)} of {len(ok)}")
+        else:
+            photos.run(store, apply=args.apply, limit=args.limit, unit=args.unit)
+        from .site import refresh
+        if args.apply or args.accept:
+            refresh(store)
         return
     if args.cmd == "reprocess":
         reprocess(no_pins=args.no_pins)
