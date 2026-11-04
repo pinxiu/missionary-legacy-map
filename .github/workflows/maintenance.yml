@@ -7,11 +7,11 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, ohm-index, reprocess, verify-recheck-dry-run, verify-recheck]
         default: dedupe-dry-run
 
 permissions:
-  contents: read
+  contents: write  # ohm-index commits data/ohm/china.geojsonl
 
 concurrency:
   group: coverage-agents  # never alongside the worker
@@ -20,9 +20,11 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 240
     env:
       AMAP_KEY: ${{ secrets.AMAP_KEY }}  # optional: Amap POI search
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # place leads (Haiku, cached)
+      MLM_BATCH_WAIT_MIN: "25"
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
@@ -59,6 +61,98 @@ jobs:
       - if: inputs.task == 'locate-apply'
         run: |
           mlm locate --apply
+          mlm refresh-site
+      - if: inputs.task == 'amap-check'
+        env:
+          AMAP_KEY: ${{ secrets.AMAP_KEY }}
+        run: |
+          [ -n "$AMAP_KEY" ] || { echo "::error::AMAP_KEY secret is not set"; exit 1; }
+          curl -sS "https://restapi.amap.com/v3/place/text?key=$AMAP_KEY&keywords=%E5%A4%A9%E4%B8%BB%E5%A0%82&city=%E6%9D%AD%E5%B7%9E&offset=3"
+          > /tmp/amap.json; echo "::notice::amap-check $(head -c 300 /tmp/amap.json)"
+      - if: inputs.task == 'ohm-planet-check'
+        run: |
+          for u in https://planet.openhistoricalmap.org/ https://planet.openhistoricalmap.org/planet/ ; do
+            echo "== $u"; curl -sS -m 30 -A "missionary-legacy-map/1.0 (github.com/pinxiu/missionary-legacy-map)" -o /tmp/o.html -w "HTTP %{http_code}" "$u" > /tmp/code.txt || true
+            echo "::notice::ohm-planet $u $(cat /tmp/code.txt) $(head -c 200 /tmp/o.html | tr '\n' ' ')"
+          done
+      - if: inputs.task == 'ohm-planet-list'
+        run: |
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/list.js" | grep -oE "(https?://[^'\" ]+|'[a-zA-Z0-9_./-]*(planet|xml|pbf|bz2)[^']*')" | sort -u | head -15 | tr '\n' ' ' > /tmp/js.txt || true
+          echo "::notice::ohm-js $(cat /tmp/js.txt)"
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/?list-type=2&max-keys=1000" -o /tmp/l.xml || true
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/" | grep -oE "(src|href)=\"[^\"]+\"" | head -20 | tr '\n' ' ' > /tmp/refs.txt || true
+          echo "::notice::ohm-refs $(cat /tmp/refs.txt)"
+          echo "::notice::ohm-list $(grep -oE '<Key>[^<]+</Key>' /tmp/l.xml | sed 's/<[^>]*>//g' | head -40 | tr '\n' ' ')"
+      - if: inputs.task == 'ohm-planet-files'
+        run: |
+          for pre in planet/ historical-osm-data/; do
+            curl -sS -m 30 "https://planet.openhistoricalmap.org/?prefix=$pre&delimiter=/" -o /tmp/p.xml || true
+            echo "::notice::ohm-files $pre $(grep -oE '<Key>[^<]+</Key><LastModified>[^<]+</LastModified><ETag>[^<]*</ETag><Size>[0-9]+' /tmp/p.xml | sed -E 's/<Key>([^<]+)<\/Key>.*<Size>/\1 /' | head -25 | tr '\n' ';') $(head -c 150 /tmp/p.xml | tr '\n' ' ')"
+          done
+      - if: inputs.task == 'ohm-planet-guess'
+        run: |
+          for f in planet/planet-latest.osm.pbf planet/planet-latest.osm.bz2 planet/latest/planet-latest.osm.pbf historical-osm-data/planet-latest.osm.pbf planet/ohm-planet-latest.osm.pbf planet/current/planet-latest.osm.pbf planet/planet.osm.pbf; do
+            c=$(curl -sS -m 30 -I -o /tmp/h.txt -w "%{http_code}" "https://planet.openhistoricalmap.org/$f" || echo err)
+            echo "::notice::ohm-guess $f $c $(grep -i content-length /tmp/h.txt | tr -d '\r')"
+          done
+          curl -sS -m 30 "https://planet.openhistoricalmap.org/list.js" -o /tmp/list.js || true
+          echo "::notice::ohm-listjs $(wc -c < /tmp/list.js) $(grep -oE "(fetch|ajax|url)[^;]{0,120}" /tmp/list.js | head -5 | tr '\n' ' ')"
+      - if: inputs.task == 'ohm-planet-dry-run' || inputs.task == 'ohm-planet-apply' || inputs.task == 'ohm-index'
+        run: |
+          sudo apt-get install -y -qq osmium-tool > /dev/null
+          B=https://planet.openhistoricalmap.org
+          # newest daily file: the name ends in a minute-of-day suffix we can't know, so try the S3 listing, then probe
+          curl -sS -m 60 "https://s3.amazonaws.com/planet.openhistoricalmap.org?prefix=planet/planet-26&max-keys=1000" -o /tmp/l.xml || true
+          F=$(grep -oE 'planet/planet-[0-9]{6}_[0-9]{4}\.osm\.pbf' /tmp/l.xml | sort | tail -1)
+          if [ -z "$F" ]; then
+            for d in 0 1 2 3 4; do D=$(date -u -d "-$d day" +%y%m%d); for m in $(seq -w 0 99); do
+              c=$(curl -s -m 10 -I -o /dev/null -w "%{http_code}" "$B/planet/planet-${D}_00${m}.osm.pbf"); [ "$c" = 200 ] && F="planet/planet-${D}_00${m}.osm.pbf" && break 2
+            done; done
+          fi
+          echo "::notice::ohm-planet file: ${F:-NONE FOUND}"
+          [ -n "$F" ] || exit 1
+          curl -sS -m 1200 -o /tmp/planet.pbf "$B/$F"
+          ls -l /tmp/planet.pbf
+          osmium tags-filter /tmp/planet.pbf nwr/amenity=place_of_worship nwr/building=church,chapel,cathedral,temple nwr/amenity=school,college,university,hospital,clinic,cemetery nwr/landuse=cemetery nwr/historic nwr/religion=christian -o /tmp/f.pbf --overwrite
+          osmium extract -b 73,18,135,54 /tmp/f.pbf -o /tmp/cn.pbf --overwrite
+          osmium export /tmp/cn.pbf -f geojsonseq --geometry-types=point,polygon -o /tmp/cn.geojsonseq --overwrite
+          echo "::notice::ohm-planet features: $(wc -l < /tmp/cn.geojsonseq)"
+          if [ "${{ inputs.task }}" = ohm-index ]; then
+            # keep only features with a name, as compact one-line GeoJSON, so new pins can be checked against OHM everywhere
+            mkdir -p data/ohm
+          python3 - <<'PY'
+          import json
+          keys = ("name", "name:zh", "name:zh-Hans", "name:zh-Hant", "name:en", "old_name", "old_name:zh", "alt_name", "alt_name:zh", "official_name", "short_name")
+          n = 0
+          with open("/tmp/cn.geojsonseq", encoding="utf-8") as f, open("data/ohm/china.geojsonl", "w", encoding="utf-8") as out:
+              for line in f:
+                  line = line.strip().lstrip("\x1e")
+                  try:
+                      ft = json.loads(line)
+                  except ValueError:
+                      continue
+                  pr = ft.get("properties") or {}
+                  if not any(pr.get(k) for k in keys):
+                      continue
+                  keep = {k: pr[k] for k in (*keys, "start_date", "end_date") if pr.get(k)}
+                  out.write(json.dumps({"id": ft.get("id"), "properties": keep, "geometry": ft.get("geometry")}, ensure_ascii=False, separators=(",", ":")) + "\n")
+                  n += 1
+          print("named features kept:", n)
+          PY
+            ls -l data/ohm/china.geojsonl
+            git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+            git add data/ohm/china.geojsonl && git commit -qm "OpenHistoricalMap extract for China (CC0, credit: OpenHistoricalMap contributors)" && git pull --rebase -q && git push -q
+          elif [ "${{ inputs.task }}" = ohm-planet-apply ]; then mlm ohm-planet /tmp/cn.geojsonseq --apply && mlm refresh-site; else mlm ohm-planet /tmp/cn.geojsonseq; fi
+      - if: inputs.task == 'reprocess'
+        run: mlm reprocess   # every source re-read, every place re-filed under all its regions, then re-pinned (LLM + Amap)
+      - if: inputs.task == 'pins-dry-run'
+        run: |
+          mlm replace
+          mlm locate --approx
+      - if: inputs.task == 'pins-apply'
+        run: |
+          mlm replace --apply
+          mlm locate --apply --approx
           mlm refresh-site
       - if: inputs.task == 'ohm-probe'
         run: mlm ohm-probe   # report only: tiles, name search and old names against OpenHistoricalMap

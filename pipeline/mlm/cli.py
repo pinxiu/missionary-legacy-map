@@ -16,6 +16,8 @@ def main(argv: list[str] | None = None) -> None:
     run.add_argument("--unit", default=None, help="Coverage unit id, e.g. CN-ZJ (sets region, subregions, unit tag)")
     run.add_argument("--region", default=None, help="sources.yaml region key (default: the unit's region)")
     run.add_argument("--stage", choices=STAGES + list(ALIASES) + ["all"], default="all")
+    run.add_argument("--all-regions", action="store_true",
+                     help="find: fetch the sources of EVERY registered region, not just this unit's (pages hold places of any region)")
     run.add_argument("--no-network-geocode", action="store_true")
     run.add_argument("--audit-sample", type=int, default=10)
     run.add_argument("--max-pages", type=int, default=None, help="parse at most this many unread pages (default MLM_PARSE_MAX_PAGES, 200)")
@@ -40,11 +42,20 @@ def main(argv: list[str] | None = None) -> None:
     rg = sub.add_parser("regeocode", help="Re-place a unit's centre-pinned sites in their cities (no model)")
     rg.add_argument("--unit", required=True)
     sub.add_parser("ohm-probe", help="Report how much OpenHistoricalMap helps (tiles, name search, old names); writes nothing")
+    op = sub.add_parser("ohm-planet", help="Match city-pinned sites against a filtered OHM planet GeoJSON-seq file")
+    op.add_argument("path")
+    op.add_argument("--apply", action="store_true")
+    rp = sub.add_parser("replace", help="Re-place coarse pins: real city centres, then modern place queries from the source text")
+    rp.add_argument("--apply", action="store_true")
+    rp.add_argument("--limit", type=int, default=None)
     lc = sub.add_parser("locate", help="Find real pins for city-centre sites in OSM / Wikidata / Amap (dry run unless --apply)")
     lc.add_argument("--apply", action="store_true")
     lc.add_argument("--limit", type=int, default=None)
+    lc.add_argument("--approx", action="store_true", help="also place unambiguous partial-name matches at district precision")
     pl = sub.add_parser("pool", help="The resource pool: what has been fetched and extracted (no model)")
     pl.add_argument("action", choices=["status", "backfill"])
+    rpr = sub.add_parser("reprocess", help="Re-read every source and re-file every place on it under all its regions, then re-pin")
+    rpr.add_argument("--no-pins", action="store_true", help="skip the LLM + Amap pin pass at the end")
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
     sub.add_parser("actions-usage", help="Approximate GitHub Actions minutes over 30 days, per workflow (no model)")
     cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
@@ -55,8 +66,9 @@ def main(argv: list[str] | None = None) -> None:
     dd = sub.add_parser("dedupe", help="Remove exact duplicate events and claims (one-off cleanup, no model)")
     dd.add_argument("--dry-run", action="store_true")
     cov = sub.add_parser("coverage", help="Coverage tracking")
-    cov.add_argument("action", choices=["sync", "status", "next", "publish", "report", "sweep"])
+    cov.add_argument("action", choices=["sync", "status", "next", "upcoming", "publish", "report", "sweep"])
     cov.add_argument("--unit", default=None)
+    cov.add_argument("--n", type=int, default=5)
 
     args = ap.parse_args(argv)
 
@@ -79,10 +91,23 @@ def main(argv: list[str] | None = None) -> None:
         from .store import Store
         ohm_probe.run(Store())
         return
+    if args.cmd == "ohm-planet":
+        from . import ohm_planet
+        from .store import Store
+        ohm_planet.match(Store(), args.path, apply=args.apply)
+        return
+    if args.cmd == "replace":
+        from . import replace
+        from .store import Store
+        replace.run(Store(), apply=args.apply, limit=args.limit)
+        return
     if args.cmd == "locate":
         from . import locate
         from .store import Store
-        locate.run(Store(), apply=args.apply, limit=args.limit)
+        locate.run(Store(), apply=args.apply, limit=args.limit, approx=args.approx)
+        return
+    if args.cmd == "reprocess":
+        reprocess(no_pins=args.no_pins)
         return
     if args.cmd == "pool":
         from . import pool as pool_mod
@@ -149,6 +174,11 @@ def main(argv: list[str] | None = None) -> None:
         elif args.action == "next":
             u = coverage.active_unit()
             print(u["id"] if u else "")
+        elif args.action == "upcoming":
+            from .crawl import load_registry
+            have = load_registry()["regions"]
+            for u in coverage.upcoming(args.n):  # "<unit> <region> <yes|no: has sources>"
+                print(u["id"], u["region"], "yes" if u["region"] in have else "no")
         else:
             from .store import Store
             store = Store()
@@ -179,7 +209,10 @@ def main(argv: list[str] | None = None) -> None:
         print(f"=== {stage} ({unit or region}) ===")
         if stage == "find":
             from . import crawl
-            crawl.run(region, discover_for=coverage_unit)
+            if args.all_regions:
+                find_all()
+            else:
+                crawl.run(region, discover_for=coverage_unit)
         elif stage == "parse":
             from . import extract
             extract.run(_pool(), limit=args.max_pages, prefer=region)
@@ -198,6 +231,43 @@ def main(argv: list[str] | None = None) -> None:
             from . import coverage as cov_mod
             from .store import Store
             audit.run(Store(), unit, cov_mod.regions_of(cov_mod.unit(unit)), sample=args.audit_sample)
+
+
+def find_all() -> None:
+    """The find stage over every registered region (and, for regions that are catalog units, the per-city search).
+    Pages go into the pool once; parse reads each page for every place on it, so each source is worth the same
+    whichever province's run fetched it."""
+    from . import coverage, crawl
+    from .config import notice
+    by_region = {u["region"]: u for u in coverage.units()}
+    regions = list(crawl.load_registry()["regions"])
+    for r in regions:
+        try:
+            crawl.run(r, discover_for=by_region.get(r))
+        except Exception as e:  # one unreachable source must not stop the others
+            notice(f"find[{r}] failed: {type(e).__name__}: {str(e)[:200]}")
+
+
+def reprocess(no_pins: bool = False) -> None:
+    """Re-read every stored source and file every place on it everywhere: find (all regions) → parse the unread pages
+    (cached results are free) → mark every extraction unresolved → translate → resolve → LLM + Amap pin pass."""
+    from . import extract, load, locate, replace, translate
+    from .config import notice
+    from .site import refresh
+    from .store import Store
+    pool = _pool()
+    find_all()
+    extract.run(pool, limit=100000)
+    store = Store()
+    r = store.http.patch("/extractions", params={"resolved_at": "not.is.null"}, json={"resolved_at": None})
+    r.raise_for_status()
+    notice("reprocess: every extraction marked for re-resolution")
+    translate.run(pool)
+    load.resolve_pending(store)
+    if not no_pins:
+        replace.run(store, apply=True)
+        locate.run(store, apply=True, approx=True)
+    refresh(store)
 
 
 def _pool():

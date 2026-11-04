@@ -387,3 +387,105 @@ def test_ohm_probe_reports_without_writing(monkeypatch):
     assert out["name_hits"] == 1 and out["within_300m"] == 1 and out["coarse_hits"] == 1
     assert out["old_names_resolved"].startswith("1/") and out["china_places_of_worship"] == "42"
     assert "public_sites" in store.rows and "sites" not in store.rows
+
+
+def test_locate_only_moves_confident_pins():
+    from mlm.locate import confident
+
+    site = {"name_zh": "天主堂", "alt_names": ["圣母无原罪堂"]}
+    assert not confident(site, {"name": "天主堂"}, False)            # generic name: matches every church in town
+    assert confident(site, {"name": "天主堂"}, True)                 # but two sources agree
+    assert confident(site, {"name": "圣母无原罪堂"}, False)         # exact, specific name
+    assert not confident(site, {"name": "圣母无原罪堂天主教会"}, False)  # only a partial match
+
+
+def test_name_variants_and_fuzzy_match():
+    from mlm.locate import confident, name_variants
+
+    v = name_variants({"name_zh": "上海圣保罗堂", "alt_names": []})
+    assert "圣保罗堂" in v
+    v = name_variants({"name_zh": "朱泾布道站（Shangyuantang）", "alt_names": []})
+    assert "朱泾布道站" in v
+    v = name_variants({"name_zh": "上海路中华基督教会教堂及尚德小学", "alt_names": []})
+    assert "上海路中华基督教会教堂" in v
+    site = {"name_zh": "上海圣保罗堂", "alt_names": []}
+    assert confident(site, {"name": "圣保罗堂", "source": "amap"}, False)
+    assert not confident(site, {"name": "圣保罗医院", "source": "amap"}, False)
+    assert confident({"name_zh": None}, {"name": "x", "source": "geocode"}, False)
+
+
+def test_ohm_planet_index_matches_a_site_by_old_name(tmp_path):
+    import json as _json
+
+    from mlm.ohm_planet import OhmIndex
+
+    f = tmp_path / "x.geojsonseq"
+    feats = [{"type": "Feature", "id": "w42", "properties": {"name": "St Paul's", "old_name:zh": "圣保罗堂", "start_date": "1900"},
+              "geometry": {"type": "Point", "coordinates": [121.47, 31.23]}},
+             {"type": "Feature", "id": "n7", "properties": {"name": "圣保罗医院"}, "geometry": {"type": "Point", "coordinates": [121.4, 31.2]}}]
+    f.write_text("\n".join("\x1e" + _json.dumps(x) for x in feats))
+    idx = OhmIndex(str(f))
+    hits = idx.osm("圣保罗堂", (31.23, 121.47))
+    assert [h["url"] for h in hits] == ["https://www.openhistoricalmap.org/way/42"] and hits[0]["source"] == "ohm"
+    assert idx.osm("圣保罗堂", (39.9, 116.4)) == []
+
+
+def test_unknown_city_gets_a_real_centre_and_a_region(monkeypatch):
+    from mlm import places
+    from mlm.geocode import CITIES, REGION_CENTROIDS
+
+    monkeypatch.setattr(places, "lookup", lambda c, en, slug, client=None: {"lat": 36.2, "lng": 117.1, "name_zh": "泰安市"})
+    store = MemStore()
+    unit = {"id": "CN-SD", "region": "shandong", "en": "Shandong"}
+    try:
+        assert places.ensure_city(store, "taian", unit) == "taian"
+        assert REGION_CENTROIDS["taian"] == (36.2, 117.1) and CITIES["taian"]["zh"] == "泰安市"
+        row = store.rows["regions"][0]
+        assert row["parent"] == "shandong" and row["lat"] == 36.2 and row["name_zh"] == "泰安市"
+        assert places.ensure_city(store, "other", unit) is None
+        monkeypatch.setattr(places, "lookup", lambda *a, **k: None)
+        assert places.ensure_city(store, "nowhere", unit) is None
+    finally:
+        CITIES.pop("taian", None)
+        REGION_CENTROIDS.pop("taian", None)
+
+
+def test_replace_classifies_amap_hits_by_how_well_they_match_the_lead():
+    from mlm.replace import classify
+
+    assert classify("解放公园路12号", {"source": "geocode", "level": "门牌号", "name": "x"}) == "street"
+    assert classify("通伸村", {"source": "geocode", "level": "村庄", "name": "x"}) == "district"
+    assert classify("通伸村", {"source": "geocode", "level": "市", "name": "x"}) is None
+    assert classify("武汉大学医院", {"source": "amap", "name": "武汉大学医院"}) == "street"
+    assert classify("武汉大学医院", {"source": "amap", "name": "武汉大学校医院北门"}) == "district"
+    assert classify("武汉大学医院", {"source": "amap", "name": "星巴克"}) is None
+
+
+def test_locate_approx_needs_a_single_place():
+    from mlm.locate import unambiguous
+
+    pick = {"lat": 30.0, "lng": 120.0}
+    assert unambiguous([pick, {"lat": 30.001, "lng": 120.001}], pick)
+    assert not unambiguous([pick, {"lat": 30.05, "lng": 120.05}], pick)
+
+
+def test_finder_reads_ohm_extract(tmp_path, monkeypatch):
+    import json
+
+    from mlm.locate import Finder
+    f = tmp_path / "ohm.geojsonl"
+    f.write_text(json.dumps({"id": "w1", "properties": {"name": "圣三一堂"}, "geometry": {"type": "Point", "coordinates": [120.17, 30.25]}},
+                            ensure_ascii=False) + "\n", encoding="utf-8")
+    monkeypatch.setenv("MLM_OHM_INDEX", str(f))
+    hits = Finder(amap_key="").ohm("圣三一堂", (30.25, 120.16))
+    assert hits and hits[0]["source"] == "ohm" and "openhistoricalmap.org/way/1" in hits[0]["url"]
+    monkeypatch.setenv("MLM_OHM_INDEX", str(tmp_path / "missing"))
+    assert Finder(amap_key="").ohm("圣三一堂", (30.25, 120.16)) == []
+
+
+def test_upcoming_lists_in_progress_first(monkeypatch):
+    from mlm import coverage
+    monkeypatch.setattr(coverage, "unit_issues", lambda: {
+        "CN-ZJ": {"state": "CLOSED", "labels": ["done"]}, "CN-JS": {"state": "OPEN", "labels": ["todo"]},
+        "CN-SH": {"state": "OPEN", "labels": ["in-progress"]}, "CN-FJ": {"state": "OPEN", "labels": ["todo"]}})
+    assert [u["id"] for u in coverage.upcoming(3)] == ["CN-SH", "CN-JS", "CN-FJ"]

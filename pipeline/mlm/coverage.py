@@ -114,6 +114,20 @@ def active_unit() -> dict | None:
     return None
 
 
+def upcoming(n: int = 5) -> list[dict]:
+    """The next `n` open units in order (in-progress first, then todo), without changing any label."""
+    issues = unit_issues()
+    rank = {"in-progress": 0, "todo": 1}
+    out = []
+    for u in units():
+        i = issues.get(u["id"])
+        if i and i["state"] == "OPEN":
+            r = next((rank[x] for x in ("in-progress", "todo") if x in i["labels"]), None)
+            if r is not None:
+                out.append((r, len(out), u))
+    return [u for _, _, u in sorted(out, key=lambda t: (t[0], t[1]))[:n]]
+
+
 def metrics(store, u: dict) -> dict:
     regs = regions_of(u)
     sites = [s for s in store.select("sites", select="id,status,region,unit") if s.get("unit") == u["id"] or s["region"] in regs]

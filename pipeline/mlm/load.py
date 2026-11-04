@@ -98,6 +98,8 @@ class Resolver:
         if unit:
             ensure_region(store, region, unit)
             self.ensured.add(unit)
+        from .places import load_known
+        load_known(store)
         self.existing_sites = store.select("sites", select="id,slug,name_en,name_zh,alt_names")
         self.existing_people = store.select("persons", select="id,slug,name_en,name_zh,alt_names")
         self.site_slugs = {s["slug"] for s in self.existing_sites}
@@ -174,6 +176,10 @@ class Resolver:
                 continue  # names no place, or none in a unit we have yet
             s_region, s_unit, s_subs, s_unit_cfg = placed
             city = resolve_city(s.city, s_unit, s_subs, default=s_region)
+            if city == s_region and s_unit and (s.city or "other") != "other":  # a city outside the gazetteer: find its centre
+                from .coverage import unit as unit_of
+                from .places import ensure_city
+                city = ensure_city(store, s.city, s_unit_cfg or unit_of(s_unit)) or city
             match = next((e for e in self.existing_sites
                           if same_entity(_names(e), [s.name_en, *s.alt_names], e.get("name_zh"), s.name_zh)), None)
             if match:
@@ -194,7 +200,8 @@ class Resolver:
                     ucfg = s_unit_cfg or unit_of(s_unit)
                     china = s_unit.startswith("CN-") or s_unit in ("HK", "MO", "TW")
                     zh = CITIES.get(city, {}).get("zh") or ucfg["zh"]
-                    site_row = {**match, "name_zh": s.name_zh, "alt_names": s.alt_names, "region": city}
+                    site_row = {**match, "name_zh": s.name_zh, "alt_names": s.alt_names, "region": city, "modern_address": s.modern_address,
+                                "name_en": s.name_en}
                     try:
                         stats["pinned"] += 1 if refine(store, site_row, zh, self.finder, china) else 0
                     except Exception as e:  # noqa: BLE001 - a lookup failure leaves the pin at the city; never blocks the load

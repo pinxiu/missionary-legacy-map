@@ -10,7 +10,8 @@ name: Coverage agents
 # (apply-approved.yml, or the status job's catch-up if that event was missed).
 
 # GitHub often drops scheduled runs, so the schedule fires every hour and the cheap `due` job lets the real work run
-# only when no run has started in the last ~2.5 hours (about every 3 hours, without depending on any single slot).
+# only when no run has started in the last ~55 minutes. A run works through several provinces, so runs follow each other
+# back to back (the concurrency group queues them) until China is covered.
 on:
   schedule:
     - cron: "17 * * * *"   # each check bills at least a minute; work is due about every 3 hours
@@ -50,7 +51,7 @@ jobs:
               | .run_started_at][0] // "1970-01-01T00:00:00Z"')
           age=$(( $(date +%s) - $(date -d "$last" +%s) ))
           echo "last real run started $last ($((age / 60)) min ago)"
-          if [ "$age" -ge 9000 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+          if [ "$age" -ge 3300 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
 
   work:
     needs: due
@@ -63,6 +64,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
       AMAP_KEY: ${{ secrets.AMAP_KEY }}               # optional: Amap place search for exact pins in China
+      MLM_PARSE_MAX_PAGES: "300"  # unread pages parsed per run (a page is read once, for every place on it)
       MLM_BATCH_WAIT_MIN: "10"    # don't keep a billed runner idle: a batch still running is collected by the next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -75,7 +77,7 @@ jobs:
           cache-dependency-path: pipeline/pyproject.toml
       - run: pip install -e "pipeline[dev]"
 
-      - name: Pick unit (no model call)
+      - name: Pick units (no model call)
         id: unit
         run: |
           u="${{ inputs.unit }}"
@@ -83,13 +85,15 @@ jobs:
           echo "id=$u" >> "$GITHUB_OUTPUT"
           if [ -n "$u" ]; then
             region=$(python3 -c "from mlm import coverage as c; print(c.unit('$u')['region'])")
-            has=$(python3 -c "from mlm.crawl import load_registry as r; print('yes' if '$region' in r()['regions'] else 'no')")
-            echo "region=$region" >> "$GITHUB_OUTPUT"; echo "has_sources=$has" >> "$GITHUB_OUTPUT"
+            echo "region=$region" >> "$GITHUB_OUTPUT"
           fi
-          echo "### Coverage agents: unit '${u:-none}'" >> "$GITHUB_STEP_SUMMARY"
+          # the next few units that have no sources yet: one scout pass covers all of them, so sources never hold up a run
+          need=$(mlm coverage upcoming --n 6 | awk '$3=="no"{print $2}' | tr '\n' ' ')
+          echo "need=$need" >> "$GITHUB_OUTPUT"
+          echo "### Coverage agents: unit '${u:-none}'; scouting: ${need:-nothing}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Source scout (only when the unit has no sources yet)
-        if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
+        if: steps.unit.outputs.need != ''
         uses: anthropics/claude-code-action@v1
         with:
           # Your Claude subscription pays when CLAUDE_CODE_OAUTH_TOKEN is set (`claude setup-token`); the API key is the fallback.
@@ -97,12 +101,12 @@ jobs:
           anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN == '' && secrets.ANTHROPIC_API_KEY || '' }}
           claude_args: >-
             --model claude-sonnet-5-5
-            --max-turns 60
+            --max-turns 150
             --allowedTools "Read,Edit,WebSearch,WebFetch"
           prompt: |
-            Follow .claude/agents/source-scout.md. Coverage unit ${{ steps.unit.outputs.id }}, region key `${{ steps.unit.outputs.region }}`.
-            Read coverage/catalog.yaml for the unit and its themes (all significant Christian movements, not only missions).
-            Add ONE new region entry `${{ steps.unit.outputs.region }}` to pipeline/mlm/sources.yaml with: name, extract_hint
+            Follow .claude/agents/source-scout.md. Region keys to add (do all of them, one entry each): ${{ steps.unit.outputs.need }}.
+            Read coverage/catalog.yaml for each unit and its themes (all significant Christian movements, not only missions).
+            Add one new region entry per key above to pipeline/mlm/sources.yaml, each with: name, extract_hint
             (prefecture-level cities in pinyin and historical spellings), keywords (English, historical romanizations, Simplified
             and Traditional Chinese), and 4-10 reputable sources with modest max_pages and max_depth: 1 where they list links,
             covering the province and, where sources exist, its main cities (city gazetteers, diocesan and mission-station
@@ -111,7 +115,7 @@ jobs:
       # The scout action leaves git on its own branch with its own (revoked) credentials, so every later `git push`
       # failed with exit 128. Put the working tree back on main with this job's token, keeping the scout's edit.
       - name: Restore git state after scout
-        if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
+        if: steps.unit.outputs.need != ''
         run: |
           cp pipeline/mlm/sources.yaml "$RUNNER_TEMP/sources.yaml"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
@@ -121,23 +125,28 @@ jobs:
           git status -sb | head -3
 
       - name: Validate scout output (trusted)
-        if: steps.unit.outputs.id != '' && steps.unit.outputs.has_sources == 'no'
+        if: steps.unit.outputs.need != ''
         run: |
           python3 - <<'EOF'
           import yaml, sys
           from urllib.parse import urlparse
-          reg = yaml.safe_load(open("pipeline/mlm/sources.yaml"))["regions"]["${{ steps.unit.outputs.region }}"]
-          assert reg.get("keywords") and reg.get("sources"), "region needs keywords and sources"
-          for s in reg["sources"]:
-              assert s.get("name") and s.get("start_urls"), s
-              assert all(urlparse(u).scheme == "https" for u in s["start_urls"]), s["start_urls"]
-              assert int(s.get("max_pages", 20)) <= 300, "max_pages too high"
-          print("ok:", len(reg["sources"]), "sources")
+          regs = yaml.safe_load(open("pipeline/mlm/sources.yaml"))["regions"]
+          for key in "${{ steps.unit.outputs.need }}".split():
+              reg = regs.get(key)
+              if not reg:  # a region the scout didn't finish waits for the next run; the loop below skips units without sources
+                  print("no sources yet for", key)
+                  continue
+              assert reg.get("keywords") and reg.get("sources"), f"{key}: region needs keywords and sources"
+              for s in reg["sources"]:
+                  assert s.get("name") and s.get("start_urls"), s
+                  assert all(urlparse(u).scheme == "https" for u in s["start_urls"]), s["start_urls"]
+                  assert int(s.get("max_pages", 20)) <= 300, "max_pages too high"
+          print("ok")
           EOF
           git diff --stat -- pipeline/mlm/sources.yaml
           [ -z "$(git status --porcelain -- . ':!pipeline/mlm/sources.yaml')" ] || { echo "scout edited other files"; git status --porcelain; exit 1; }
           git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
-          git add pipeline/mlm/sources.yaml && git commit -m "Sources for ${{ steps.unit.outputs.id }} (source scout)" && git pull --rebase -q && git push origin HEAD:main
+          git add pipeline/mlm/sources.yaml && git commit -m "Sources for ${{ steps.unit.outputs.need }}(source scout)" && git pull --rebase -q && git push origin HEAD:main
 
       # Restore and save are split so the cache is saved even when a later step fails. With plain actions/cache a
       # failed run discarded every page it had already paid Sonnet to extract, and the next run extracted them again.
@@ -147,12 +156,40 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .mlm-work
-          key: mlm-work-${{ steps.unit.outputs.region }}-${{ github.run_id }}
-          restore-keys: mlm-work-${{ steps.unit.outputs.region }}-
+          key: mlm-work-all-${{ github.run_id }}
+          restore-keys: |
+            mlm-work-all-
+            mlm-work-${{ steps.unit.outputs.region }}-
 
       - name: Pipeline (find → parse → translate → resolve → verify → audit)
         if: steps.unit.outputs.id != ''
-        run: mlm run --unit "${{ steps.unit.outputs.id }}"
+        run: |
+          # Work through the upcoming units in order, one at a time (each unit finishes its own find → audit before the next
+          # starts), until the time budget is used. A unit that is still short of its gates after its run (say the audit
+          # agreement is under 80%) stays open for the next run but no longer holds the others back. `coverage status`
+          # after each unit publishes it if its gates are met.
+          start=$(date +%s); n=0
+          # Every registered source is fetched on every run, whichever province is being worked on: a page about Hubei also
+          # lists places in Hunan and Sichuan, and parse files each place under its own province. Only changed pages cost.
+          mlm run --stage find --all-regions < /dev/null || echo "find (all regions) failed; per-unit find still runs"
+          if [ -n "${{ inputs.unit }}" ]; then list="${{ inputs.unit }} x yes"; else list=$(mlm coverage upcoming --n 8); fi
+          echo "$list" | while read -r u region has; do
+            [ -n "$u" ] || continue
+            [ "$has" = yes ] || { echo "unit $u has no sources yet; the next run's scout adds them"; continue; }
+            [ $(( $(date +%s) - start )) -lt 12000 ] || { echo "time budget used; $u waits for the next run"; break; }
+            echo "### unit $u" >> "$GITHUB_STEP_SUMMARY"
+            mlm run --unit "$u" < /dev/null || echo "unit $u failed; continuing with the next"
+            mlm coverage status < /dev/null > /dev/null || true
+          done
+
+      # New places get their best pin: OSM, OpenHistoricalMap, Wikidata and Amap by name, plus place leads the model reads
+      # from the source text and Amap checks (cached, so only new sites cost). Only confident matches move a pin.
+      - name: Pins for new places (OSM + OHM + Wikidata + Amap + LLM leads)
+        if: steps.unit.outputs.id != ''
+        run: |
+          mlm replace --apply < /dev/null || echo "replace failed"
+          mlm locate --apply --approx < /dev/null || echo "locate failed"
+          mlm refresh-site < /dev/null || true
 
       # Pages found for one unit hold places in others, so units that are already done keep gaining verified records.
       # Trusted code audits a sample of each such batch and publishes it only if the sample agrees (the 80% gate).
@@ -165,7 +202,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .mlm-work
-          key: mlm-work-${{ steps.unit.outputs.region }}-${{ github.run_id }}
+          key: mlm-work-all-${{ github.run_id }}
 
       - name: Status, gates and scoreboard (trusted)
         if: always() && steps.unit.outputs.id != ''

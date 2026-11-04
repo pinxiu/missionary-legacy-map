@@ -12,6 +12,7 @@ Expansion: Zhejiang (done first) → all of China → the world. Progress: STATU
 - `coverage/catalog.yaml`: units of work and the themes each unit is researched for; gates for "done".
 - `data/seed`: hand-curated, cited, bilingual records (`hangzhou.json`, `zhejiang.json`). Published by seed-sync.
 - `docs/contributions.md`: the visitor contribution flow, labels, and the proposal JSON format.
+- `docs/pin-precision.md`: what each `geo_precision` level means, how pins are found, current counts.
 - `supabase/migrations`: schema. `claims` hold the evidence; `sites`/`persons`/`events` are the resolved view.
 
 ## Rules that never bend
@@ -48,6 +49,10 @@ The map is for the whole world, so the three jobs are separate stages that meet 
    everywhere else; `street` precision with a cited `location` claim, else the city/region centre). A place whose
    country/region has no unit yet waits in the extraction's `unplaced` list and is resolved, with no new parse, once a unit
    for it is added to the catalog.
+   Every coverage run first fetches the sources of EVERY registered region (`mlm run --stage find --all-regions`), then works
+   the active units; `mlm reprocess` (maintenance task) re-reads everything and re-files every place under all its regions.
+   New places get their best pin in the same run: OSM / OpenHistoricalMap / Wikidata / Amap by name (`locate`), plus
+   model-read place leads checked against Amap (`replace`).
 4. Translate, verify, audit and publish per unit as below; the unit being worked on is still one at a time.
 
 ## Model costs
