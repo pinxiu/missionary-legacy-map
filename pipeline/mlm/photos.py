@@ -31,7 +31,11 @@ PRECISE = ("exact", "street", "district")
 WORSHIP = re.compile(
     r"service|worship|congregation|baptis|\bmass\b|sunday|prayer|choir|preach|wedding|funeral|"
     r"礼拜|弥撒|聚会|洗礼|信徒|婚礼|葬礼", re.I)
-SKIP_FILES = re.compile(r"icon|flag|logo|symbol|map|locator|commons-|wiki|\.svg$|\.gif$|\.ogg|\.webm|\.pdf|\.djvu", re.I)
+SKIP_FILES = re.compile(
+    r"icon|flag|logo|symbol|map|locator|plan|floor|diagram|layout|poster|brochure|screenshot|scan|sketch"
+    r"|平面|地图|地圖|示意|规划|規劃|commons-|wiki|\.svg$|\.gif$|\.ogg|\.webm|\.pdf|\.djvu",
+    re.I,
+)
 IMAGE_EXT = re.compile(r"\.(jpe?g|png|tiff?)$", re.I)
 
 
@@ -63,7 +67,7 @@ def clean(text: str | None, limit: int = 250) -> str:
 def caption_for(title: str, description: str) -> tuple[str | None, str | None]:
     """The file's own description, never our wording. Chinese goes to the Chinese caption."""
     stem = re.sub(r"\.[A-Za-z]+$", "", title.split(":", 1)[-1]).replace("_", " ").strip()
-    text = description or stem
+    text = description if description and not description.rstrip().endswith(("...", "…")) else stem
     if any("一" <= ch <= "鿿" for ch in text):
         return (stem if not any("一" <= ch <= "鿿" for ch in stem) else None), text
     return text, None
