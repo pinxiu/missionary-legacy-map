@@ -64,6 +64,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
       AMAP_KEY: ${{ secrets.AMAP_KEY }}               # optional: Amap place search for exact pins in China
+      MLM_PARSE_MAX_PAGES: "300"  # unread pages parsed per run (a page is read once, for every place on it)
       MLM_BATCH_WAIT_MIN: "10"    # don't keep a billed runner idle: a batch still running is collected by the next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -168,6 +169,9 @@ jobs:
           # agreement is under 80%) stays open for the next run but no longer holds the others back. `coverage status`
           # after each unit publishes it if its gates are met.
           start=$(date +%s); n=0
+          # Every registered source is fetched on every run, whichever province is being worked on: a page about Hubei also
+          # lists places in Hunan and Sichuan, and parse files each place under its own province. Only changed pages cost.
+          mlm run --stage find --all-regions < /dev/null || echo "find (all regions) failed; per-unit find still runs"
           if [ -n "${{ inputs.unit }}" ]; then list="${{ inputs.unit }} x yes"; else list=$(mlm coverage upcoming --n 8); fi
           echo "$list" | while read -r u region has; do
             [ -n "$u" ] || continue
@@ -177,6 +181,15 @@ jobs:
             mlm run --unit "$u" < /dev/null || echo "unit $u failed; continuing with the next"
             mlm coverage status < /dev/null > /dev/null || true
           done
+
+      # New places get their best pin: OSM, OpenHistoricalMap, Wikidata and Amap by name, plus place leads the model reads
+      # from the source text and Amap checks (cached, so only new sites cost). Only confident matches move a pin.
+      - name: Pins for new places (OSM + OHM + Wikidata + Amap + LLM leads)
+        if: steps.unit.outputs.id != ''
+        run: |
+          mlm replace --apply < /dev/null || echo "replace failed"
+          mlm locate --apply --approx < /dev/null || echo "locate failed"
+          mlm refresh-site < /dev/null || true
 
       # Pages found for one unit hold places in others, so units that are already done keep gaining verified records.
       # Trusted code audits a sample of each such batch and publishes it only if the sample agrees (the 80% gate).
