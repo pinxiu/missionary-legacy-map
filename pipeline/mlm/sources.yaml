@@ -97,6 +97,51 @@ regions:
         follow: []
         max_pages: 4
         language: zh
+      - name: Wikipedia (ZH) — 杭州基督教 (overview of Hangzhou Protestant churches, schools and hospitals)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/杭州基督教
+        follow: []
+        max_pages: 1
+        language: zh
+        # cites the Hangzhou Civil Affairs Bureau survey; skip its short present-day paragraphs (policy rule 2)
+      - name: Wikipedia (ZH) — Southern/Northern Presbyterian sites (天水堂, 司徒雷登故居, 鼓楼堂)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天水堂_(杭州)
+          - https://zh.wikipedia.org/wiki/司徒雷登故居
+          - https://zh.wikipedia.org/wiki/鼓楼堂
+        follow: []
+        max_pages: 3
+        language: zh
+        # 鼓楼堂 cites only the Hangzhou Christian Council site for its pre-1952 history; corroborate
+      - name: Wikipedia (ZH) — Ming/Qing Catholic Hangzhou (卫匡国, 杨廷筠)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/卫匡国
+          - https://zh.wikipedia.org/wiki/杨廷筠
+        follow: []
+        max_pages: 2
+        language: zh
+      - name: Wikipedia (EN) — Hangzhou cathedral and the Jesuit-era community
+        start_urls:
+          - https://en.wikipedia.org/wiki/Cathedral_of_the_Immaculate_Conception_(Hangzhou)
+          - https://en.wikipedia.org/wiki/Three_Pillars_of_Chinese_Catholicism
+          - https://en.wikipedia.org/wiki/Martino_Martini
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Centro Studi Martino Martini (Trento) — biography of Martino Martini
+        start_urls:
+          - https://martinomartinicenter.org/martino-martini.html
+        follow: []
+        max_pages: 1
+        language: en
+        kind: institution   # research centre; Hangzhou church 1659-61, his death 1661 and grave
+      - name: Encyclopaedia Britannica, 9th ed. (1880), "Hang-Chow-Foo" — Wikisource
+        start_urls:
+          - https://en.wikisource.org/wiki/Encyclop%C3%A6dia_Britannica,_Ninth_Edition/Hang-Chow-Foo
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period reference: Catholic mission and CMS, American Presbyterian, Baptist stations
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
