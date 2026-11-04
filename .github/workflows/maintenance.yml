@@ -14,7 +14,9 @@ permissions:
   contents: write  # ohm-index commits data/ohm/china.geojsonl
 
 concurrency:
-  group: coverage-agents  # never alongside the worker
+  # never alongside the worker, except the quick publish-agreed (idempotent database writes), which must not wait hours behind it
+  # or replace a queued heavy task: only one run can wait per group
+  group: ${{ inputs.task == 'publish-agreed' && 'maintenance-quick' || 'coverage-agents' }}
   cancel-in-progress: false
 
 jobs:
