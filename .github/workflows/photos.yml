@@ -1,5 +1,6 @@
 name: Photos
 
+
 # Backfill of openly licensed photos (historical, and what the site looks like now) from Wikimedia, separate from the coverage
 # worker. Strict matches are added; plausible but uncertain ones are listed in "Photo options" issues (one per coverage unit).
 # Correctness over quantity: nothing is added unless the image is of this very site and its licence is open.
@@ -48,3 +49,4 @@ jobs:
       - name: Backfill
         if: inputs.accept == ''
         run: mlm photos --apply ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}
+
