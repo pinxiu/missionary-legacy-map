@@ -1542,3 +1542,77 @@ regions:
         follow: []
         max_pages: 3
         language: zh
+  heilongjiang:
+    # Province (coverage unit CN-HL). Sites are assigned to prefecture-level cities by the extractor.
+    name: Heilongjiang 黑龙江
+    extract_hint: >-
+      Province of Heilongjiang, historically Heilungkiang (黑龍江) in Manchuria (Dongsanseng, Northeast); city keys:
+      harbin (哈爾濱, Haerbin, Kharbin, Pinkiang/Binjiang 濱江, Fuchiatien/Fujiadian 傅家甸), qiqihar (齊齊哈爾, Tsitsihar,
+      Longjiang 龍江), mudanjiang (牡丹江, Mutankiang), jiamusi (佳木斯, Kiamusze), daqing (大慶), jixi (雞西), hegang (鶴崗),
+      shuangyashan (雙鴨山), yichun (伊春), qitaihe (七台河), heihe (黑河, Aigun 璦琿), suihua (綏化), daxinganling
+      (大興安嶺), also Manzhouli (滿洲里, in Inner Mongolia today), Hulan (呼蘭), Acheng (阿城), Shuangcheng (雙城), Zhaodong
+      (肇東), Anda (安達), Ningan (寧安, Ningguta 寧古塔), Hailin (海林), Suifenhe (綏芬河), Tongjiang (同江), Fujin (富錦).
+      Include the Russian Orthodox mission and churches built along the Chinese Eastern Railway (St Sophia, St Nicholas),
+      White Russian émigré parishes, Polish and German Catholic and Lutheran communities of Harbin, the Catholic Missions
+      Étrangères de Paris and the Apostolic Administration of Harbin (1931), Presbyterian, Danish, Swedish, Finnish and Korean
+      mission work, Harbin Medical University and the 1910-11 Manchurian plague response, the Boxer events of 1900,
+      indigenous churches, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Heilongjiang, Heilungkiang, Manchuria, 黑龙江, 黑龍江, 东北, 東北, 满洲, 滿洲, Harbin, Haerbin, Kharbin, Pinkiang,
+               哈尔滨, 哈爾濱, 滨江, 濱江, Fuchiatien, 傅家甸, Qiqihar, Tsitsihar, 齐齐哈尔, 齊齊哈爾, Mudanjiang, Mutankiang,
+               牡丹江, Jiamusi, Kiamusze, 佳木斯, Daqing, 大庆, 大慶, Jixi, 鸡西, 雞西, Hegang, 鹤岗, 鶴崗, Shuangyashan,
+               双鸭山, 雙鴨山, Yichun, 伊春, Qitaihe, 七台河, Heihe, Aigun, 黑河, 瑷珲, 璦琿, Suihua, 绥化, 綏化, Daxinganling,
+               大兴安岭, 大興安嶺, Manzhouli, 满洲里, 滿洲里, Hulan, 呼兰, 呼蘭, Acheng, 阿城, Shuangcheng, 双城, 雙城,
+               Zhaodong, 肇东, 肇東, Anda, 安达, 安達, Ningan, Ningguta, 宁安, 寧安, 宁古塔, 寧古塔, Hailin, 海林, Suifenhe,
+               绥芬河, 綏芬河, Tongjiang, 同江, Fujin, 富锦, 富錦, Chinese Eastern Railway, 中东铁路, 中東鐵路,
+               Russian Orthodox, 东正教, 東正教, St Sophia, 圣索菲亚教堂, 聖索菲亞教堂, Missions Étrangères de Paris,
+               巴黎外方传教会, 巴黎外方傳教會, Apostolic Administration of Harbin, 哈尔滨宗座署理区, White Russian, 白俄,
+               Manchurian plague, 东北大鼠疫, 東北大鼠疫]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Heilongjiang places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/heilongjiang/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 5
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Heilongjiang places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/heilongjiang/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 5
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Harbin and the Apostolic Administration of Harbin
+        start_urls:
+          - https://en.wikipedia.org/wiki/Apostolic_Administration_of_Harbin
+          - https://en.wikipedia.org/wiki/Harbin
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — St Sophia Cathedral and Harbin Medical University
+        start_urls:
+          - https://en.wikipedia.org/wiki/Saint_Sophia_Cathedral,_Harbin
+          - https://en.wikipedia.org/wiki/Harbin_Medical_University
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Russians in China and the Chinese Eastern Railway
+        start_urls:
+          - https://en.wikipedia.org/wiki/Russians_in_China
+          - https://en.wikipedia.org/wiki/Chinese_Eastern_Railway
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Orthodox Church in Harbin and St Sophia Cathedral
+        start_urls:
+          - https://zh.wikipedia.org/wiki/哈尔滨东正教
+          - https://zh.wikipedia.org/wiki/圣索菲亚大教堂_(哈尔滨)
+        follow: []
+        max_pages: 3
+        language: zh
+      - name: Wikipedia (ZH) — Harbin Medical University
+        start_urls:
+          - https://zh.wikipedia.org/wiki/哈尔滨医科大学
+        follow: []
+        max_pages: 2
+        language: zh
