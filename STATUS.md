@@ -1,6 +1,6 @@
 # Coverage status
 
-_Updated 2026-11-05 03:10 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-05 03:11 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
 **Units done:** 10 / 45  ·  **Published records:** 536  ·  **Verified, awaiting approval:** 45  ·  **Audited:** 415
@@ -9,7 +9,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | CN-ZJ | Zhejiang 浙江 | done | 73 | 11 | 0 | 299 | 87% | [#2](../../issues/2) |
 | 1 | CN-JS | Jiangsu 江苏 | done | 52 | 6 | 0 | 156 | 91% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | done | 67 | 2 | 0 | 196 | 93% | [#4](../../issues/4) |
+| 1 | CN-SH | Shanghai 上海 | done | 67 | 2 | 1 | 196 | 95% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 89 | 3 | 0 | 179 | 94% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 69 | 3 | 0 | 156 | 92% | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | done | 68 | 1 | 1 | 144 | 97% | [#7](../../issues/7) |
