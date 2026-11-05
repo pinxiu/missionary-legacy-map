@@ -8,7 +8,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | CN-ZJ | Zhejiang 浙江 | done | 73 | 11 | 0 | 299 | 87% | [#2](../../issues/2) |
-| 1 | CN-JS | Jiangsu 江苏 | done | 52 | 6 | 0 | 156 | 89% | [#3](../../issues/3) |
+| 1 | CN-JS | Jiangsu 江苏 | done | 52 | 6 | 0 | 156 | 91% | [#3](../../issues/3) |
 | 1 | CN-SH | Shanghai 上海 | done | 67 | 2 | 0 | 196 | 93% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 89 | 3 | 0 | 179 | 94% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 69 | 3 | 0 | 156 | 92% | [#6](../../issues/6) |
