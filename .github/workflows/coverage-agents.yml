@@ -24,6 +24,7 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: write  # the work job starts the next run itself when it made progress
   id-token: write
 
 jobs:
@@ -89,7 +90,7 @@ jobs:
             echo "region=$region" >> "$GITHUB_OUTPUT"
           fi
           # the next few units that have no sources yet: one scout pass covers all of them, so sources never hold up a run
-          need=$(mlm coverage upcoming --n 6 | awk '$3=="no"{print $2}' | tr '\n' ' ')
+          need=$(mlm coverage upcoming --n 12 | awk '$3=="no"{print $2}' | tr '\n' ' ')
           echo "need=$need" >> "$GITHUB_OUTPUT"
           echo "### Coverage agents: unit '${u:-none}'; scouting: ${need:-nothing}" >> "$GITHUB_STEP_SUMMARY"
 
@@ -102,7 +103,7 @@ jobs:
           anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN == '' && secrets.ANTHROPIC_API_KEY || '' }}
           claude_args: >-
             --model claude-sonnet-5-5
-            --max-turns 150
+            --max-turns 300
             --allowedTools "Read,Edit,WebSearch,WebFetch"
           prompt: |
             Follow .claude/agents/source-scout.md. Region keys to add (do all of them, one entry each): ${{ steps.unit.outputs.need }}.
@@ -170,10 +171,11 @@ jobs:
           # agreement is under 80%) stays open for the next run but no longer holds the others back. `coverage status`
           # after each unit publishes it if its gates are met.
           start=$(date +%s); n=0
+          mkdir -p .mlm-work; grep -o 'Units done:\*\* [0-9]*' STATUS.md > .mlm-work/done-before.txt 2>/dev/null || true
           # Every registered source is fetched on every run, whichever province is being worked on: a page about Hubei also
           # lists places in Hunan and Sichuan, and parse files each place under its own province. Only changed pages cost.
           mlm run --stage find --all-regions < /dev/null || echo "find (all regions) failed; per-unit find still runs"
-          if [ -n "${{ inputs.unit }}" ]; then list="${{ inputs.unit }} x yes"; else list=$(mlm coverage upcoming --n 8); fi
+          if [ -n "${{ inputs.unit }}" ]; then list="${{ inputs.unit }} x yes"; else list=$(mlm coverage upcoming --n 16); fi
           echo "$list" | while read -r u region has; do
             [ -n "$u" ] || continue
             [ "$has" = yes ] || { echo "unit $u has no sources yet; the next run's scout adds them"; continue; }
@@ -216,4 +218,19 @@ jobs:
             git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
             git add STATUS.md && git commit -m "Coverage status" -q
             git pull --rebase -q origin main && git push -q origin HEAD:main
+          fi
+
+      # Don't wait for the next hourly check while China still has open units and this run made progress (a unit finished,
+      # or sources were scouted for new ones). A run that finished nothing does not start another, so a stuck unit can't loop.
+      - name: Start the next run right away if there was progress
+        if: always() && steps.unit.outputs.id != '' && inputs.unit == ''
+        run: |
+          git pull -q --rebase origin main || true
+          before=$(cat .mlm-work/done-before.txt 2>/dev/null || true)
+          after=$(grep -o 'Units done:\*\* [0-9]*' STATUS.md || true)
+          left=$(mlm coverage upcoming --n 1 | wc -l)
+          if [ "$left" -gt 0 ] && { [ "$before" != "$after" ] || [ -n "${{ steps.unit.outputs.need }}" ]; }; then
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/workflows/coverage-agents.yml/dispatches" -f ref=main && echo "next run started"
+          else
+            echo "no progress this run (or nothing left); the hourly check picks it up"
           fi
