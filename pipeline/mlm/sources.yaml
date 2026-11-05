@@ -1134,3 +1134,301 @@ regions:
         follow: []
         max_pages: 4
         language: zh
+  yunnan:
+    # Province (coverage unit CN-YN). Sites are assigned to prefecture-level cities by the extractor.
+    name: Yunnan 云南
+    extract_hint: >-
+      Province of Yunnan (云南, Yunnan-fu/Yunnanfu 雲南府 = Kunming 昆明); city keys: kunming (昆明, Yunnanfu), qujing (曲靖,
+      Chutsing), yuxi (玉溪), baoshan (保山), zhaotong (昭通, Chaotung), lijiang (麗江, Likiang), puer (普洱, Szemao 思茅),
+      lincang (臨滄), chuxiong (楚雄), honghe (紅河, Mengzi 蒙自, Mengtsz), wenshan (文山), xishuangbanna (西雙版納, Jinghong,
+      Kengtung border), dali (大理, Tali), dehong (德宏, Tengyueh/Tengchong 騰衝), nujiang (怒江, Salween valley), diqing
+      (迪慶, Zhongdian, Weixi 維西, Tsekou/Cizhong 茨中). Include Paris Foreign Missions Society Catholic missions (Yunnan
+      vicariate, Tibetan-border parishes of Tsekou, Bahang, Weixi), China Inland Mission, Methodist missions among the Miao
+      (Shimenkan/Stone Gateway 石門坎, Zhaotong; Samuel Pollard, the Pollard script) and the Lisu, Nu, Jingpo, Yi (Lolo) and
+      Wa mission churches (J. O. Fraser, Isobel Kuhn, Gladys Aylward-era Yunnan relief), Church Missionary Society,
+      American Baptist missions, Kunming wartime (1937-45) relocated universities and hospitals, indigenous churches,
+      schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Yunnan, Yunnanfu, Yunnan-fu, 云南, 雲南, Kunming, 昆明, Qujing, Chutsing, 曲靖, Yuxi, 玉溪, Baoshan, 保山,
+               Zhaotong, Chaotung, 昭通, Lijiang, Likiang, 丽江, 麗江, Puer, Szemao, 普洱, 思茅, Lincang, 临沧, 臨滄,
+               Chuxiong, 楚雄, Honghe, Mengzi, Mengtsz, 红河, 紅河, 蒙自, Wenshan, 文山, Xishuangbanna, 西双版纳, 西雙版納,
+               Dali, Tali, 大理, Dehong, Tengyueh, Tengchong, 德宏, 腾冲, 騰衝, Nujiang, Salween, 怒江, Diqing, Zhongdian,
+               Weixi, Tsekou, Cizhong, 迪庆, 迪慶, 维西, 維西, 茨中, Shimenkan, Stone Gateway, 石门坎, 石門坎,
+               Samuel Pollard, 柏格理, Pollard script, 柏格理苗文, J. O. Fraser, 富能仁, Lisu, 傈僳, Miao, A-Hmao, 苗族,
+               China Inland Mission, 中国内地会, 中國內地會, Paris Foreign Missions Society, 巴黎外方传教会, 巴黎外方傳教會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Yunnan places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/yunnan/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Yunnan places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/yunnan/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Kunming Catholic archdiocese and Samuel Pollard
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Kunming
+          - https://en.wikipedia.org/wiki/Sam_Pollard_(missionary)
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Kunming Catholic archdiocese and 柏格理
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教昆明总教区
+          - https://zh.wikipedia.org/wiki/柏格理
+        follow: []
+        max_pages: 3
+        language: zh
+  guizhou:
+    # Province (coverage unit CN-GZ). Sites are assigned to prefecture-level cities by the extractor.
+    name: Guizhou 贵州
+    extract_hint: >-
+      Province of Guizhou, historically Kweichow (貴州); city keys: guiyang (貴陽, Kweiyang), zunyi (遵義, Tsunyi), liupanshui
+      (六盤水), anshun (安順, Anshun), bijie (畢節, Pichieh), tongren (銅仁, Tungjen), qianxinan (黔西南, Xingyi 興義),
+      qiandongnan (黔東南, Kaili 凱里, Zhenyuan 鎮遠, Chenyuan), qiannan (黔南, Duyun 都勻, Tuyun). Include the Paris Foreign
+      Missions Society Catholic vicariate of Guizhou (1696; Guiyang cathedral, Louis Faurie, the 1861 Qingyan and 1865
+      Kaiyang martyrs, Jean-Pierre Néel), China Inland Mission stations (Guiyang, Anshun, Dading), Church Missionary Society,
+      United Methodist/United Brethren, Seventh-day Adventist, Miao (Hmong) and Buyi mission churches (Samuel Clarke, George
+      Clarke, Pollard's Miao work reaching Guizhou), wartime Guizhou relief and hospitals (Guiyang Medical College, Red Cross
+      Medical Relief Corps), indigenous churches, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Guizhou, Kweichow, Kweichou, 贵州, 貴州, Guiyang, Kweiyang, 贵阳, 貴陽, Zunyi, Tsunyi, 遵义, 遵義,
+               Liupanshui, 六盘水, 六盤水, Anshun, 安顺, 安順, Bijie, Pichieh, 毕节, 畢節, Tongren, Tungjen, 铜仁, 銅仁,
+               Qianxinan, Xingyi, 黔西南, 兴义, 興義, Qiandongnan, Kaili, Zhenyuan, 黔东南, 黔東南, 凯里, 凱里, 镇远, 鎮遠,
+               Qiannan, Duyun, Tuyun, 黔南, 都匀, 都勻, Qingyan, 青岩, 青巖, Kaiyang, 开阳, 開陽,
+               Paris Foreign Missions Society, MEP, 巴黎外方传教会, 巴黎外方傳教會, China Inland Mission, 中国内地会,
+               中國內地會, Samuel Clarke, 克拉克, Miao, Hmong, 苗族, Buyi, 布依, Guizhou martyrs, 贵州教案, 貴州教案]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Guizhou places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/guizhou/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Guizhou places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/guizhou/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Guiyang Catholic archdiocese
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Guiyang
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Guiyang Catholic archdiocese
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教贵阳总教区
+        follow: []
+        max_pages: 2
+        language: zh
+  guangxi:
+    # Province-level region (coverage unit CN-GX). Sites are assigned to prefecture-level cities by the extractor.
+    name: Guangxi 广西
+    extract_hint: >-
+      Guangxi (廣西, Kwangsi; Guangxi Zhuang Autonomous Region since 1958); city keys: nanning (南寧, Nanning-fu, Yungning),
+      liuzhou (柳州, Liuchow), guilin (桂林, Kweilin), wuzhou (梧州, Wuchow), beihai (北海, Pakhoi), fangchenggang (防城港),
+      qinzhou (欽州, Limchow/Lienchow), guigang (貴港, Kueihsien), yulin (玉林, Yulin), baise (百色, Pose), hezhou (賀州),
+      hechi (河池, Hochih), laibin (來賓), chongzuo (崇左, Taiping). Include the Paris Foreign Missions Society Catholic
+      vicariate of Kwangsi (1875; Auguste Chapdelaine, martyred at Xilin 西林 in 1856; Nanning, Wuzhou, Guilin parishes),
+      Protestant missions (Christian and Missionary Alliance at Wuzhou/Nanning under R. A. Jaffray, Southern Baptist,
+      Church Missionary Society at Pakhoi/Beihai, Seventh-day Adventist, Wuzhou Alliance Bible school and Stewart Memorial
+      hospital), the Taiping origin in Guangxi (Jintian/Guiping and Hong Xiuquan's God Worshippers' Society), wartime Guilin
+      relocated schools and hospitals, indigenous churches, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Guangxi, Kwangsi, 广西, 廣西, Nanning, Yungning, 南宁, 南寧, Liuzhou, Liuchow, 柳州, Guilin, Kweilin, 桂林,
+               Wuzhou, Wuchow, 梧州, Beihai, Pakhoi, 北海, Fangchenggang, 防城港, Qinzhou, Limchow, 钦州, 欽州,
+               Guigang, 贵港, 貴港, Yulin, 玉林, Baise, Pose, 百色, Hezhou, 贺州, 賀州, Hechi, 河池, Laibin, 来宾, 來賓,
+               Chongzuo, Taiping, 崇左, Xilin, 西林, Auguste Chapdelaine, 马赖, 馬賴, Jintian, 金田, Guiping, 桂平,
+               Hong Xiuquan, 洪秀全, God Worshippers, 拜上帝会, 拜上帝會, R. A. Jaffray, 宣信, Christian and Missionary Alliance,
+               宣道会, 宣道會, Paris Foreign Missions Society, 巴黎外方传教会, 巴黎外方傳教會, Stewart Memorial, 梧州思达医院]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Guangxi places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/guangxi/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Guangxi places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/guangxi/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Nanning and Wuzhou Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Nanning
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Wuzhou
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Nanning and Wuzhou Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教南宁总教区
+          - https://zh.wikipedia.org/wiki/天主教梧州教区
+        follow: []
+        max_pages: 3
+        language: zh
+  shanxi:
+    # Province (coverage unit CN-SX). Sites are assigned to prefecture-level cities by the extractor.
+    # Not to be confused with Shaanxi (陕西).
+    name: Shanxi 山西
+    extract_hint: >-
+      Province of Shanxi, historically Shansi (山西; not Shaanxi 陝西); city keys: taiyuan (太原, Taiyuanfu, Yangqu),
+      datong (大同, Tatung), shuozhou (朔州), xinzhou (忻州, Hsinchow), yangquan (陽泉), jinzhong (晉中, Yuci 榆次, Taiku
+      太谷, Fenzhou 汾州/Fenyang 汾陽), lüliang (呂梁, Fenyang), changzhi (長治, Lu'an 潞安, Luan), jincheng (晉城, Tsechow
+      澤州), linfen (臨汾, Pingyang 平陽, Pingyangfu), yuncheng (運城, Puzhou, Hotsin), also Shouyang (壽陽), Xiaoyi (孝義,
+      Hsiaoyi), Hongdong (洪洞), Lüliang. Include the Franciscan Catholic vicariates of Shanxi (Taiyuan, Lu'an, Fenyang,
+      Datong, Shuozhou), the Boxer massacres of 1900 (Taiyuan massacre, governor Yuxian), Baptist Missionary Society
+      (Timothy Richard, Taiyuan), China Inland Mission (Hsi Shengmo/Xi Shengmo, opium refuges, Hongdong), Oberlin Shansi
+      (Taigu), Shansi Imperial University (Boxer indemnity), Shouyang Mission, indigenous Christian movements, famine relief
+      of 1876-79, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Shanxi, Shansi, 山西, Taiyuan, Taiyuanfu, 太原, Datong, Tatung, 大同, Shuozhou, 朔州, Xinzhou, Hsinchow,
+               忻州, Yangquan, 阳泉, 陽泉, Jinzhong, 晋中, 晉中, Yuci, 榆次, Taiku, Taigu, 太谷, Fenzhou, Fenyang, 汾阳, 汾陽,
+               Lüliang, Luliang, 吕梁, 呂梁, Changzhi, 长治, 長治, Lu'an, 潞安, Jincheng, Tsechow, 晋城, 晉城, 泽州, 澤州,
+               Linfen, Pingyang, 临汾, 臨汾, 平阳, 平陽, Yuncheng, 运城, 運城, Shouyang, 寿阳, 壽陽, Xiaoyi, 孝义, 孝義,
+               Hongdong, 洪洞, Taiyuan massacre, 太原教案, 太原教案, Yuxian, 毓贤, 毓賢, Timothy Richard, 李提摩太,
+               Hsi Shengmo, Xi Shengmo, 席胜魔, 席勝魔, Oberlin Shansi, 铭贤学校, 銘賢學校, Shansi Imperial University,
+               山西大学堂, 山西大學堂, Baptist Missionary Society, 浸礼会, China Inland Mission, 中国内地会, 中國內地會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Shanxi places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/shanxi/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Shanxi places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/shanxi/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 15
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Taiyuan massacre and Shanxi Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/Taiyuan_massacre
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Taiyuan
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Fenyang
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Taiyuan massacre and Shanxi Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/太原教案
+          - https://zh.wikipedia.org/wiki/天主教太原总教区
+          - https://zh.wikipedia.org/wiki/天主教汾阳教区
+        follow: []
+        max_pages: 4
+        language: zh
+  shaanxi:
+    # Province (coverage unit CN-SN). Sites are assigned to prefecture-level cities by the extractor.
+    # Not to be confused with Shanxi (山西).
+    name: Shaanxi 陕西
+    extract_hint: >-
+      Province of Shaanxi, historically Shensi (陝西; not Shanxi 山西); city keys: xian (西安, Sian, Hsi-an, Chang'an 長安,
+      Xi'an-fu), tongchuan (銅川), baoji (寶雞, Paoki), xianyang (咸陽, Hsienyang), weinan (渭南, Weinan, Tungchow 同州),
+      yanan (延安, Yenan), hanzhong (漢中, Hanchung), yulin (榆林, Yulin), ankang (安康, Hsingan), shangluo (商洛, Shangchow),
+      also Sanyuan (三原), Zhouzhi (周至, Chowchih), Fengxiang (鳳翔). Include Church of the East (Jingjiao) in Tang
+      Chang'an: the 781 Xi'an (Nestorian) Stele (大秦景教流行中國碑, Daqin temple), the Daqin Pagoda (Louguantai, Zhouzhi),
+      Jesuit and Franciscan/Italian Catholic vicariate of Shensi (Sanyuan, Hanzhong, Xi'an cathedral), Baptist Missionary
+      Society (Xi'an, Sanyuan; Shensi Relief; Cheeloo medical school at Xi'an 1914-1920s), China Inland Mission,
+      Scandinavian Mission, 1927 siege of Xi'an and the 1920-21 famine relief, Yan'an wartime period only to 1952 and
+      historical sites only, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Shaanxi, Shensi, Shenshi, 陕西, 陝西, Xi'an, Xian, Sian, Hsi-an, 西安, Chang'an, 长安, 長安, Tongchuan, 铜川, 銅川,
+               Baoji, Paoki, 宝鸡, 寶雞, Xianyang, Hsienyang, 咸阳, 咸陽, Weinan, Tungchow, 渭南, 同州, Yanan, Yenan, 延安,
+               Hanzhong, Hanchung, 汉中, 漢中, Yulin, 榆林, Ankang, Hsingan, 安康, Shangluo, Shangchow, 商洛, 商州,
+               Sanyuan, 三原, Zhouzhi, Chowchih, 周至, 盩厔, Fengxiang, 凤翔, 鳳翔, Nestorian Stele, Xi'an Stele,
+               大秦景教流行中国碑, 大秦景教流行中國碑, 景教碑, Jingjiao, 景教, Daqin Pagoda, 大秦塔, Daqin temple, 大秦寺,
+               Church of the East, Baptist Missionary Society, 浸礼会, 浸禮會, China Inland Mission, 中国内地会, 中國內地會,
+               Shensi Relief, Stele Forest, 碑林]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Shaanxi places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/shaanxi/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 12
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Shaanxi places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/shaanxi/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 12
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Xi'an Stele, Daqin Pagoda and Shaanxi Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/Nestorian_Stele
+          - https://en.wikipedia.org/wiki/Daqin_Pagoda
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Xi%27an
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Hanzhong
+        follow: []
+        max_pages: 5
+        language: en
+      - name: Wikipedia (ZH) — Xi'an Stele and Shaanxi Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/大秦景教流行中国碑
+          - https://zh.wikipedia.org/wiki/天主教西安总教区
+          - https://zh.wikipedia.org/wiki/天主教汉中教区
+        follow: []
+        max_pages: 4
+        language: zh
+  gansu:
+    # Province (coverage unit CN-GS). Sites are assigned to prefecture-level cities by the extractor.
+    name: Gansu 甘肃
+    extract_hint: >-
+      Province of Gansu, historically Kansu (甘肅); city keys: lanzhou (蘭州, Lanchow, Kaolan), jiayuguan (嘉峪關),
+      jinchang (金昌), baiyin (白銀), tianshui (天水, Tsinchow/Qinzhou 秦州), wuwei (武威, Liangchow), zhangye (張掖, Kanchow,
+      Ganzhou), pingliang (平涼, Pingliang-fu), jiuquan (酒泉, Suchow/Suzhou 肅州), qingyang (慶陽, Hsifeng/Xifeng), dingxi
+      (定西, Tingsi), longnan (隴南, Chengxian, Hui xian), linxia (臨夏, Hochow 河州), gannan (甘南, Labrang/Xiahe 拉卜楞,
+      Taozhou/Lintan 洮州), also Dunhuang (敦煌), Minqin (民勤). Include the Catholic vicariate of Kansu (Scheut Fathers/CICM,
+      Lanzhou 1878; Tsinchow/Tianshui 1905; Pingliang), Protestant missions (China Inland Mission, Christian and Missionary
+      Alliance at Lanzhou/Taozhou/Labrang, Tibetan Border Mission, Swedish Mission, American Presbyterian), the Hui and
+      Tibetan border missions, the 1920 Haiyuan earthquake relief, the Northwest Silk Road routes (Suchow, Kanchow, Liangchow
+      Nestorian/Church of the East relics), the Lanzhou Cheeloo/Northwestern refugee schools and hospitals in wartime,
+      indigenous churches, schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Gansu, Kansu, 甘肃, 甘肅, Lanzhou, Lanchow, 兰州, 蘭州, Jiayuguan, 嘉峪关, 嘉峪關, Jinchang, 金昌, Baiyin, 白银,
+               白銀, Tianshui, Tsinchow, Qinzhou, 天水, 秦州, Wuwei, Liangchow, 武威, 凉州, 涼州, Zhangye, Kanchow, Ganzhou, 张掖,
+               張掖, 甘州, Pingliang, 平凉, 平涼, Jiuquan, Suchow, Suzhou, 酒泉, 肃州, 肅州, Qingyang, Hsifeng, 庆阳, 慶陽,
+               Dingxi, 定西, Longnan, Chengxian, 陇南, 隴南, 成县, Linxia, Hochow, 临夏, 臨夏, 河州, Gannan, Labrang, Xiahe,
+               甘南, 拉卜楞, 夏河, Taozhou, Lintan, 洮州, 临潭, 臨潭, Dunhuang, 敦煌, Minqin, 民勤, Scheut Fathers, CICM,
+               圣母圣心会, 聖母聖心會, 司各特, China Inland Mission, 中国内地会, 中國內地會, Tibetan Border Mission,
+               Christian and Missionary Alliance, 宣道会, 宣道會, Haiyuan earthquake, 海原大地震]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Gansu places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/gansu/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Gansu places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/gansu/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Lanzhou and Tianshui Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Lanzhou
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Tianshui
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Lanzhou and Qinzhou (Tianshui) Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教兰州总教区
+          - https://zh.wikipedia.org/wiki/天主教秦州教区
+        follow: []
+        max_pages: 3
+        language: zh
