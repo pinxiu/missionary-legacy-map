@@ -223,13 +223,13 @@ jobs:
       # Don't wait for the next hourly check while China still has open units and this run made progress (a unit finished,
       # or sources were scouted for new ones). A run that finished nothing does not start another, so a stuck unit can't loop.
       - name: Start the next run right away if there was progress
-        if: always() && steps.unit.outputs.id != '' && inputs.unit == ''
+        if: always() && steps.unit.outputs.id != '' && inputs.unit == '' && github.event_name == 'schedule'
         run: |
           git pull -q --rebase origin main || true
           before=$(cat .mlm-work/done-before.txt 2>/dev/null || true)
           after=$(grep -o 'Units done:\*\* [0-9]*' STATUS.md || true)
           left=$(mlm coverage upcoming --n 1 | wc -l)
-          if [ "$left" -gt 0 ] && { [ "$before" != "$after" ] || [ -n "${{ steps.unit.outputs.need }}" ]; }; then
+          if [ "$left" -gt 0 ] && [ "$before" != "$after" ]; then
             gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/workflows/coverage-agents.yml/dispatches" -f ref=main && echo "next run started"
           else
             echo "no progress this run (or nothing left); the hourly check picks it up"
