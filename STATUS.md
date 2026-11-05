@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-05 06:20 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-05 06:25 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 12 / 45  ·  **Published records:** 577  ·  **Verified, awaiting approval:** 36  ·  **Audited:** 450
+**Units done:** 12 / 45  ·  **Published records:** 585  ·  **Verified, awaiting approval:** 36  ·  **Audited:** 458
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -19,7 +19,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-HA | Henan 河南 | done | 8 | 2 | 0 | 30 | 80% | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | done | 14 | 3 | 0 | 52 | 84% | [#12](../../issues/12) |
 | 1 | CN-HN | Hunan 湖南 | done | 17 | 3 | 0 | 32 | 85% | [#13](../../issues/13) |
-| 1 | CN-JX | Jiangxi 江西 | todo |  |  |  |  |  | [#14](../../issues/14) |
+| 1 | CN-JX | Jiangxi 江西 | in-progress | 8 | 0 | 0 | 33 | 100% | [#14](../../issues/14) |
 | 1 | CN-AH | Anhui 安徽 | todo |  |  |  |  |  | [#15](../../issues/15) |
 | 1 | CN-SC | Sichuan 四川 | todo |  |  |  |  |  | [#16](../../issues/16) |
 | 1 | CN-CQ | Chongqing 重庆 | todo |  |  |  |  |  | [#17](../../issues/17) |
