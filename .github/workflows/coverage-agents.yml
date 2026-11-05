@@ -58,6 +58,8 @@ jobs:
     concurrency:
       group: coverage-agents
       cancel-in-progress: false
+    outputs:
+      unit: ${{ steps.unit.outputs.id }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
@@ -186,21 +188,6 @@ jobs:
             mlm coverage status < /dev/null > /dev/null || true
           done
 
-      # New places get their best pin: OSM, OpenHistoricalMap, Wikidata and Amap by name, plus place leads the model reads
-      # from the source text and Amap checks (cached, so only new sites cost). Only confident matches move a pin.
-      - name: Pins for new places (OSM + OHM + Wikidata + Amap + LLM leads)
-        if: steps.unit.outputs.id != ''
-        run: |
-          mlm replace --apply < /dev/null || echo "replace failed"
-          mlm locate --apply --approx < /dev/null || echo "locate failed"
-          mlm refresh-site < /dev/null || true
-
-      # Pages found for one unit hold places in others, so units that are already done keep gaining verified records.
-      # Trusted code audits a sample of each such batch and publishes it only if the sample agrees (the 80% gate).
-      - name: Audit and publish new records in finished units (trusted)
-        if: steps.unit.outputs.id != ''
-        run: mlm coverage sweep
-
       - name: Save crawl + extraction cache (also after a failure)
         if: always() && steps.unit.outputs.id != '' && steps.cache.outcome != 'skipped' && hashFiles('.mlm-work/**') != ''
         uses: actions/cache/save@v4
@@ -235,3 +222,44 @@ jobs:
           else
             echo "no progress this run (or nothing left); the hourly check picks it up"
           fi
+
+  # Pins and the audit of finished units take about two hours and need none of the crawl state, so they run as their own job:
+  # the next pipeline run no longer waits for them (they only touch the database, and every step is safe to repeat).
+  finish:
+    needs: work
+    if: always() && needs.work.outputs.unit != ''
+    concurrency:
+      group: coverage-finish
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      AMAP_KEY: ${{ secrets.AMAP_KEY }}
+      MLM_BATCH_WAIT_MIN: "10"
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+      - run: pip install -e "pipeline[dev]"
+      # New places get their best pin: OSM, OpenHistoricalMap, Wikidata and Amap by name, plus place leads the model reads
+      # from the source text and Amap checks (cached, so only new sites cost). Only confident matches move a pin.
+      - name: Pins for new places (OSM + OHM + Wikidata + Amap + LLM leads)
+        run: |
+          mlm replace --apply < /dev/null || echo "replace failed"
+          mlm locate --apply --approx < /dev/null || echo "locate failed"
+          mlm refresh-site < /dev/null || true
+
+      # Pages found for one unit hold places in others, so units that are already done keep gaining verified records.
+      # Trusted code audits a sample of each such batch and publishes it only if the sample agrees (the 80% gate).
+      - name: Audit and publish new records in finished units (trusted)
+        run: mlm coverage sweep
+      - name: Gates after the audit (trusted)
+        run: mlm coverage status > /dev/null || true
