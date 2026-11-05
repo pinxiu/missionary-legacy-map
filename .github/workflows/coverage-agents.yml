@@ -208,21 +208,6 @@ jobs:
             git pull --rebase -q origin main && git push -q origin HEAD:main
           fi
 
-      # Don't wait for the next hourly check while China still has open units and this run made progress (a unit finished,
-      # or sources were scouted for new ones). A run that finished nothing does not start another, so a stuck unit can't loop.
-      - name: Start the next run right away if there was progress
-        if: always() && steps.unit.outputs.id != '' && inputs.unit == '' && github.event_name == 'schedule'
-        run: |
-          git pull -q --rebase origin main || true
-          before=$(cat .mlm-work/done-before.txt 2>/dev/null || true)
-          after=$(grep -o 'Units done:\*\* [0-9]*' STATUS.md || true)
-          left=$(mlm coverage upcoming --n 1 | wc -l)
-          if [ "$left" -gt 0 ] && [ "$before" != "$after" ]; then
-            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/workflows/coverage-agents.yml/dispatches" -f ref=main && echo "next run started"
-          else
-            echo "no progress this run (or nothing left); the hourly check picks it up"
-          fi
-
   # Pins and the audit of finished units take about two hours and need none of the crawl state, so they run as their own job:
   # the next pipeline run no longer waits for them (they only touch the database, and every step is safe to repeat).
   finish:
@@ -263,3 +248,17 @@ jobs:
         run: mlm coverage sweep
       - name: Gates after the audit (trusted)
         run: mlm coverage status > /dev/null || true
+      # GitHub drops scheduled checks, which left the queue empty for hours. Whoever finishes a real run (more than 20 minutes
+      # of work, no failure) makes sure another one is waiting. A failed or trivial run never starts one, so this can't loop.
+      - name: Keep the queue filled
+        if: always() && needs.work.result == 'success' && inputs.unit == ''
+        run: |
+          started=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .run_started_at)
+          mins=$(( ($(date +%s) - $(date -d "$started" +%s)) / 60 ))
+          left=$(mlm coverage upcoming --n 1 | wc -l)
+          waiting=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/coverage-agents.yml/runs?per_page=20" \
+            --jq "[.workflow_runs[] | select(.id != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length")
+          echo "this run ran $mins min; units left: $left; other runs waiting or running: $waiting"
+          if [ "$mins" -gt 20 ] && [ "$left" -gt 0 ] && [ "$waiting" -eq 0 ]; then
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/workflows/coverage-agents.yml/dispatches" -f ref=main && echo "next run queued"
+          fi
