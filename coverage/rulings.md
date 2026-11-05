@@ -6,3 +6,4 @@ issues; edit by hand if a ruling needs rewording or reversing.
 
 - A leprosy settlement or leprosy village counts as a hospital. _(#49, 2026-10-13)_
 - Established mission out-stations and congregations opened during active district planting count as mission sites. _(#187, 2026-11-05)_
+- Provincial mission centres recorded at city-level precision without surviving specific premises remain valid at city precision. _(#181, 2026-11-05)_
