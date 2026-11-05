@@ -17,7 +17,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-TJ | Tianjin 天津 | done | 16 | 2 | 0 | 37 | 89% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | done | 17 | 4 | 0 | 45 | 79% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | done | 8 | 2 | 0 | 30 | 80% | [#11](../../issues/11) |
-| 1 | CN-HB | Hubei 湖北 | in-progress | 13 | 6 | 0 | 52 | 68% | [#12](../../issues/12) |
+| 1 | CN-HB | Hubei 湖北 | in-progress | 13 | 6 | 0 | 52 | 74% | [#12](../../issues/12) |
 | 1 | CN-HN | Hunan 湖南 | todo |  |  |  |  |  | [#13](../../issues/13) |
 | 1 | CN-JX | Jiangxi 江西 | todo |  |  |  |  |  | [#14](../../issues/14) |
 | 1 | CN-AH | Anhui 安徽 | todo |  |  |  |  |  | [#15](../../issues/15) |
