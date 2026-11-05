@@ -1,21 +1,21 @@
 # Coverage status
 
-_Updated 2026-11-05 03:20 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-05 03:22 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 11 / 45  ·  **Published records:** 537  ·  **Verified, awaiting approval:** 42  ·  **Audited:** 415
+**Units done:** 11 / 45  ·  **Published records:** 537  ·  **Verified, awaiting approval:** 43  ·  **Audited:** 415
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | CN-ZJ | Zhejiang 浙江 | done | 73 | 11 | 0 | 299 | 90% | [#2](../../issues/2) |
-| 1 | CN-JS | Jiangsu 江苏 | done | 52 | 5 | 0 | 157 | 94% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | done | 67 | 3 | 1 | 195 | 95% | [#4](../../issues/4) |
+| 1 | CN-JS | Jiangsu 江苏 | done | 52 | 5 | 1 | 157 | 94% | [#3](../../issues/3) |
+| 1 | CN-SH | Shanghai 上海 | done | 67 | 4 | 4 | 194 | 95% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 89 | 3 | 0 | 179 | 94% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 69 | 3 | 5 | 156 | 92% | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | done | 68 | 1 | 1 | 144 | 100% | [#7](../../issues/7) |
 | 1 | CN-BJ | Beijing 北京 | done | 64 | 5 | 0 | 128 | 89% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 16 | 2 | 0 | 37 | 89% | [#9](../../issues/9) |
-| 1 | CN-HE | Hebei 河北 | done | 17 | 4 | 1 | 45 | 79% | [#10](../../issues/10) |
+| 1 | CN-HE | Hebei 河北 | done | 17 | 4 | 2 | 45 | 79% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | done | 8 | 2 | 0 | 30 | 80% | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | done | 14 | 3 | 0 | 52 | 84% | [#12](../../issues/12) |
 | 1 | CN-HN | Hunan 湖南 | todo |  |  |  |  |  | [#13](../../issues/13) |
