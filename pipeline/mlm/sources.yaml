@@ -1432,3 +1432,113 @@ regions:
         follow: []
         max_pages: 3
         language: zh
+  liaoning:
+    # Province (coverage unit CN-LN). Sites are assigned to prefecture-level cities by the extractor.
+    name: Liaoning 辽宁
+    extract_hint: >-
+      Province of Liaoning, historically Fengtian (奉天) in Manchuria (Dongsanseng, Northeast); city keys: shenyang (瀋陽,
+      Mukden, Shengjing 盛京, Fengtianfu), dalian (大連, Dairen, Talien, Port Arthur/Lüshun 旅順), anshan (鞍山), fushun
+      (撫順), benxi (本溪), dandong (丹東, Antung, Andong), jinzhou (錦州, Chinchow), yingkou (營口, Newchwang,
+      Niuzhuang 牛莊), fuxin (阜新), liaoyang (遼陽), panjin (盤錦), tieling (鐵嶺, Tiehling), chaoyang (朝陽),
+      huludao (葫蘆島), also Xinmin (新民), Haicheng (海城), Gaizhou (蓋州), Kaiyuan (開原), Faku (法庫). Include the
+      Catholic Missions Étrangères de Paris vicariate of Manchuria / Liaotung (Mukden 1838, Yingkou), the United Presbyterian
+      Church of Scotland and Irish Presbyterian missions (John Ross, John MacIntyre, Dugald Christie's Mukden Medical College
+      and Hospital 1883), Danish Mission at Port Arthur/Dalian, the Boxer events of 1900 and the Russo-Japanese war relief,
+      the 1910-11 Manchurian plague, the Manchurian Christian movement and indigenous churches, schools, hospitals, presses,
+      cemeteries and memorials.
+    keywords: [Liaoning, Fengtian, Manchuria, 辽宁, 遼寧, 奉天, 东北, 東北, 满洲, 滿洲, Shenyang, Mukden, Shengjing, 沈阳, 瀋陽,
+               盛京, Dalian, Dairen, Talien, Port Arthur, Lüshun, Lushun, 大连, 大連, 旅顺, 旅順, Anshan, 鞍山, Fushun, 抚顺,
+               撫順, Benxi, 本溪, Dandong, Antung, 丹东, 丹東, Jinzhou, Chinchow, 锦州, 錦州, Yingkou, Newchwang, Niuzhuang,
+               营口, 營口, 牛庄, 牛莊, Fuxin, 阜新, Liaoyang, 辽阳, 遼陽, Panjin, 盘锦, 盤錦, Tieling, 铁岭, 鐵嶺, Chaoyang,
+               朝阳, 朝陽, Huludao, 葫芦岛, 葫蘆島, Xinmin, 新民, Haicheng, 海城, Gaizhou, 盖州, 蓋州, Kaiyuan, 开原, 開原,
+               Faku, 法库, 法庫, John Ross, 罗约翰, 羅約翰, John MacIntyre, Dugald Christie, 司督阁, 司督閣, Mukden Medical
+               College, 奉天医学院, 奉天醫學院, 盛京施医院, 盛京施醫院, United Presbyterian Church of Scotland, 苏格兰联合长老会,
+               蘇格蘭聯合長老會, Irish Presbyterian, 爱尔兰长老会, Missions Étrangères de Paris, 巴黎外方传教会, 巴黎外方傳教會,
+               Danish Mission, 丹麦路德会, Manchurian plague, 东北大鼠疫]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Liaoning places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/liaoning/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Liaoning places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/liaoning/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Shenyang, Fushun and Yingkou Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Shenyang
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Fushun
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Yingkou
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Fushun and Yingkou Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教抚顺教区
+          - https://zh.wikipedia.org/wiki/天主教营口教区
+        follow: []
+        max_pages: 3
+        language: zh
+      - name: Wikipedia (EN) — John Ross (missionary) and China Medical University (Mukden Medical College)
+        start_urls:
+          - https://en.wikipedia.org/wiki/John_Ross_(missionary)
+          - https://en.wikipedia.org/wiki/China_Medical_University_(PRC)
+        follow: []
+        max_pages: 3
+        language: en
+  jilin:
+    # Province (coverage unit CN-JL). Sites are assigned to prefecture-level cities by the extractor.
+    name: Jilin 吉林
+    extract_hint: >-
+      Province of Jilin, historically Kirin (吉林) in Manchuria (Dongsanseng, Northeast); city keys: changchun (長春,
+      Kuanchengtze 寬城子, Hsinking 新京 under Manchukuo), jilin (吉林市, Kirin, Girin Ula), siping (四平, Ssupingkai
+      四平街, Sipingjie), liaoyuan (遼源), tonghua (通化, Tunghua), baishan (白山), songyuan (松原, Fuyu 扶餘), baicheng
+      (白城, Taonan 洮南), yanbian (延邊, Yanji 延吉, Yenki, Longjing 龍井, Lungchingtsun, Hunchun 琿春), also Gongzhuling
+      (公主嶺), Meihekou (梅河口), Dehui (德惠), Yushu (榆樹), Huadian (樺甸). Include the Catholic Missions Étrangères de
+      Paris vicariate of Kirin (Gaspais, Changchun/Kuanchengtze), the Scottish and Irish Presbyterian missions of Manchuria
+      (Andrew Weir, Kirin and Changchun), Korean Christian communities and the Canadian Presbyterian mission at Longjing
+      (Yanbian), Korean mission schools, Danish and Swedish missions, the Boxer events of 1900, indigenous churches,
+      schools, hospitals, presses, cemeteries and memorials.
+    keywords: [Jilin, Kirin, Girin, Manchuria, 吉林, 东北, 東北, 满洲, 滿洲, Changchun, Kuanchengtze, Hsinking, 长春, 長春,
+               宽城子, 寬城子, 新京, Siping, Ssupingkai, Sipingjie, 四平, 四平街, Liaoyuan, 辽源, 遼源, Tonghua, Tunghua, 通化,
+               Baishan, 白山, Songyuan, Fuyu, 松原, 扶余, 扶餘, Baicheng, Taonan, 白城, 洮南, Yanbian, Yanji, Yenki, 延边,
+               延邊, 延吉, Longjing, Lungchingtsun, 龙井, 龍井, Hunchun, 珲春, 琿春, Gongzhuling, 公主岭, 公主嶺,
+               Meihekou, 梅河口, Dehui, 德惠, Yushu, 榆树, 榆樹, Huadian, 桦甸, 樺甸, Gaspais, Andrew Weir, 魏安德,
+               Missions Étrangères de Paris, 巴黎外方传教会, 巴黎外方傳教會, Scottish Presbyterian, 苏格兰长老会, 蘇格蘭長老會,
+               Canadian Presbyterian, 加拿大长老会, 加拿大長老會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Jilin places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/jilin/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 5
+        max_depth: 1
+        language: zh
+      - name: Biographical Dictionary of Chinese Christianity (English, Jilin places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/jilin/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 5
+        max_depth: 1
+        language: en
+      - name: Wikipedia (EN) — Jilin, Siping (Sipingjie) and Yanji Catholic dioceses
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Jilin
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Siping
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Yanji
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Jilin and Yanji Catholic dioceses
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教吉林教区
+          - https://zh.wikipedia.org/wiki/天主教延吉教区
+        follow: []
+        max_pages: 3
+        language: zh
