@@ -1616,3 +1616,73 @@ regions:
         follow: []
         max_pages: 2
         language: zh
+  inner-mongolia:
+    name: Inner Mongolia
+    extract_hint: >-
+      Inner Mongolia (内蒙古), historically Suiyuan, Chahar, Jehol and the Ningxia border districts. Prefecture-level cities:
+      Hohhot (Huhehaote, Kuei-hua-cheng, Kweihwacheng, Guisui, Suiyuan, 呼和浩特, 归绥), Baotou (Paotow, 包头), Wuhai (乌海),
+      Chifeng (Chihfeng, 赤峰), Tongliao (Tungliao, 通辽), Ordos (Dongsheng, Ordos Mission, 鄂尔多斯),
+      Hulunbuir (Hailar, Manzhouli, 呼伦贝尔, 海拉尔), Bayannur (Linhe, 巴彦淖尔, 临河), Ulanqab (Jining, 乌兰察布, 集宁),
+      Xilin Gol, Hinggan (Wangyehmiao, Ulanhot, 王爷庙), Alxa; also Xiwanzi (西湾子), Dolonnor (Duolun, 多伦), Jehol (热河).
+      Include Catholic (CICM Scheut, Lazarists; Vicariates of Central, Eastern and Southwest Mongolia), LMS (Gilmour),
+      Scandinavian Alliance and Swedish Mongol Missions, Orthodox, indigenous churches, schools, hospitals, presses,
+      cemeteries and memorials; Boxer-era martyrdoms.
+    keywords: [Inner Mongolia, Mongolia, Suiyuan, Chahar, Jehol, 内蒙古, 內蒙古, 蒙古, 绥远, 綏遠, 察哈尔, 察哈爾, 热河, 熱河,
+               Hohhot, Huhehaote, Kuei-hua-cheng, Kweihwacheng, Guisui, 呼和浩特, 归绥, 歸綏, 归化城, 歸化城, Baotou, Paotow,
+               包头, 包頭, Chifeng, Chihfeng, 赤峰, Tongliao, Tungliao, 通辽, 通遼, Ordos, 鄂尔多斯, 鄂爾多斯, Hailar,
+               Hulunbuir, 海拉尔, 海拉爾, 呼伦贝尔, Manzhouli, Linhe, 临河, 臨河, Jining, 集宁, 集寧, Wuhai, 乌海, 烏海,
+               Xiwanzi, Siwantze, Hsi-wan-tzu, 西湾子, 西灣子, Chongli, 崇礼, Dolonnor, Duolun, 多伦, 多倫, Wangyehmiao,
+               王爷庙, 王爺廟, Ulanhot, Sanshenggong, 三盛公, Scheut, CICM, 圣母圣心会, 聖母聖心會, Lazarists,
+               遣使会, 遣使會, Gilmour, 吉尔摩, 吉爾摩, Gabet, Huc, Swedish Mongol Mission, Scandinavian Alliance Mission,
+               Mongol Mission, Vicariate of Central Mongolia, 蒙古代牧区, Suiyuan Diocese, 绥远教区, 綏遠教區,
+               Xiwanzi Diocese, 西湾子教区, Boxer, 义和团, 義和團]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Inner Mongolia places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/inner-mongolia/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Inner Mongolia places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/inner-mongolia/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 5
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Catholic dioceses of Inner Mongolia and CICM
+        start_urls:
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Xiwanzi
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Suiyuan
+          - https://en.wikipedia.org/wiki/Congregation_of_the_Immaculate_Heart_of_Mary
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (EN) — missionaries to Mongolia
+        start_urls:
+          - https://en.wikipedia.org/wiki/James_Gilmour_(missionary)
+          - https://en.wikipedia.org/wiki/Evariste_Regis_Huc
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Hohhot and Baotou
+        start_urls:
+          - https://en.wikipedia.org/wiki/Hohhot
+          - https://en.wikipedia.org/wiki/Baotou
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Christianity in Inner Mongolia and Suiyuan diocese
+        start_urls:
+          - https://zh.wikipedia.org/wiki/内蒙古基督教
+          - https://zh.wikipedia.org/wiki/绥远教区
+        follow: []
+        max_pages: 3
+        language: zh
+      - name: Wikipedia (ZH) — CICM (Scheut Fathers)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/圣母圣心会
+        follow: []
+        max_pages: 2
+        language: zh
