@@ -178,6 +178,51 @@ regions:
         max_pages: 1
         language: en
         kind: book   # period reference: Catholic mission and CMS, American Presbyterian, Baptist stations
+      - name: Biographical Dictionary of Chinese Christianity (English, Hangzhou place page)
+        start_urls:
+          - https://www.bdcconline.net/en/places/hangzhou/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: en
+        # lists Li Zhizao, Main, Martini, Wang Laiquan, Yang Tingyun
+      - name: Fitch, Hangchow Itineraries (2nd rev. ed., Kelly & Walsh, 1922) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/hangchowitinerar00fitc/hangchowitinerar00fitc_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period guide by Presbyterian missionary R. F. Fitch; appendix "Christian Missions" (college, hospital, Lazarists, Baptists, YMCA)
+      - name: Wikipedia (EN) — CMS bishops and missionaries at Hangzhou (G. E. Moule, A. E. Moule)
+        start_urls:
+          - https://en.wikipedia.org/wiki/George_Evans_Moule
+          - https://en.wikipedia.org/wiki/Arthur_Evans_Moule
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Zhijiang Campus (Hangchow Christian College buildings)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Zhijiang_Campus,_Zhejiang_University
+        follow: []
+        max_pages: 1
+        language: en
+        # 1906-1951 campus history and building dates, cited to Zhejiang heritage pages
+      - name: Wikipedia (ZH) — Hangzhou missionaries (梅滕更, 慕稼谷, 司徒尔)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/梅滕更
+          - https://zh.wikipedia.org/wiki/慕稼谷
+          - https://zh.wikipedia.org/wiki/司徒尔
+        follow: []
+        max_pages: 3
+        language: zh
+      - name: Wikipedia (ZH) — Hangzhou mission buildings (湖山堂, 杭州基督教青年会旧址)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/湖山堂
+          - https://zh.wikipedia.org/wiki/杭州基督教青年会旧址
+        follow: []
+        max_pages: 2
+        language: zh
+        # 湖山堂 also has post-1952 paragraphs; skip them (policy rule 2)
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
