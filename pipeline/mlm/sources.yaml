@@ -1686,3 +1686,75 @@ regions:
         follow: []
         max_pages: 2
         language: zh
+
+  ningxia:
+    name: Ningxia
+    extract_hint: >-
+      Ningxia (宁夏), historically the Ningxia (Ningsia) prefecture of Gansu, made a province in 1929 and part of the
+      Ningxia Vicariate (CICM) from 1922. Prefecture-level cities: Yinchuan (Ningsia, Ning-hsia, Ningxia-fu, Yinchwan,
+      银川, 宁夏府), Shizuishan (Shihtsuishan, Dawukou, 石嘴山, 大武口), Wuzhong (Wuchung, Lingwu, Qingtongxia, 吴忠, 灵武, 青铜峡),
+      Guyuan (Kuyuan, Kuyüan, Haiyuan, Xiji, Pingliang border, 固原, 海原, 西吉), Zhongwei (Chungwei, Zhongning, 中卫, 中宁);
+      also Pingluo (Pinglo, 平罗), Yongning (永宁), Helan (贺兰), Dingyuan-ying (Bayanhot, Alashan, 定远营, 巴彦浩特).
+      Include Catholic (CICM Scheut, Vicariate and Diocese of Ningxia), China Inland Mission and Christian and Missionary
+      Alliance work on the Gansu border, work among Hui Muslims, Swedish and Scandinavian missions, schools, hospitals,
+      presses, cemeteries and memorials; Boxer-era and 1920s martyrdoms.
+    keywords: [Ningxia, Ningsia, Ning-hsia, Ningshia, Ningxia-fu, 宁夏, 寧夏, Yinchuan, Yinchwan, 银川, 銀川, 宁夏府, 寧夏府,
+               Shizuishan, Shihtsuishan, Dawukou, 石嘴山, 大武口, Wuzhong, Wuchung, 吴忠, 吳忠, Lingwu, 灵武, 靈武,
+               Qingtongxia, 青铜峡, 青銅峽, Guyuan, Kuyuan, 固原, Haiyuan, 海原, Xiji, 西吉, Zhongwei, Chungwei, 中卫, 中衛,
+               Zhongning, 中宁, 中寧, Pingluo, Pinglo, 平罗, 平羅, Yongning, 永宁, 永寧, Helan, 贺兰, 賀蘭,
+               Dingyuan-ying, Bayanhot, Alashan, 定远营, 定遠營, 巴彦浩特, Ningxia Vicariate, Diocese of Ningxia,
+               宁夏教区, 寧夏教區, 宁夏代牧区, 寧夏代牧區, Scheut, CICM, 圣母圣心会, 聖母聖心會, Frederix, 费达德, 費達德,
+               China Inland Mission, 中国内地会, 中國內地會, Hui, Muslim mission, 回族, Kansu, Gansu, Boxer, 义和团, 義和團]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Ningxia places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/ningxia/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 4
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Ningxia places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/ningxia/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 3
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Diocese of Ningxia and neighbouring Gansu vicariate
+        start_urls:
+          - https://en.wikipedia.org/wiki/Diocese_of_Ningxia
+          - https://en.wikipedia.org/wiki/Apostolic_Vicariate_of_Northern_Kan-Su
+          - https://en.wikipedia.org/wiki/Congregation_of_the_Immaculate_Heart_of_Mary
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (EN) — Ningxia and its cities
+        start_urls:
+          - https://en.wikipedia.org/wiki/Ningxia
+          - https://en.wikipedia.org/wiki/Yinchuan
+          - https://en.wikipedia.org/wiki/Shizuishan
+          - https://en.wikipedia.org/wiki/Wuzhong,_Ningxia
+          - https://en.wikipedia.org/wiki/Guyuan
+          - https://en.wikipedia.org/wiki/Zhongwei
+        follow: []
+        max_pages: 6
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity — George W. Hunter (CIM, Muslim mission, north-west)
+        start_urls:
+          - https://www.bdcconline.net/en/stories/hunter-george/
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — Diocese of Ningxia
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教宁夏教区
+        follow: []
+        max_pages: 2
+        language: zh
+      - name: Wikipedia (ZH) — Ningxia and Yinchuan
+        start_urls:
+          - https://zh.wikipedia.org/wiki/宁夏回族自治区
+          - https://zh.wikipedia.org/wiki/银川市
+        follow: []
+        max_pages: 3
+        language: zh
