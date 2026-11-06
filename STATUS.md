@@ -1,19 +1,19 @@
 # Coverage status
 
-_Updated 2026-11-06 06:13 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-06 08:56 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 15 / 45  ·  **Published records:** 652  ·  **Verified, awaiting approval:** 43  ·  **Audited:** 529
+**Units done:** 15 / 45  ·  **Published records:** 656  ·  **Verified, awaiting approval:** 42  ·  **Audited:** 533
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | CN-ZJ | Zhejiang 浙江 | done | 82 | 8 | 0 | 301 | 88% | [#2](../../issues/2) |
+| 1 | CN-ZJ | Zhejiang 浙江 | done | 82 | 11 | 0 | 302 | 88% | [#2](../../issues/2) |
 | 1 | CN-JS | Jiangsu 江苏 | done | 59 | 2 | 0 | 162 | 93% | [#3](../../issues/3) |
-| 1 | CN-SH | Shanghai 上海 | done | 75 | 2 | 0 | 209 | 94% | [#4](../../issues/4) |
+| 1 | CN-SH | Shanghai 上海 | done | 75 | 2 | 0 | 210 | 94% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 93 | 2 | 2 | 184 | 95% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 71 | 3 | 0 | 164 | 93% | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | done | 73 | 1 | 0 | 158 | 98% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 66 | 7 | 0 | 129 | 89% | [#8](../../issues/8) |
+| 1 | CN-BJ | Beijing 北京 | done | 68 | 5 | 0 | 129 | 90% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 16 | 2 | 0 | 38 | 89% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | done | 18 | 4 | 0 | 46 | 80% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | done | 8 | 2 | 0 | 31 | 80% | [#11](../../issues/11) |
@@ -21,7 +21,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-HN | Hunan 湖南 | done | 17 | 3 | 0 | 32 | 85% | [#13](../../issues/13) |
 | 1 | CN-JX | Jiangxi 江西 | done | 9 | 0 | 0 | 35 | 100% | [#14](../../issues/14) |
 | 1 | CN-AH | Anhui 安徽 | done | 14 | 1 | 0 | 39 | 93% | [#15](../../issues/15) |
-| 1 | CN-SC | Sichuan 四川 | done | 25 | 3 | 0 | 89 | 96% | [#16](../../issues/16) |
+| 1 | CN-SC | Sichuan 四川 | done | 27 | 1 | 0 | 89 | 96% | [#16](../../issues/16) |
 | 1 | CN-CQ | Chongqing 重庆 | in-progress | 11 | 0 | 0 | 27 | 100% | [#17](../../issues/17) |
 | 1 | CN-YN | Yunnan 云南 | todo |  |  |  |  |  | [#18](../../issues/18) |
 | 1 | CN-GZ | Guizhou 贵州 | todo |  |  |  |  |  | [#19](../../issues/19) |
