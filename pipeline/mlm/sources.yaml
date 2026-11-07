@@ -1184,6 +1184,60 @@ regions:
         follow: []
         max_pages: 3
         language: zh
+      - name: Wikipedia (EN) — Tibetan-border Catholic missions and the Dali diocese
+        start_urls:
+          - https://en.wikipedia.org/wiki/Catholic_Church_in_Tibet
+          - https://en.wikipedia.org/wiki/Diocese_of_Dali
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — 茨中聖心堂, 天主教大理教区, 富能仁
+        start_urls:
+          - https://zh.wikipedia.org/wiki/茨中聖心堂
+          - https://zh.wikipedia.org/wiki/天主教大理教区
+          - https://zh.wikipedia.org/wiki/富能仁
+        follow: []
+        max_pages: 3
+        language: zh
+      - name: IRFA (Missions Étrangères de Paris archives) — Yunnan missionary biographies
+        start_urls:
+          - https://irfa.paris/missionnaire/0848-dubernard-jules/
+          - https://irfa.paris/missionnaire/2423-monbeig-jean-theodore/
+          - https://irfa.paris/missionnaire/1417-maire-claude/
+          - https://irfa.paris/missionnaire/1857-ducloux-francois/
+          - https://irfa.paris/missionnaire/1754-mathon-hubert/
+        follow: []
+        max_pages: 5
+        language: fr
+        kind: archive   # MEP necrologies with posts, dates and periodical references (C.-R., A.M.-E., M.C.)
+      - name: Clarke, Kwiechow and Yün-nan Provinces (Shanghai Mercury, 1894) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/kwiechowiekweic00clargoog/kwiechowiekweic00clargoog_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period account by CIM pioneer G. W. Clarke (Tali-fu); Yunnan-fu CIM station 1882
+      - name: Pourias, La Chine. Huit ans au Yun-nan (Desclée, De Brouwer, 1888) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/lachinehuitansau00pour/lachinehuitansau00pour_djvu.txt
+        follow: []
+        max_pages: 1
+        language: fr
+        kind: book   # memoir of an MEP missionary: Long-ky, Kiu-tsin, Tong-tchouan; noisy OCR
+      - name: Pollard, In Unknown China (Seeley, Service, 1921) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/inunknownchinare00poll/inunknownchinare00poll_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # Bible Christian / United Methodist missionary at Chaotung among the Nosu (Yi)
+      - name: Broomhall (ed.), The Chinese Empire, a General & Missionary Survey (CIM, 1907) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/chineseempiregen1907broo/chineseempiregen1907broo_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # province-by-province station survey; Yunnan chapter by John M'Carthy (CIM)
   guizhou:
     # Province (coverage unit CN-GZ). Sites are assigned to prefecture-level cities by the extractor.
     name: Guizhou 贵州
