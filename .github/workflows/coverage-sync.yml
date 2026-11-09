@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths: [coverage/catalog.yaml]
   schedule:
-    - cron: "5 14 * * *"
+    - cron: "5 */6 * * *"
   workflow_dispatch:
 
 permissions:

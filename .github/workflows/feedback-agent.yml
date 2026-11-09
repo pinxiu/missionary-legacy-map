@@ -8,7 +8,7 @@ name: Feedback agent
 
 on:
   schedule:
-    - cron: "41 */3 * * *"   # every 3 hours
+    - cron: "41 * * * *"   # hourly
   workflow_dispatch:
     inputs:
       max_issues:

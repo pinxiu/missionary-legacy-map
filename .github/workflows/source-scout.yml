@@ -5,7 +5,7 @@ name: Source scout agent
 
 on:
   schedule:
-    - cron: "41 10 * * 3"   # Wednesdays 10:41 UTC
+    - cron: "41 10 * * *"   # daily: it only scouts units that have no sources yet
   workflow_dispatch:
     inputs:
       region:
