@@ -1758,3 +1758,72 @@ regions:
         follow: []
         max_pages: 3
         language: zh
+  qinghai:
+    name: Qinghai 青海
+    extract_hint: >-
+      Province of Qinghai (青海), historically Tsinghai, Chinghai or Kokonor (Koko Nor), formed 1929 from the Xining
+      circuit of Gansu and Tibetan Amdo; Tibetan Amdo and Hui Muslim country. Prefecture-level units: xining (西寧, Hsining,
+      Sining, Siningfu, 西宁府), haidong (海東, Pingan 平安, Ledu/Nantan 樂都, Minhe 民和, Huzhu 互助, Hualong 化隆, Xunhua 循化),
+      Huangzhong/Lusar/Tankar (湟中, 魯沙爾, 丹噶爾), Huangyuan (湟源), Kumbum/Ta'er Monastery (塔爾寺), haibei (海北, Menyuan 門源,
+      Haiyan 海晏), hainan (海南, Gonghe 共和, Guide 貴德), huangnan (黃南, Tongren/Rebkong 同仁), golog (果洛), yushu (玉樹,
+      Jyekundo, Gyegu 結古), haixi (海西, Delingha 德令哈, Golmud 格爾木, Dulan 都蘭). Include Church of the East traces,
+      Catholic missions (CICM Scheut Fathers of the Vicariate of Kansu; Apostolic Prefecture of Xining 1937; Huc and Gabet at
+      Kumbum 1846), Protestant missions (China Inland Mission at Xining from 1885; Christian and Missionary Alliance and
+      Tibetan Border Mission at Tankar/Lusar; Disciples of Christ Tibetan mission of Petrus and Susie Rijnhart; Scandinavian
+      workers; mission to Muslims), Hui and Tibetan border work, hospitals and schools at Xining, famine and war relief,
+      indigenous churches, presses, cemeteries and memorials.
+    keywords: [Qinghai, Tsinghai, Chinghai, Kokonor, Koko Nor, Amdo, 青海, 青海省, Xining, Hsining, Sining, Siningfu, 西宁, 西寧,
+               西宁府, 西寧府, Haidong, 海东, 海東, Pingan, 平安, Ledu, Nantan, 乐都, 樂都, Minhe, 民和, Huzhu, 互助, Hualong, 化隆,
+               Xunhua, 循化, Huangzhong, Lusar, Lushar, Tankar, Tangar, 湟中, 鲁沙尔, 魯沙爾, 丹噶尔, 丹噶爾, Huangyuan, 湟源,
+               Kumbum, 塔尔寺, 塔爾寺, Haibei, 海北, Menyuan, 门源, 門源, Haiyan, 海晏, Gonghe, 共和, Guide, 贵德, 貴德, Huangnan,
+               黄南, 黃南, Tongren, Rebkong, 同仁, Golog, 果洛, Yushu, Jyekundo, Gyegu, 玉树, 玉樹, 结古, 結古, Haixi, 海西,
+               Delingha, 德令哈, Golmud, 格尔木, 格爾木, Dulan, 都兰, 都蘭, Apostolic Prefecture of Xining, 西宁监牧区, 西寧監牧區,
+               Scheut Fathers, CICM, 圣母圣心会, 聖母聖心會, China Inland Mission, 中国内地会, 中國內地會, Tibetan Border Mission,
+               Christian and Missionary Alliance, 宣道会, 宣道會, Rijnhart, Susie Rijnhart, Petrus Rijnhart, Huc and Gabet, 古伯察,
+               Hui, Muslim mission, 回族, 藏族, Kansu, Gansu, 甘肃, 甘肅]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Qinghai places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/qinghai/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 5
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Qinghai places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/qinghai/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 4
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Apostolic Prefecture of Xining and Lanzhou
+        start_urls:
+          - https://en.wikipedia.org/wiki/Apostolic_Prefecture_of_Xining
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Archdiocese_of_Lanzhou
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Apostolic Prefecture of Xining
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教西宁监牧区
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (EN) — Qinghai and its places
+        start_urls:
+          - https://en.wikipedia.org/wiki/Qinghai
+          - https://en.wikipedia.org/wiki/Xining
+          - https://en.wikipedia.org/wiki/Kumbum_Monastery
+          - https://en.wikipedia.org/wiki/Huangyuan_County
+          - https://en.wikipedia.org/wiki/Hainan_Tibetan_Autonomous_Prefecture
+        follow: []
+        max_pages: 5
+        language: en
+      - name: Wikipedia (ZH) — Qinghai, Xining and Kumbum
+        start_urls:
+          - https://zh.wikipedia.org/wiki/青海省
+          - https://zh.wikipedia.org/wiki/西宁市
+          - https://zh.wikipedia.org/wiki/塔尔寺
+        follow: []
+        max_pages: 3
+        language: zh
