@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-09 05:35 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-09 08:47 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 15 / 45  ·  **Published records:** 665  ·  **Verified, awaiting approval:** 42  ·  **Audited:** 545
+**Units done:** 16 / 45  ·  **Published records:** 665  ·  **Verified, awaiting approval:** 43  ·  **Audited:** 546
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -22,7 +22,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-JX | Jiangxi 江西 | done | 9 | 0 | 0 | 35 | 100% | [#14](../../issues/14) |
 | 1 | CN-AH | Anhui 安徽 | done | 14 | 1 | 0 | 42 | 93% | [#15](../../issues/15) |
 | 1 | CN-SC | Sichuan 四川 | done | 30 | 1 | 0 | 93 | 97% | [#16](../../issues/16) |
-| 1 | CN-CQ | Chongqing 重庆 | in-progress | 11 | 0 | 0 | 29 | 100% | [#17](../../issues/17) |
+| 1 | CN-CQ | Chongqing 重庆 | done | 11 | 1 | 0 | 29 | 92% | [#17](../../issues/17) |
 | 1 | CN-YN | Yunnan 云南 | todo |  |  |  |  |  | [#18](../../issues/18) |
 | 1 | CN-GZ | Guizhou 贵州 | todo |  |  |  |  |  | [#19](../../issues/19) |
 | 1 | CN-GX | Guangxi 广西 | todo |  |  |  |  |  | [#20](../../issues/20) |
