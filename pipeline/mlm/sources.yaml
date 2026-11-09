@@ -1827,3 +1827,70 @@ regions:
         follow: []
         max_pages: 3
         language: zh
+  xinjiang:
+    name: Xinjiang 新疆
+    extract_hint: >-
+      Xinjiang (新疆), historically Chinese Turkestan, Eastern Turkestan, Sinkiang or Hsinchiang, Dzungaria and the Tarim
+      basin. Prefecture-level units: urumqi (烏魯木齊, Tihwa/Dihua 迪化), karamay (克拉瑪依), turpan (吐魯番, Turfan; Gaochang/Qocho
+      高昌, Khocho; Bezeklik), hami (哈密, Kumul, Komul), changji (昌吉), ili (伊犁, Yining/Kuldja/Ghulja 伊寧, Huocheng 霍城,
+      Tacheng/Chuguchak 塔城), bortala (博爾塔拉, Bole 博樂), bayingolin (巴音郭楞, Korla 庫爾勒), aksu (阿克蘇),
+      kizilsu (克孜勒蘇), kashgar (喀什, Kashi, Kashgar, Shufu 疏附, Shule 疏勒, Yengisar 英吉沙), yarkand (莎車, Shache,
+      Yarkant, Yarkend), khotan (和田, Hotan, Hetian), Kucha (庫車), altay (阿勒泰). Include Church of the East
+      (Jingjiao 景教) traces at Gaochang, Qocho and Turfan; Jesuit Bento de Goes (1603-1607) at Yarkand and Kashgar;
+      Swedish Mission Covenant Church (Svenska Missionsförbundet) at Kashgar, Yarkand and Yengi Hissar from 1892 (Gustaf
+      Raquette); China Inland Mission at Urumqi/Tihwa (Mildred Cable, Eva and Francesca French, George Hunter, Percy
+      Mather, Emil Fischbacher); Catholic work at Ili (Kuldja); Russian Orthodox communities at Kuldja, Urumqi and
+      Kashgar; hospitals and schools; Bible translation into Turki/Uyghur and Kazakh; martyrs, cemeteries and memorials.
+    keywords: [Xinjiang, Sinkiang, Hsinchiang, Chinese Turkestan, Eastern Turkestan, East Turkestan, Kashgaria, Dzungaria,
+               新疆, 新疆省, Urumqi, Urumchi, Tihwa, Dihua, 乌鲁木齐, 烏魯木齊, 迪化, Turpan, Turfan, 吐鲁番, 吐魯番, Gaochang,
+               Qocho, Khocho, 高昌, Hami, Kumul, Komul, 哈密, Changji, 昌吉, Ili, Yining, Kuldja, Kulja, Ghulja, 伊犁, 伊宁,
+               伊寧, Tacheng, Chuguchak, 塔城, Altay, 阿勒泰, Korla, 库尔勒, 庫爾勒, Kucha, Kuqa, 库车, 庫車, Aksu, 阿克苏,
+               阿克蘇, Kashgar, Kashi, 喀什, 喀什噶尔, 喀什噶爾, Shufu, 疏附, Yengi Hissar, Yengisar, 英吉沙, Yarkand,
+               Yarkant, Shache, 莎车, 莎車, Khotan, Hotan, Hetian, 和田, 和阗, 和闐, Bento de Goes, 鄂本笃, 鄂本篤, 景教,
+               Jingjiao, Church of the East, Nestorian, Swedish Mission Covenant, Svenska Missionsförbundet, 瑞典宣道会,
+               瑞典宣道會, Gustaf Raquette, China Inland Mission, 中国内地会, 中國內地會, Mildred Cable, 盖群英, 蓋群英,
+               Francesca French, Eva French, George Hunter, 冯贵石, 馮貴石, Percy Mather, 马尔昌, 馬爾昌, Emil Fischbacher,
+               巴富羲, Gansu, Kansu, 甘肃, 甘肅, Uyghur, Uighur, 维吾尔, 維吾爾]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Xinjiang places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/xinjiang/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Xinjiang places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/xinjiang/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Church of the East in China, Gaochang, Swedish Mission Covenant
+        start_urls:
+          - https://en.wikipedia.org/wiki/Church_of_the_East_in_China
+          - https://en.wikipedia.org/wiki/Gaochang
+          - https://en.wikipedia.org/wiki/Mission_Covenant_Church_of_Sweden
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Xinjiang and its cities
+        start_urls:
+          - https://en.wikipedia.org/wiki/Xinjiang
+          - https://en.wikipedia.org/wiki/Urumqi
+          - https://en.wikipedia.org/wiki/Kashgar
+          - https://en.wikipedia.org/wiki/Yarkand_County
+          - https://en.wikipedia.org/wiki/Yining
+          - https://en.wikipedia.org/wiki/Turpan
+        follow: []
+        max_pages: 6
+        language: en
+      - name: Wikipedia (ZH) — Xinjiang, Urumqi, Kashgar and Gaochang
+        start_urls:
+          - https://zh.wikipedia.org/wiki/新疆维吾尔自治区
+          - https://zh.wikipedia.org/wiki/乌鲁木齐市
+          - https://zh.wikipedia.org/wiki/喀什市
+          - https://zh.wikipedia.org/wiki/高昌故城
+        follow: []
+        max_pages: 4
+        language: zh
