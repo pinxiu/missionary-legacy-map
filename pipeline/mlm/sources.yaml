@@ -223,6 +223,68 @@ regions:
         max_pages: 2
         language: zh
         # 湖山堂 also has post-1952 paragraphs; skip them (policy rule 2)
+      - name: Hummel (ed.), Eminent Chinese of the Ch'ing Period (1943-44) — Wikisource (Li Zhizao, Yang Tingyun, Tong Guoqi)
+        start_urls:
+          - https://en.wikisource.org/wiki/Eminent_Chinese_of_the_Ch%27ing_Period/Li_Chih-tsao
+          - https://en.wikisource.org/wiki/Eminent_Chinese_of_the_Ch%27ing_Period/Yang_T%27ing-y%C3%BCn
+          - https://en.wikisource.org/wiki/Eminent_Chinese_of_the_Ch%27ing_Period/T%27ung_Kuo-ch%27i
+        follow: []
+        max_pages: 3
+        language: en
+        kind: book   # scholarly reference (Library of Congress); 1611 chapel, 1627 church inside Wu-lin Gate, Tong's rebuilding, 1731 conversion
+      - name: Broomhall (ed.), The Chinese Empire, a General & Missionary Survey (1907), "The Province of Chekiang" — Wikisource
+        start_urls:
+          - https://en.wikisource.org/wiki/The_Chinese_Empire._A_General_%26_Missionary_Survey/The_Province_of_Chekiang
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # chapter by A. E. Moule (CMS); Hangchow occupied 1864, CIM headquarters 1866, station table by society
+      - name: Wright (ed.), Twentieth Century Impressions of Hongkong, Shanghai and other Treaty Ports (1908), "The Anglican Communion" — Wikisource
+        start_urls:
+          - https://en.wikisource.org/wiki/Twentieth_Century_Impressions_of_Hongkong,_Shanghai,_and_other_Treaty_Ports_of_China/The_Anglican_Communion
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period account: G. E. Moule opened Hangchow 1864, bishop's residence, Main's medical mission
+      - name: Period biographical dictionaries — Wikisource (DNB 1927 supplement G. E. Moule; Who's Who in the Far East 1906-7)
+        start_urls:
+          - https://en.wikisource.org/wiki/Dictionary_of_National_Biography,_1927_supplement/Moule,_George_Evans
+          - https://en.wikisource.org/wiki/Who%27s_Who_in_the_Far_East/Sweet,_Rev._W._S.
+          - https://en.wikisource.org/wiki/Who%27s_Who_in_the_Far_East/MATTOX,_Rev._Elmer_L.
+        follow: []
+        max_pages: 3
+        language: en
+        kind: book   # Sweet: "Founder of Wayland Academy, Hangchow, 1900" (zh Wikipedia says 1899: keep both)
+      - name: 浙江通志 (雍正, 四庫全書本) 卷217 祠祀 — Wikisource (ZH)
+        start_urls:
+          - https://zh.wikisource.org/wiki/浙江通志_(四庫全書本)/卷217
+        follow: []
+        max_pages: 1
+        language: zh
+        kind: book   # local gazetteer 地方志; 天后宫 entry: 武林門内, 雍正九年 李衞 毁西洋天主堂改建; long page, the entry is one line among Hangzhou shrines
+      - name: Qing records of the Hangzhou Catholic church's conversion (清朝柔遠記 卷四; 硃批諭旨 李衞 memorial, 1730) — Wikisource (ZH)
+        start_urls:
+          - https://zh.wikisource.org/wiki/清朝柔遠記/卷04
+          - https://zh.wikisource.org/wiki/硃批諭㫖_(四庫全書本)/卷174之12
+        follow: []
+        max_pages: 2
+        language: zh
+        kind: book   # 柔遠記 by 王之春 (c. 1879); memorial dated 雍正八年五月 proposes the change (省城北門大街); dates 1730/1731 differ: keep both
+      - name: Wikipedia (ZH) — 天主教杭州总教区 (Hangzhou Catholic diocese history)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教杭州总教区
+        follow: []
+        max_pages: 1
+        language: zh
+        # pre-1952 paragraphs cite 杭州市志 and 浙江省宗教志 materials; most of the page is post-1952: skip it (policy rule 2)
+      - name: Wikipedia (EN) — Jesuits who worked and died at Hangzhou (Cattaneo, Intorcetta)
+        start_urls:
+          - https://en.wikipedia.org/wiki/Lazzaro_Cattaneo
+          - https://en.wikipedia.org/wiki/Prospero_Intorcetta
+        follow: []
+        max_pages: 2
+        language: en
+        # Cattaneo settled at Hangzhou 1622, died there 1640 (cited to Treccani DBI); Intorcetta back at Hangzhou 1676, buried there (cites BDCC)
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
