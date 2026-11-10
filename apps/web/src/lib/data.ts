@@ -116,19 +116,36 @@ function fromSeed(): Site[] {
 type SourceRow = { url: string; title: string | null; title_zh: string | null; publisher: string | null; publisher_zh: string | null };
 const toSource = (s: SourceRow): Source => ({ url: s.url, title: s.title, titleZh: s.title_zh, publisher: s.publisher, publisherZh: s.publisher_zh });
 
+// PostgREST returns at most 1000 rows per request, so every table is read page by page (claims alone has thousands of rows;
+// a single request silently dropped most sources). Each page is retried, because one slow or failed request used to turn
+// the whole page into the offline seed (Zhejiang only) and that page stayed cached for a day.
+const PAGE = 1000;
+async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    let page: T[] | null = null;
+    for (let attempt = 1; attempt <= 4 && page === null; attempt++) {
+      const { data, error } = await build(from, from + PAGE - 1);
+      if (!error && data) page = data;
+      else if (attempt === 4) throw new Error(error?.message ?? "empty response");
+      else await new Promise((r) => setTimeout(r, attempt * 800));
+    }
+    rows.push(...page!);
+    if (page!.length < PAGE) return rows;
+  }
+}
+
 async function fromSupabase(): Promise<Site[]> {
   const db = createClient(url!, key!, { auth: { persistSession: false } });
   const [sites, events, claims, photos] = await Promise.all([
-    db.from("public_sites").select("*"),
-    db.from("events").select("id,site_id,event_type,year_start,year_end,description,description_zh,status,persons(name_en,name_zh,name_zh_status)"),
-    db.from("claims").select("subject_kind,subject_id,sources(url,title,title_zh,publisher,publisher_zh)"),
-    db.from("photos").select("id,site_id,kind,public_path,image_url,caption,caption_zh,credit,license,source_url,year_taken,created_at").order("created_at"),
+    readAll((a, b) => db.from("public_sites").select("*").order("id").range(a, b)),
+    readAll((a, b) => db.from("events").select("id,site_id,event_type,year_start,year_end,description,description_zh,status,persons(name_en,name_zh,name_zh_status)").order("id").range(a, b)),
+    readAll((a, b) => db.from("claims").select("id,subject_kind,subject_id,sources(url,title,title_zh,publisher,publisher_zh)").order("id").range(a, b)),
+    readAll((a, b) => db.from("photos").select("id,site_id,kind,public_path,image_url,caption,caption_zh,credit,license,source_url,year_taken,created_at").order("created_at").order("id").range(a, b)),
   ]);
-  const err = sites.error ?? events.error ?? claims.error ?? photos.error;
-  if (err) throw new Error(err.message);
 
   const srcBy = new Map<string, Source[]>();
-  for (const c of claims.data ?? []) {
+  for (const c of claims) {
     const s = c.sources as unknown as SourceRow | null;
     if (!s) continue;
     const list = srcBy.get(c.subject_id) ?? [];
@@ -136,7 +153,7 @@ async function fromSupabase(): Promise<Site[]> {
     srcBy.set(c.subject_id, list);
   }
   const evBy = new Map<string, LegacyEvent[]>();
-  for (const e of events.data ?? []) {
+  for (const e of events) {
     const p = e.persons as unknown as { name_en: string; name_zh: string | null; name_zh_status: string | null } | null;
     const list = evBy.get(e.site_id) ?? [];
     list.push({
@@ -147,7 +164,7 @@ async function fromSupabase(): Promise<Site[]> {
     evBy.set(e.site_id, list);
   }
   const photoBy = new Map<string, Photo[]>();
-  for (const p of photos.data ?? []) {
+  for (const p of photos) {
     const src = p.public_path ? `${url}/storage/v1/object/public/site-photos/${p.public_path}` : p.image_url;
     if (!src) continue;
     const list = photoBy.get(p.site_id) ?? [];
@@ -155,7 +172,7 @@ async function fromSupabase(): Promise<Site[]> {
       license: p.license, sourceUrl: p.source_url, yearTaken: p.year_taken });
     photoBy.set(p.site_id, list);
   }
-  return (sites.data ?? []).filter((s) => s.lat != null).map((s): Site => {
+  return sites.filter((s) => s.lat != null).map((s): Site => {
     const evs = evBy.get(s.id) ?? [];
     return {
       id: s.id, slug: s.slug, region: s.region, nameEn: s.name_en, nameZh: s.name_zh,
@@ -173,7 +190,10 @@ export async function getSites(): Promise<{ sites: Site[]; live: boolean }> {
     try {
       return { sites: await fromSupabase(), live: true };
     } catch (err) {
-      console.error("Supabase unavailable, using seed:", err);
+      console.error("Supabase unavailable:", err);
+      // On Vercel never publish the offline seed over the real map: failing here makes Next keep the last good page
+      // (a failed revalidation keeps serving the old one; a failed build keeps the old deployment).
+      if (process.env.VERCEL) throw err;
     }
   }
   return { sites: fromSeed(), live: false };
