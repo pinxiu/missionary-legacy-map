@@ -1,6 +1,6 @@
 # Coverage status
 
-_Updated 2026-11-10 15:07 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-10 17:31 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
 **Units done:** 17 / 45  ·  **Published records:** 683  ·  **Verified, awaiting approval:** 59  ·  **Audited:** 581
@@ -14,7 +14,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-GD | Guangdong 广东 | done | 71 | 4 | 0 | 169 | 90% | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | done | 73 | 1 | 0 | 158 | 98% | [#7](../../issues/7) |
 | 1 | CN-BJ | Beijing 北京 | done | 70 | 6 | 0 | 135 | 88% | [#8](../../issues/8) |
-| 1 | CN-TJ | Tianjin 天津 | done | 18 | 4 | 0 | 44 | 82% | [#9](../../issues/9) |
+| 1 | CN-TJ | Tianjin 天津 | done | 18 | 4 | 0 | 46 | 82% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | done | 18 | 5 | 0 | 54 | 76% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | done | 8 | 3 | 0 | 41 | 73% | [#11](../../issues/11) |
 | 1 | CN-HB | Hubei 湖北 | done | 15 | 3 | 0 | 58 | 85% | [#12](../../issues/12) |
