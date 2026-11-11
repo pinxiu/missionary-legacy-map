@@ -68,7 +68,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # optional: free-tier translation
       AMAP_KEY: ${{ secrets.AMAP_KEY }}               # optional: Amap place search for exact pins in China
-      MLM_PARSE_MAX_PAGES: "300"  # unread pages parsed per run (a page is read once, for every place on it)
+      MLM_PARSE_MAX_PAGES: "600"  # unread pages parsed per run (a page is read once, for every place on it)
       MLM_BATCH_WAIT_MIN: "10"    # don't keep a billed runner idle: a batch still running is collected by the next run
       SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://fpnbaczwbvyamsirybug.supabase.co' }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -169,24 +169,30 @@ jobs:
       - name: Pipeline (find → parse → translate → resolve → verify → audit)
         if: steps.unit.outputs.id != ''
         run: |
-          # Work through the upcoming units in order, one at a time (each unit finishes its own find → audit before the next
-          # starts), until the time budget is used. A unit that is still short of its gates after its run (say the audit
-          # agreement is under 80%) stays open for the next run but no longer holds the others back. `coverage status`
-          # after each unit publishes it if its gates are met.
+          # Works through the upcoming units together (see below). A unit still short of its gates after the run (say the
+          # audit agreement is under 80%) stays open for the next run. `coverage status` at the end publishes what met its gates.
           start=$(date +%s); n=0
           mkdir -p .mlm-work; grep -o 'Units done:\*\* [0-9]*' STATUS.md > .mlm-work/done-before.txt 2>/dev/null || true
           # Every registered source is fetched on every run, whichever province is being worked on: a page about Hubei also
           # lists places in Hunan and Sichuan, and parse files each place under its own province. Only changed pages cost.
           mlm run --stage find --all-regions < /dev/null || echo "find (all regions) failed; per-unit find still runs"
           if [ -n "${{ inputs.unit }}" ]; then list="${{ inputs.unit }} x yes"; else list=$(mlm coverage upcoming --n 16); fi
-          echo "$list" | while read -r u region has; do
-            [ -n "$u" ] || continue
-            [ "$has" = yes ] || { echo "unit $u has no sources yet; the next run's scout adds them"; continue; }
-            [ $(( $(date +%s) - start )) -lt 12000 ] || { echo "time budget used; $u waits for the next run"; break; }
-            echo "### unit $u" >> "$GITHUB_STEP_SUMMARY"
-            mlm run --unit "$u" < /dev/null || echo "unit $u failed; continuing with the next"
-            mlm coverage status < /dev/null > /dev/null || true
+          units=$(echo "$list" | awk '$3 == "yes" { print $1 }')
+          echo "$list" | awk '$3 != "yes" && $1 != "" { print "unit " $1 " has no sources yet; the next run scout adds them" }'
+          [ -n "$units" ] || { echo "no unit with sources to work on"; exit 0; }
+          first=$(echo "$units" | head -1)
+          echo "### units: $(echo $units)" >> "$GITHUB_STEP_SUMMARY"
+          # One pass over ALL the units instead of one full pipeline per unit: each model stage then sends a single batch that
+          # covers every unit, instead of waiting for a fresh batch per unit (that waiting was most of the two hours).
+          # Find is per unit (polite, small). Parse, translate, resolve and verify look at everything that is waiting, so they
+          # run once. The audit is per unit and units do not share records, so three units are audited at the same time.
+          for u in $units; do mlm run --unit "$u" --stage find < /dev/null || echo "find $u failed; continuing"; done
+          for st in parse translate resolve verify; do
+            [ $(( $(date +%s) - start )) -lt 12000 ] || { echo "time budget used before $st"; break; }
+            mlm run --unit "$first" --stage "$st" < /dev/null || echo "$st failed; continuing"
           done
+          echo "$units" | xargs -P 3 -I{} sh -c 'mlm run --unit {} --stage audit < /dev/null || echo "audit {} failed; continuing"'
+          mlm coverage status < /dev/null > /dev/null || true
 
       - name: Save crawl + extraction cache (also after a failure)
         if: always() && steps.unit.outputs.id != '' && steps.cache.outcome != 'skipped' && hashFiles('.mlm-work/**') != ''
