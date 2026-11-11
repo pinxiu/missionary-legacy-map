@@ -223,6 +223,38 @@ regions:
         max_pages: 2
         language: zh
         # 湖山堂 also has post-1952 paragraphs; skip them (policy rule 2)
+      - name: Guinness, The Story of the China Inland Mission, vol. II (Morgan & Scott, 1894) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/cu31924011091992/cu31924011091992_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period mission history (Cornell scan); CIM's first base at Hang-chau 1866 (Lammermuir party, Sin-k'ai Lung house)
+      - name: Woodbridge, Fifty Years in China (PCUS Executive Committee of Foreign Missions, 1919) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/fiftyyearsinchin00wood/fiftyyearsinchin00wood_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # Southern Presbyterian mission history 1867-1919; Hangchow was its first station (Inslee, girls' school, compound, college); fair OCR
+      - name: Wikipedia (ZH) — 天主教杭州总教区 (Catholic Hangzhou, 1616-1952)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教杭州总教区
+        follow: []
+        max_pages: 1
+        language: zh
+        # Wulin Gate church 1627, cathedral 1661, Lazarist vicariate 1910/1924, archdiocese 1946; cites 浙江省宗教志 and 杭州市志.
+        # Post-1952 bishop sections must be skipped (policy rule 2)
+      - name: 杭州网 (Hangzhou.com.cn) — 微观杭州 history features on mission sites
+        start_urls:
+          - https://hznews.hangzhou.com.cn/wghz/content/2020-04/21/content_7718850.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2017-08/24/content_6636489.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2017-08/24/content_6636489_2.htm
+        follow: []
+        max_pages: 3
+        language: zh
+        kind: institution   # city news portal; 卫匡国 and the 大方井 Jesuit cemetery; Guangji Hospital 1869-1952, 宝石山 inscription, leprosy hospital chapel 1931.
+        # Compiled features (one credited "金让/网络"): corroborate before verifying
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
