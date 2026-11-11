@@ -238,6 +238,13 @@ def status(store, write: bool = True) -> str:
         labels = i["labels"] if i else []
         state = next((x for x in ("done", "approved", "needs-approval", "in-progress", "needs-human", "todo") if x in labels), "—")
         m = metrics(store, u) if state not in ("todo", "—") else {}
+        if state == "todo" and i and i["state"] == "OPEN":
+            # A batched run works many units at once and parse files places under every province, so a unit can have
+            # records long before it is "active". It is promoted as soon as it has any (the gates below still decide done).
+            probe = metrics(store, u)
+            if probe.get("verified") or probe.get("audited") or probe.get("published"):
+                gh("issue", "edit", str(i["number"]), "--remove-label", "todo", "--add-label", "in-progress", check=False)
+                labels, state, m = [*labels, "in-progress"], "in-progress", probe
         for k in totals:
             totals[k] += m.get(k, 0)
         if i and m:

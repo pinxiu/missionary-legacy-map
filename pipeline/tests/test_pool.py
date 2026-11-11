@@ -570,3 +570,21 @@ def test_photo_run_adds_once_and_lists_options(monkeypatch):
     assert store.rows["photos"][0]["status"] == "approved" and store.rows["photos"][0]["kind"] == "historical"
     again = ph.run(store, apply=True, api=api)
     assert again["added"] == 0 and len(store.rows["photos"]) == 1  # never twice
+
+
+def test_status_promotes_a_todo_unit_that_already_has_records(monkeypatch):
+    from mlm import coverage
+    calls = []
+    monkeypatch.setattr(coverage, "unit_issues", lambda: {
+        "CN-JS": {"state": "OPEN", "number": 3, "labels": ["todo"]}, "CN-SH": {"state": "OPEN", "number": 4, "labels": ["todo"]}})
+    monkeypatch.setattr(coverage, "units", lambda: [
+        {"id": "CN-JS", "region": "jiangsu", "en": "Jiangsu", "zh": "江苏", "phase": 1},
+        {"id": "CN-SH", "region": "shanghai", "en": "Shanghai", "zh": "上海", "phase": 1}])
+    monkeypatch.setattr(coverage, "metrics", lambda store, u: {"verified": 2, "published": 5} if u["id"] == "CN-JS" else {})
+    monkeypatch.setattr(coverage, "gates_met", lambda m: False)
+    monkeypatch.setattr(coverage, "issue_body", lambda u, m: "body")
+    monkeypatch.setattr(coverage, "gh", lambda *a, **k: calls.append(a))
+    text = coverage.status(object(), write=False)
+    assert any("--add-label" in c and "in-progress" in c and c[2] == "3" for c in calls)
+    assert not any(c[2:3] == ("4",) for c in calls if "--add-label" in c)
+    assert "| CN-JS |" in text and "in-progress" in text
