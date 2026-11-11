@@ -150,7 +150,8 @@ def gates_met(m: dict) -> bool:
     the threshold. Records the auditor disagreed with are held back by `publish`, not by this gate."""
     g = catalog()["done_when"]
     sample_ok = m["audited"] >= min(g["min_audit_sample"], max(m["verified"], 1))
-    return (m["verified"] > 0 and m["pending"] == 0 and m["sources"] >= g["min_sources"] and sample_ok
+    # a unit whose records are all published already (none left "verified") still has records that passed the gates
+    return ((m["verified"] + m.get("published", 0)) > 0 and m["pending"] == 0 and m["sources"] >= g["min_sources"] and sample_ok
             and (m["agreement_value"] or 0) >= g["audit_agreement"])
 
 

@@ -588,3 +588,13 @@ def test_status_promotes_a_todo_unit_that_already_has_records(monkeypatch):
     assert any("--add-label" in c and "in-progress" in c and c[2] == "3" for c in calls)
     assert not any(c[2:3] == ("4",) for c in calls if "--add-label" in c)
     assert "| CN-JS |" in text and "in-progress" in text
+
+
+def test_gates_count_published_records_too(monkeypatch):
+    from mlm import coverage
+    monkeypatch.setattr(coverage, "catalog", lambda: {"done_when": {"min_audit_sample": 10, "min_sources": 3, "audit_agreement": 0.8}})
+    base = {"verified": 0, "pending": 0, "sources": 4, "audited": 3, "agreement_value": 1.0}
+    assert coverage.gates_met({**base, "published": 3})        # everything already published and the audit agrees
+    assert not coverage.gates_met({**base, "published": 0})    # nothing at all
+    assert not coverage.gates_met({**base, "published": 3, "agreement_value": 0.7})
+    assert not coverage.gates_met({**base, "published": 3, "sources": 2})
