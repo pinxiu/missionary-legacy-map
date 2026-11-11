@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-11 17:01 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-11 17:10 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 20 / 45  ·  **Published records:** 825  ·  **Verified, awaiting approval:** 70  ·  **Audited:** 735
+**Units done:** 24 / 45  ·  **Published records:** 825  ·  **Verified, awaiting approval:** 70  ·  **Audited:** 735
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -28,12 +28,12 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-GX | Guangxi 广西 | done | 15 | 1 | 0 | 28 | 94% | [#20](../../issues/20) |
 | 1 | CN-SX | Shanxi 山西 | done | 24 | 2 | 0 | 48 | 92% | [#21](../../issues/21) |
 | 1 | CN-SN | Shaanxi 陕西 | done | 19 | 2 | 0 | 42 | 90% | [#22](../../issues/22) |
-| 1 | CN-GS | Gansu 甘肃 | in-progress | 3 | 0 | 0 | 36 | 100% | [#23](../../issues/23) |
+| 1 | CN-GS | Gansu 甘肃 | done | 3 | 0 | 0 | 36 | 100% | [#23](../../issues/23) |
 | 1 | CN-LN | Liaoning 辽宁 | in-progress | 5 | 3 | 0 | 33 | 62% | [#24](../../issues/24) |
-| 1 | CN-JL | Jilin 吉林 | in-progress | 1 | 0 | 0 | 4 | 100% | [#25](../../issues/25) |
-| 1 | CN-HL | Heilongjiang 黑龙江 | in-progress | 9 | 0 | 0 | 15 | 100% | [#26](../../issues/26) |
+| 1 | CN-JL | Jilin 吉林 | done | 1 | 0 | 0 | 4 | 100% | [#25](../../issues/25) |
+| 1 | CN-HL | Heilongjiang 黑龙江 | done | 9 | 0 | 0 | 15 | 100% | [#26](../../issues/26) |
 | 1 | CN-NM | Inner Mongolia 内蒙古 | todo |  |  |  |  |  | [#27](../../issues/27) |
-| 1 | CN-NX | Ningxia 宁夏 | in-progress | 1 | 0 | 0 | 7 | 100% | [#28](../../issues/28) |
+| 1 | CN-NX | Ningxia 宁夏 | done | 1 | 0 | 0 | 7 | 100% | [#28](../../issues/28) |
 | 1 | CN-QH | Qinghai 青海 | in-progress | 0 | 1 | 0 | 4 | 0% | [#29](../../issues/29) |
 | 1 | CN-XJ | Xinjiang 新疆 | in-progress | 4 | 2 | 0 | 16 | 67% | [#30](../../issues/30) |
 | 1 | CN-XZ | Tibet 西藏 | in-progress | 1 | 0 | 0 | 6 | 100% | [#31](../../issues/31) |
