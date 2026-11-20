@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-20 11:48 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-20 15:35 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 29 / 45  ·  **Published records:** 848  ·  **Verified, awaiting approval:** 80  ·  **Audited:** 762
+**Units done:** 29 / 45  ·  **Published records:** 853  ·  **Verified, awaiting approval:** 76  ·  **Audited:** 768
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -23,7 +23,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-AH | Anhui 安徽 | done | 14 | 1 | 0 | 46 | 93% | [#15](../../issues/15) |
 | 1 | CN-SC | Sichuan 四川 | done | 31 | 1 | 0 | 97 | 97% | [#16](../../issues/16) |
 | 1 | CN-CQ | Chongqing 重庆 | done | 11 | 2 | 0 | 31 | 85% | [#17](../../issues/17) |
-| 1 | CN-YN | Yunnan 云南 | done | 8 | 7 | 0 | 73 | 60% | [#18](../../issues/18) |
+| 1 | CN-YN | Yunnan 云南 | done | 8 | 7 | 0 | 73 | 56% | [#18](../../issues/18) |
 | 1 | CN-GZ | Guizhou 贵州 | in-progress | 2 | 1 | 0 | 30 | 67% | [#19](../../issues/19) |
 | 1 | CN-GX | Guangxi 广西 | done | 15 | 1 | 0 | 28 | 94% | [#20](../../issues/20) |
 | 1 | CN-SX | Shanxi 山西 | done | 25 | 2 | 0 | 49 | 93% | [#21](../../issues/21) |
@@ -39,8 +39,8 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-XZ | Tibet 西藏 | done | 1 | 0 | 0 | 7 | 100% | [#31](../../issues/31) |
 | 1 | CN-HI | Hainan 海南 | done | 4 | 0 | 0 | 8 | 100% | [#32](../../issues/32) |
 | 1 | HK | Hong Kong 香港 | done | 21 | 0 | 0 | 73 | 100% | [#33](../../issues/33) |
-| 1 | MO | Macau 澳门 | done | 21 | 1 | 0 | 37 | 96% | [#34](../../issues/34) |
-| 1 | TW | Taiwan 台湾 | done | 30 | 7 | 0 | 79 | 94% | [#35](../../issues/35) |
+| 1 | MO | Macau 澳门 | done | 21 | 2 | 0 | 39 | 96% | [#34](../../issues/34) |
+| 1 | TW | Taiwan 台湾 | done | 35 | 2 | 0 | 79 | 95% | [#35](../../issues/35) |
 | 2 | W-EAS | East Asia (Korea, Japan, Mongolia) 东亚（朝鲜半岛、日本、蒙古） | todo |  |  |  |  |  | [#36](../../issues/36) |
 | 2 | W-SEA | Southeast Asia 东南亚 | todo |  |  |  |  |  | [#37](../../issues/37) |
 | 2 | W-SAS | South Asia 南亚 | todo |  |  |  |  |  | [#38](../../issues/38) |
