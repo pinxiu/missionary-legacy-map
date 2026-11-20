@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-20 15:35 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-20 19:36 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 29 / 45  ·  **Published records:** 853  ·  **Verified, awaiting approval:** 76  ·  **Audited:** 768
+**Units done:** 29 / 45  ·  **Published records:** 854  ·  **Verified, awaiting approval:** 78  ·  **Audited:** 769
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -11,7 +11,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-JS | Jiangsu 江苏 | done | 60 | 3 | 0 | 165 | 92% | [#3](../../issues/3) |
 | 1 | CN-SH | Shanghai 上海 | done | 78 | 2 | 1 | 228 | 94% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 94 | 3 | 2 | 189 | 93% | [#5](../../issues/5) |
-| 1 | CN-GD | Guangdong 广东 | done | 71 | 4 | 0 | 170 | 90% | [#6](../../issues/6) |
+| 1 | CN-GD | Guangdong 广东 | done | 71 | 5 | 0 | 170 | 90% | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | done | 73 | 1 | 0 | 159 | 98% | [#7](../../issues/7) |
 | 1 | CN-BJ | Beijing 北京 | done | 70 | 6 | 0 | 137 | 88% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 19 | 4 | 0 | 58 | 83% | [#9](../../issues/9) |
@@ -31,15 +31,15 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-GS | Gansu 甘肃 | done | 3 | 0 | 0 | 36 | 100% | [#23](../../issues/23) |
 | 1 | CN-LN | Liaoning 辽宁 | in-progress | 5 | 3 | 0 | 34 | 62% | [#24](../../issues/24) |
 | 1 | CN-JL | Jilin 吉林 | done | 1 | 0 | 0 | 4 | 100% | [#25](../../issues/25) |
-| 1 | CN-HL | Heilongjiang 黑龙江 | done | 10 | 0 | 0 | 15 | 100% | [#26](../../issues/26) |
+| 1 | CN-HL | Heilongjiang 黑龙江 | done | 10 | 0 | 0 | 16 | 100% | [#26](../../issues/26) |
 | 1 | CN-NM | Inner Mongolia 内蒙古 | todo |  |  |  |  |  | [#27](../../issues/27) |
 | 1 | CN-NX | Ningxia 宁夏 | done | 1 | 0 | 0 | 7 | 100% | [#28](../../issues/28) |
 | 1 | CN-QH | Qinghai 青海 | in-progress | 0 | 1 | 0 | 4 | 0% | [#29](../../issues/29) |
 | 1 | CN-XJ | Xinjiang 新疆 | in-progress | 4 | 2 | 0 | 16 | 67% | [#30](../../issues/30) |
 | 1 | CN-XZ | Tibet 西藏 | done | 1 | 0 | 0 | 7 | 100% | [#31](../../issues/31) |
 | 1 | CN-HI | Hainan 海南 | done | 4 | 0 | 0 | 8 | 100% | [#32](../../issues/32) |
-| 1 | HK | Hong Kong 香港 | done | 21 | 0 | 0 | 73 | 100% | [#33](../../issues/33) |
-| 1 | MO | Macau 澳门 | done | 21 | 2 | 0 | 39 | 96% | [#34](../../issues/34) |
+| 1 | HK | Hong Kong 香港 | done | 21 | 2 | 0 | 73 | 100% | [#33](../../issues/33) |
+| 1 | MO | Macau 澳门 | done | 22 | 1 | 0 | 39 | 96% | [#34](../../issues/34) |
 | 1 | TW | Taiwan 台湾 | done | 35 | 2 | 0 | 79 | 95% | [#35](../../issues/35) |
 | 2 | W-EAS | East Asia (Korea, Japan, Mongolia) 东亚（朝鲜半岛、日本、蒙古） | todo |  |  |  |  |  | [#36](../../issues/36) |
 | 2 | W-SEA | Southeast Asia 东南亚 | todo |  |  |  |  |  | [#37](../../issues/37) |
