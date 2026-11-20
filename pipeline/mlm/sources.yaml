@@ -1993,3 +1993,402 @@ regions:
         follow: []
         max_pages: 4
         language: zh
+  tibet:
+    name: Tibet 西藏
+    extract_hint: >-
+      Tibet (西藏), Xizang, historically Tibet proper (U-Tsang and Ngari) and the Tibetan borderlands with Sichuan and
+      Yunnan (Kham). Prefecture-level units: lhasa (拉薩, Lasa), shigatse (日喀則, Xigaze, Shigatse), chamdo (昌都, Qamdo,
+      Chamdo, Changdu), nyingchi (林芝), shannan (山南, Lhoka), nagqu (那曲), ngari (阿里), and Gyantse (江孜), Tsaparang
+      (札達, 古格). Include Church of the East traces; the Jesuit mission of António de Andrade and Manuel Marques at Tsaparang
+      (1624-1635) and Hippolito Desideri at Lhasa (1716-1721); Capuchin mission at Lhasa (1707-1745); Huc and Gabet at Lhasa
+      (1846); Paris Foreign Missions Society (MEP) Tibet mission at Bonga, Yerkalo (Yanjing) and Batang; Protestant border
+      work (Moravian missionaries at Poo and Kyelang, Tibetan Pioneer Mission, Christian and Missionary Alliance, China
+      Inland Mission, Susie and Petrus Rijnhart, Annie Taylor, Albert Shelton at Batang and Lhasa); the Mission Tibétaine;
+      hospitals, schools and presses; cemeteries and memorials.
+    keywords: [Tibet, Xizang, Hsi-tsang, Tibetan, 西藏, 西藏自治区, Lhasa, Lasa, 拉萨, 拉薩, Shigatse, Xigaze, 日喀则, 日喀則, Gyantse,
+               Jiangzi, 江孜, Chamdo, Qamdo, Changdu, 昌都, Nyingchi, 林芝, Shannan, Lhoka, 山南, Nagqu, 那曲, Ngari, 阿里,
+               Tsaparang, Tsaparan, Zanda, 札达, 札達, 古格, Bonga, 邦达, Yerkalo, Yanjing, 盐井, 鹽井, Batang, 巴塘, Kham, 康区,
+               António de Andrade, Antonio de Andrade, 安东尼奥·德·安德拉德, 安德拉达, Manuel Marques, Hippolito Desideri,
+               Ippolito Desideri, 德西德里, 西德利, Capuchin, 嘉布遣会, 嘉布遣會, Huc and Gabet, 古伯察, 秦噶哔, 秦噶畢,
+               Paris Foreign Missions Society, MEP, 巴黎外方传教会, 巴黎外方傳教會, Tibetan Pioneer Mission, Mission Tibétaine,
+               Rijnhart, Susie Rijnhart, Petrus Rijnhart, Annie Taylor, Albert Shelton, 沈阿尔伯, Moravian, 摩拉维亚, 摩拉維亞,
+               China Inland Mission, 中国内地会, 中國內地會, Christian and Missionary Alliance, 宣道会, 宣道會]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Tibet places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/tibet/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Tibet places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/tibet/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 8
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Religion in Tibet
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Tibet
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Tibet
+        start_urls:
+          - https://en.wikipedia.org/wiki/Tibet
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — Tibet Autonomous Region
+        start_urls:
+          - https://zh.wikipedia.org/wiki/西藏自治区
+        follow: []
+        max_pages: 1
+        language: zh
+  hainan:
+    name: Hainan 海南
+    extract_hint: >-
+      Province of Hainan (海南), the island of Hainan, historically Hainan Island, Kiungchow (Qiongzhou 瓊州) and Qiongya,
+      part of Guangdong until 1988. Prefecture-level units: haikou (海口, Hoihow, Kiungchow 瓊州, Qiongshan 瓊山), sanya
+      (三亞, Yaichow, Yazhou 崖州), danzhou (儋州, Nodoa, Tamchow), wenchang (文昌), qionghai (瓊海, Kachek, Jiaji 嘉積),
+      wanning (萬寧), wuzhishan (五指山), dongfang (東方), Lingao (臨高), Ding'an (定安), Chengmai (澄邁), Ledong (樂東),
+      Lingshui (陵水), Baoting (保亭). Include Catholic missions (Paris Foreign Missions Society and the Jesuits; Apostolic
+      Prefecture of Hainan, later Diocese of Qiongzhou), Presbyterian Church USA Hainan mission (Hoihow, Kachek, Nodoa;
+      H. M. McCandliss, Frank Gilman, Margaret Melrose and Mary Moninger), Li and Miao (Hlai) highland work, hospitals and
+      schools (Hoihow Hospital, Hainan Christian schools), the Bible translation into Hainanese, indigenous churches,
+      cemeteries and memorials.
+    keywords: [Hainan, Hainan Island, Kiungchow, Qiungchow, Qiongzhou, Hoihow, Haikou, Kachek, Jiaji, Nodoa, Tamchow, Yaichow,
+               Sanya, Yazhou, Danzhou, Wenchang, Bun-chiu, Qionghai, Wanning, Dongfang, Lingao, Ding'an, Chengmai, Ledong,
+               Lingshui, Baoting, Wuzhishan, 海南, 海南省, 海南岛, 海南島, 海口, 琼州, 瓊州, 琼山, 瓊山, 嘉积, 嘉積, 儋州, 三亚, 三亞,
+               崖州, 文昌, 琼海, 瓊海, 万宁, 萬寧, 五指山, 东方, 東方, 临高, 臨高, 定安, 澄迈, 澄邁, 乐东, 樂東, 陵水, 保亭,
+               Presbyterian Church USA, 美北长老会, 美北長老會, McCandliss, Henry McCandliss, Frank Gilman, Margaret Melrose,
+               Mary Moninger, Hoihow Hospital, 海口福音医院, Paris Foreign Missions Society, 巴黎外方传教会, 巴黎外方傳教會,
+               Li, Hlai, 黎族, Miao, 苗族, Hainanese, 琼崖, 瓊崖, Guangdong, 广东, 廣東]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Hainan places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/hainan/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 6
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Hainan places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/hainan/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 6
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Hainan
+        start_urls:
+          - https://en.wikipedia.org/wiki/Hainan
+          - https://en.wikipedia.org/wiki/Haikou
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Hainan
+        start_urls:
+          - https://zh.wikipedia.org/wiki/海南省
+        follow: []
+        max_pages: 1
+        language: zh
+  hong-kong:
+    name: Hong Kong 香港
+    extract_hint: >-
+      Hong Kong (香港, Hongkong, Hong-kong, Victoria 維多利亞城), British colony from 1841 (Hong Kong Island, Kowloon from
+      1860, New Territories leased 1898). Places: Central, Wan Chai, Sheung Wan, Mid-Levels, Kowloon (九龍), Tsim Sha Tsui,
+      Yau Ma Tei, Stanley (赤柱), Aberdeen (香港仔), Sha Tin (沙田), Tai Po (大埔), Fanling, Yuen Long (元朗), Lantau (大嶼山),
+      Cheung Chau (長洲). Include the Morrison Education Society and Ying Wa College, the Basel Mission (Lilong, Hakka work),
+      Rhenish Mission, Berlin Foundling House, Catholic Foreign Missions of Milan (PIME) and Paris Foreign Missions Society
+      (Nazareth House), Italian Canossian Sisters, Anglican St Paul's College and St John's Cathedral (Diocese of Victoria),
+      London Missionary Society (Hollywood Road Chapel; Legge, Medhurst, Ho Tsun-shin), American Baptist and Southern
+      Baptist missions, Wesleyan and Methodist work, Church of Christ in China (Hong Kong Council), Chinese Christian
+      Union and Tsang Kwong-chai churches, Chinese refugees' churches, hospitals (Alice Memorial and Nethersole Hospital,
+      Hong Kong College of Medicine for Chinese, Sun Yat-sen), schools, printing presses, Hong Kong Cemetery and Happy
+      Valley cemeteries, memorials; wartime (1941-45) and 1949-52 refugee relief.
+    keywords: [Hong Kong, Hongkong, Hong-kong, Victoria, Kowloon, Tsim Sha Tsui, Yau Ma Tei, Stanley, Aberdeen, Sha Tin, Shatin,
+               Tai Po, Fanling, Yuen Long, Lantau, Cheung Chau, Central, Wan Chai, Sheung Wan, Mid-Levels, Happy Valley, 香港,
+               香港島, 香港岛, 九龍, 九龙, 維多利亞城, 维多利亚城, 赤柱, 香港仔, 沙田, 大埔, 元朗, 大嶼山, 大屿山, 長洲, 长洲,
+               跑馬地, 跑马地, Morrison Education Society, 馬禮遜教育協會, 马礼逊教育协会, Ying Wa College, 英華書院, 英华书院,
+               Basel Mission, 巴色会, 巴色會, 巴塞尔差会, Rhenish Mission, 巴陵会, 巴陵會, Berlin Foundling House, 柏林信義會,
+               Canossian, 嘉諾撒, 嘉诺撒, PIME, 米兰外方传教会, 米蘭外方傳教會, Nazareth House, 拿撒勒, Paris Foreign Missions
+               Society, 巴黎外方传教会, 巴黎外方傳教會, St Paul's College, 聖保羅書院, 圣保罗书院, St John's Cathedral, 聖約翰座堂,
+               圣约翰座堂, Diocese of Victoria, 維多利亞教區, London Missionary Society, 倫敦會, 伦敦会, Hollywood Road Chapel,
+               道濟會堂, 道济会堂, Ho Tsun-shin, 何福堂, James Legge, 理雅各, Walter Medhurst, 麥都思, Alice Memorial Hospital,
+               那打素醫院, 雅麗氏紀念醫院, Nethersole Hospital, Hong Kong College of Medicine, 香港西醫書院, Sun Yat-sen, 孫中山,
+               Church of Christ in China, 中華基督教會, 中华基督教会, Chinese Christian Union, 華人基督教聯會, Tsang Kwong-chai,
+               Hong Kong Cemetery, 香港墳場, 香港坟场, Hong Kong Baptist, 浸信會, 浸信会]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Hong Kong places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/hong-kong/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Hong Kong places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/hong-kong/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Christianity in Hong Kong
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Hong_Kong
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Hong_Kong
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Hong Kong places
+        start_urls:
+          - https://en.wikipedia.org/wiki/St._John%27s_Cathedral,_Hong_Kong
+          - https://en.wikipedia.org/wiki/Hong_Kong
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Hong Kong
+        start_urls:
+          - https://zh.wikipedia.org/wiki/香港
+        follow: []
+        max_pages: 1
+        language: zh
+  macau:
+    name: Macau 澳门
+    extract_hint: >-
+      Macau (澳門, Macao, Aomen, Amacao, Cidade do Nome de Deus), Portuguese settlement from 1557; Macau peninsula, Taipa
+      and Coloane islands. Include the Jesuit Colégio de São Paulo (1594) and the Church of the Mater Dei / Ruins of St
+      Paul's, Madre de Deus; Santo Agostinho, São Domingos, São Lourenço, Santo António, Sé Cathedral; the Diocese of Macau
+      (1576) and the Padroado; Franciscans, Dominicans, Augustinians; Seminary of St Joseph; Leal Senado; the Old
+      Protestant Cemetery and Camões Garden (Robert Morrison, 1807 arrival; Elijah Bridgman; Peter Parker and the Canton
+      Ophthalmic Hospital; Morrison Education Society, 1835; Samuel Wells Williams); Kiang Wu Hospital; the Sino-Portuguese
+      Rites controversy; the Christian community of Japanese exiles; Chinese Christian schools and presses; Protestant
+      and Catholic hospitals; cemeteries and memorials.
+    keywords: [Macau, Macao, Aomen, Amacao, Cidade do Nome de Deus, Taipa, Coloane, 澳门, 澳門, 氹仔, 路环, 路環, Colégio de São Paulo,
+               St Paul's College, 圣保禄学院, 聖保祿學院, 大三巴, 聖保祿教堂, Ruins of St Paul's, Madre de Deus, 三巴, São
+               Domingos, 玫瑰堂, Santo Agostinho, 圣奥斯定教堂, 聖奧斯定教堂, São Lourenço, 圣老楞佐教堂, Santo António, 圣安多尼教堂,
+               Sé Cathedral, 主教座堂, Diocese of Macau, 澳門教區, 澳门教区, Padroado, Seminary of St Joseph, 圣若瑟修院, 聖若瑟修院,
+               Leal Senado, 議事亭, Old Protestant Cemetery, 基督教坟场, 基督教墳場, Camões Garden, 白鸽巢, Robert Morrison, 马礼逊,
+               馬禮遜, Elijah Bridgman, 裨治文, Peter Parker, 伯駕, 伯驾, Samuel Wells Williams, 衛三畏, 卫三畏, Morrison Education
+               Society, 馬禮遜教育協會, Kiang Wu Hospital, 鏡湖醫院, 镜湖医院, Jesuit, 耶稣会, 耶穌會, Franciscan, Dominican,
+               Augustinian, Michele Ruggieri, 罗明坚, 羅明堅, Alessandro Valignano, 范礼安, 範禮安, Matteo Ricci, 利玛窦, 利瑪竇,
+               Canton, Guangzhou, 广州, 廣州, Rites controversy, 礼仪之争, 禮儀之爭]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Macau places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/macau/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Macau places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/macau/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Religion in Macau, Diocese and St Paul's
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Macau
+          - https://en.wikipedia.org/wiki/Roman_Catholic_Diocese_of_Macau
+          - https://en.wikipedia.org/wiki/Ruins_of_St._Paul%27s
+          - https://en.wikipedia.org/wiki/Macau
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (ZH) — Macau Catholic Diocese and St Paul's College
+        start_urls:
+          - https://zh.wikipedia.org/wiki/澳門天主教
+          - https://zh.wikipedia.org/wiki/聖保祿學院
+        follow: []
+        max_pages: 2
+        language: zh
+  taiwan:
+    name: Taiwan 台湾
+    extract_hint: >-
+      Taiwan (台灣, Formosa, Tai-oan, Taiwan-fu), Dutch Formosa 1624-1662 (Zeelandia, Fort Provintia, Sakam), Spanish
+      Formosa 1626-1642 (Keelung/Santissima Trinidad, Tamsui/San Domingo), Qing prefecture, Japanese rule 1895-1945, ROC
+      after 1945. Cities and areas: taipei (臺北, Taihoku, Twatutia/Dadaocheng 大稻埕, Bangka/Wanhua 艋舺), keelung (基隆,
+      Kelung), new taipei (新北, Tamsui/Danshui 淡水, Sanchong, Banqiao), taoyuan, hsinchu (新竹, Tek-chham), miaoli,
+      taichung (臺中, Taichū), changhua (彰化, Changhoa), nantou, yunlin, chiayi (嘉義), tainan (臺南, Taiwan-fu, Anping 安平,
+      Siau-lang, Sinkang 新港, Bak-sa), kaohsiung (高雄, Takow 打狗, Ape/Wanjin 萬金), pingtung, yilan (宜蘭, Kavalan), hualien
+      (花蓮), taitung (臺東), Penghu (澎湖, Pescadores, Makung 馬公), Kinmen and Matsu. Include Dutch Reformed missionaries
+      (Georgius Candidius, Robertus Junius) and the Formosan Bible and schools; Spanish Dominican missions; Presbyterian
+      Church of England (James Laidlaw Maxwell, Thomas Barclay, William Campbell) at Tainan and Takow from 1865;
+      Canadian Presbyterian (George Leslie Mackay at Tamsui from 1872, Oxford College, Mackay Hospital, Tamsui Girls' School);
+      Dominican Catholic mission (Fernando Sainz at Takow, 1859; Wanchin church); Japanese-era churches, True Jesus
+      Church, Holiness Church; mission to Aborigines (Austronesian peoples; Presbyterian and Catholic work); hospitals
+      (Sin-lau/Tainan Hospital, Changhua Christian Hospital), schools (Tamkang, Tainan Theological College, Chang Jung),
+      cemeteries and memorials.
+    keywords: [Taiwan, Formosa, Tai-oan, Taiwan-fu, Taihoku, Taichu, Dutch Formosa, Spanish Formosa, Zeelandia, Fort Provintia,
+               Sakam, Santissima Trinidad, San Domingo, Taipei, Twatutia, Dadaocheng, Bangka, Wanhua, Keelung, Kelung, Tamsui,
+               Danshui, Hsinchu, Miaoli, Taichung, Changhua, Nantou, Yunlin, Chiayi, Tainan, Anping, Sinkang, Bak-sa, Kaohsiung,
+               Takow, Wanjin, Pingtung, Yilan, Kavalan, Hualien, Taitung, Penghu, Pescadores, Makung, Kinmen, Matsu, 台湾, 臺灣,
+               台灣, 福爾摩沙, 福尔摩沙, 台北, 臺北, 大稻埕, 艋舺, 基隆, 淡水, 新竹, 苗栗, 台中, 臺中, 彰化, 南投, 雲林, 云林, 嘉義,
+               嘉义, 台南, 臺南, 台灣府, 安平, 新港, 高雄, 打狗, 萬金, 万金, 屏東, 屏东, 宜蘭, 宜兰, 花蓮, 花莲, 台東, 臺東, 澎湖,
+               馬公, 马公, 金門, 金门, 馬祖, 马祖, Georgius Candidius, 干治士, Robertus Junius, 尤羅伯, Presbyterian Church of
+               England, 英國長老教會, 英国长老教会, James Laidlaw Maxwell, 馬雅各, 马雅各, Thomas Barclay, 巴克禮, 巴克礼,
+               William Campbell, 甘為霖, 甘为霖, George Leslie Mackay, 馬偕, 马偕, 偕叡理, Oxford College, 牛津學堂, Mackay
+               Hospital, 馬偕醫院, 马偕医院, Tamsui Girls' School, 淡水女學堂, Fernando Sainz, 郭德剛, 郭德刚, Dominican, 道明會,
+               True Jesus Church, 真耶穌教會, 真耶稣教会, Holiness Church, 聖潔教會, Sin-lau Hospital, 新樓醫院, 新楼医院,
+               Changhua Christian Hospital, 彰化基督教醫院, Tainan Theological College, 台南神學院, Presbyterian Church in
+               Taiwan, 台灣基督長老教會, 台湾基督长老教会, Taiwan aborigines, 原住民, 平埔族]
+    sources:
+      - name: Biographical Dictionary of Chinese Christianity (English, Taiwan places)
+        start_urls:
+          - https://www.bdcconline.net/en/places/taiwan/
+        follow: ['^https://www\.bdcconline\.net/en/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: en
+      - name: Biographical Dictionary of Chinese Christianity (Chinese, Taiwan places)
+        start_urls:
+          - https://www.bdcconline.net/zh-hans/places/taiwan/
+        follow: ['^https://www\.bdcconline\.net/zh-hans/stories/[a-z0-9-]+/?$']
+        max_pages: 10
+        max_depth: 1
+        language: zh
+      - name: Wikipedia (EN) — Christianity in Taiwan, Dutch and Spanish Formosa
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Taiwan
+          - https://en.wikipedia.org/wiki/Presbyterian_Church_in_Taiwan
+          - https://en.wikipedia.org/wiki/Dutch_Formosa
+          - https://en.wikipedia.org/wiki/Spanish_Formosa
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (EN) — Mackay and his institutions
+        start_urls:
+          - https://en.wikipedia.org/wiki/George_Leslie_Mackay
+          - https://en.wikipedia.org/wiki/Mackay_Memorial_Hospital
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Christianity in Taiwan, PCT and Mackay
+        start_urls:
+          - https://zh.wikipedia.org/wiki/台灣基督教
+          - https://zh.wikipedia.org/wiki/台灣基督長老教會
+          - https://zh.wikipedia.org/wiki/馬偕
+        follow: []
+        max_pages: 3
+        language: zh
+  east-asia:
+    name: East Asia (Korea, Japan, Mongolia) 东亚
+    extract_hint: >-
+      East Asia outside China: the Korean peninsula (朝鮮, Chosen, Joseon, Korea; Seoul/Hanseong/Keijo 漢城, Pyongyang
+      平壤, Busan, Incheon/Chemulpo 濟物浦, Wonsan, Gaeseong), Japan (日本; Nagasaki 長崎, Hirado, Kyoto, Edo/Tokyo,
+      Yokohama, Kobe, Osaka, Kagoshima, Amakusa, Shimabara, Urakami 浦上, Dejima, Hakodate), and Mongolia (蒙古, Outer
+      Mongolia, Urga/Ulaanbaatar 庫倫, Kiakhta). Include Church of the East traces (Mongol era, Keraites, Onggut, John of
+      Montecorvino); the Jesuit mission of Francis Xavier from 1549; Franciscans and Dominicans; Nanban culture; the
+      Shimabara rebellion (1637-38); the 26 Martyrs of Japan (1597); Kakure Kirishitan and the Edo-period prohibition;
+      Urakami Christians and the rediscovery of 1865; Protestant missions (J. C. Hepburn, S. R. Brown, G. F. Verbeck, Guido
+      Verbeck, Horace Allen, Horace Underwood, Henry Appenzeller, John Ross and Ross Version, Robert Jermain Thomas,
+      Pyongyang Great Revival of 1907, Uchimura Kanzo's Non-church movement); Korean Catholic martyrs (1801, 1839, 1866)
+      and the Korean church founded by lay converts (Yi Seung-hun); Mongolia (Swedish Mongol Mission, Gilmour, CIM, Outer
+      Mongolia missions, Orthodox mission); mission schools, universities, hospitals and presses; cemeteries (Foreigners'
+      cemeteries at Yokohama and Seoul Yanghwajin) and memorials.
+    keywords: [Korea, Joseon, Chosen, Choson, Seoul, Hanseong, Keijo, Pyongyang, Busan, Pusan, Incheon, Chemulpo, Wonsan,
+               Gaeseong, Japan, Nagasaki, Hirado, Kyoto, Edo, Tokyo, Yokohama, Kobe, Osaka, Kagoshima, Amakusa, Shimabara, Urakami,
+               Dejima, Hakodate, Mongolia, Outer Mongolia, Urga, Ulaanbaatar, Kiakhta, 朝鲜, 朝鮮, 韩国, 韓國, 首尔, 首爾, 汉城,
+               漢城, 平壤, 釜山, 仁川, 济物浦, 濟物浦, 元山, 开城, 開城, 日本, 长崎, 長崎, 平户, 平戶, 京都, 江户, 江戶, 东京, 東京,
+               横滨, 橫濱, 神户, 神戶, 大阪, 鹿儿岛, 鹿兒島, 天草, 岛原, 島原, 浦上, 出岛, 出島, 函馆, 函館, 蒙古, 外蒙古, 库伦,
+               庫倫, 乌兰巴托, 烏蘭巴托, 恰克图, 恰克圖, Francis Xavier, 方济各·沙勿略, 方濟各·沙勿略, Kakure Kirishitan, 隐れキリシタン,
+               隱匿基督徒, 潜伏基督徒, Twenty-Six Martyrs of Japan, 日本二十六圣殉道者, 日本二十六聖殉道者, Shimabara Rebellion,
+               島原之亂, James Curtis Hepburn, 赫本, Guido Verbeck, 费尔贝克, Horace Allen, 安连, 安連, Horace Underwood,
+               元杜尤, Henry Appenzeller, 亚扁薛罗, Robert Jermain Thomas, 托马斯, John Ross, 罗约翰, 羅約翰, Pyongyang Revival,
+               平壤大复兴, 平壤大復興, Uchimura Kanzo, 内村鉴三, 內村鑑三, Non-church Movement, 无教会主义, 無教會主義,
+               Yi Seung-hun, 李承薫, 李承薰, John of Montecorvino, 孟高维诺, 孟高維諾, Keraites, 克烈, Onggut, 汪古, Church of the
+               East, Nestorian, 景教, Swedish Mongol Mission, James Gilmour, 理查德·吉尔摩, 裴来, Hidden Christians, 切支丹,
+               Kirishitan, Jesuit, 耶稣会, 耶穌會]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Korea
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Korea
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Christianity in Japan and the Hidden Christians
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Japan
+          - https://en.wikipedia.org/wiki/Kakure_Kirishitan
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Mongolia
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Mongolia
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — Christianity in Korea
+        start_urls:
+          - https://zh.wikipedia.org/wiki/朝鲜半岛基督教
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Christianity in Japan
+        start_urls:
+          - https://zh.wikipedia.org/wiki/日本基督教
+        follow: []
+        max_pages: 1
+        language: zh
+  southeast-asia:
+    name: Southeast Asia 东南亚
+    extract_hint: >-
+      Southeast Asia: Vietnam (越南; Tonkin 東京, Annam 安南, Cochinchina 交趾支那, Hanoi, Saigon, Hue, Hoi An/Faifo),
+      Cambodia, Laos, Thailand (Siam 暹羅, Bangkok, Ayutthaya, Chiang Mai), Myanmar (Burma 緬甸; Yangon/Rangoon, Moulmein,
+      Mandalay), Malaysia (Malacca 馬六甲, Penang 檳城, Kuching, Sarawak, Sabah), Singapore (新加坡), Indonesia (Dutch East
+      Indies; Batavia/Jakarta, Ambon, Java, Sumatra, Batakland, Toraja, Sulawesi), Brunei, Timor, the Philippines (呂宋,
+      Manila 馬尼拉, Cebu, Intramuros, Bohol) and the Nanyang Chinese churches. Include Portuguese Padroado and Spanish
+      missions (Francis Xavier at Malacca, Augustinians, Jesuits, Dominicans), Paris Foreign Missions Society and Vietnamese
+      martyrs (Alexandre de Rhodes, Dong Quoc Ngu, the 117 Vietnamese Martyrs), Dutch Reformed (VOC) churches, the
+      Adoniram Judson Baptist mission in Burma and the Karen movement, American Presbyterian missions in Siam (Dan Beach
+      Bradley, Chiang Mai McGilvary), London Missionary Society at Malacca (Ultra-Ganges Mission, Anglo-Chinese College,
+      William Milne), Rhenish Mission among the Batak (Nommensen), Methodist missions in Singapore and Malaysia (William
+      Oldham), Protestant and Catholic work among overseas Chinese, Chinese-language churches, schools, presses,
+      hospitals, cemeteries (Fort Canning, Old Protestant Cemetery in Penang) and memorials; no post-1952 events.
+    keywords: [Southeast Asia, Nanyang, Vietnam, Tonkin, Annam, Cochinchina, Hanoi, Saigon, Hue, Hoi An, Faifo, Cambodia, Laos,
+               Thailand, Siam, Bangkok, Ayutthaya, Chiang Mai, Myanmar, Burma, Yangon, Rangoon, Moulmein, Mandalay, Malaysia,
+               Malacca, Melaka, Penang, Kuching, Sarawak, Sabah, Singapore, Indonesia, Dutch East Indies, Batavia, Jakarta, Ambon,
+               Java, Sumatra, Batak, Toraja, Sulawesi, Brunei, Timor, Philippines, Luzon, Manila, Cebu, Intramuros, Bohol, 东南亚,
+               東南亞, 南洋, 越南, 东京, 安南, 交趾支那, 河内, 河內, 西贡, 西貢, 顺化, 順化, 会安, 會安, 柬埔寨, 老挝, 老撾, 泰国,
+               泰國, 暹罗, 暹羅, 曼谷, 大城, 清迈, 清邁, 缅甸, 緬甸, 仰光, 毛淡棉, 曼德勒, 马来西亚, 馬來西亞, 马六甲, 馬六甲,
+               槟城, 檳城, 古晋, 古晉, 砂拉越, 沙巴, 新加坡, 星洲, 印度尼西亚, 印度尼西亞, 印尼, 荷属东印度, 荷屬東印度, 巴达维亚,
+               巴達維亞, 雅加达, 雅加達, 安汶, 爪哇, 苏门答腊, 蘇門答臘, 文莱, 汶萊, 东帝汶, 菲律宾, 菲律賓, 吕宋, 呂宋, 马尼拉,
+               馬尼拉, 宿务, 宿務, Francis Xavier, 沙勿略, Alexandre de Rhodes, 亚历山大·德·罗德, 羅馬字, Vietnamese Martyrs,
+               越南殉道圣人, Adoniram Judson, 亚多尼兰·贾德森, judson, Karen, 克伦, 克倫, Dan Beach Bradley, 布拉德利,
+               Daniel McGilvary, 麦基尔瓦里, Ultra-Ganges Mission, 恆河外方傳道團, Anglo-Chinese College, 英華書院, 英华书院,
+               William Milne, 米怜, 米憐, Robert Morrison, 马礼逊, 馬禮遜, Nommensen, 诺门森, London Missionary Society,
+               伦敦会, 倫敦會, Rhenish Mission, 巴陵会, 巴陵會, William Oldham, 傅君, Paris Foreign Missions Society, 巴黎外方传教会,
+               Overseas Chinese, 华侨, 華僑, 华人教会, 華人教會]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Vietnam, Thailand and Myanmar
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Vietnam
+          - https://en.wikipedia.org/wiki/Christianity_in_Thailand
+          - https://en.wikipedia.org/wiki/Christianity_in_Myanmar
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Christianity in the Philippines and Indonesia
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_the_Philippines
+          - https://en.wikipedia.org/wiki/Christianity_in_Indonesia
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Singapore and Malaysia
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Singapore
+          - https://en.wikipedia.org/wiki/Christianity_in_Malaysia
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Southeast Asia
+        start_urls:
+          - https://zh.wikipedia.org/wiki/东南亚
+        follow: []
+        max_pages: 1
+        language: zh
