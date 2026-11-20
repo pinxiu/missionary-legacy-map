@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-20 04:33 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-20 06:36 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 24 / 45  ·  **Published records:** 825  ·  **Verified, awaiting approval:** 70  ·  **Audited:** 735
+**Units done:** 29 / 45  ·  **Published records:** 825  ·  **Verified, awaiting approval:** 70  ·  **Audited:** 735
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -36,11 +36,11 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-NX | Ningxia 宁夏 | done | 1 | 0 | 0 | 7 | 100% | [#28](../../issues/28) |
 | 1 | CN-QH | Qinghai 青海 | in-progress | 0 | 1 | 0 | 4 | 0% | [#29](../../issues/29) |
 | 1 | CN-XJ | Xinjiang 新疆 | in-progress | 4 | 2 | 0 | 16 | 67% | [#30](../../issues/30) |
-| 1 | CN-XZ | Tibet 西藏 | in-progress | 1 | 0 | 0 | 6 | 100% | [#31](../../issues/31) |
-| 1 | CN-HI | Hainan 海南 | in-progress | 3 | 0 | 0 | 2 | 100% | [#32](../../issues/32) |
-| 1 | HK | Hong Kong 香港 | in-progress | 19 | 0 | 0 | 56 | 100% | [#33](../../issues/33) |
-| 1 | MO | Macau 澳门 | in-progress | 11 | 0 | 0 | 21 | 100% | [#34](../../issues/34) |
-| 1 | TW | Taiwan 台湾 | in-progress | 27 | 0 | 0 | 50 | 100% | [#35](../../issues/35) |
+| 1 | CN-XZ | Tibet 西藏 | done | 1 | 0 | 0 | 6 | 100% | [#31](../../issues/31) |
+| 1 | CN-HI | Hainan 海南 | done | 3 | 0 | 0 | 2 | 100% | [#32](../../issues/32) |
+| 1 | HK | Hong Kong 香港 | done | 19 | 0 | 0 | 56 | 100% | [#33](../../issues/33) |
+| 1 | MO | Macau 澳门 | done | 11 | 0 | 0 | 21 | 100% | [#34](../../issues/34) |
+| 1 | TW | Taiwan 台湾 | done | 27 | 0 | 0 | 50 | 100% | [#35](../../issues/35) |
 | 2 | W-EAS | East Asia (Korea, Japan, Mongolia) 东亚（朝鲜半岛、日本、蒙古） | todo |  |  |  |  |  | [#36](../../issues/36) |
 | 2 | W-SEA | Southeast Asia 东南亚 | todo |  |  |  |  |  | [#37](../../issues/37) |
 | 2 | W-SAS | South Asia 南亚 | todo |  |  |  |  |  | [#38](../../issues/38) |
