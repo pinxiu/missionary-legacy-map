@@ -81,6 +81,11 @@ jobs:
           cache-dependency-path: pipeline/pyproject.toml
       - run: pip install -e "pipeline[dev]"
 
+      # A revoked ANTHROPIC_API_KEY made every run from Nov 11 to Nov 20 fail silently (the status job still committed).
+      # Free check first: a rejected credential stops here and opens a `runner-blocked` issue naming the secret to replace.
+      - name: Preflight (credentials, no model call)
+        run: mlm preflight
+
       - name: Pick units (no model call)
         id: unit
         run: |
@@ -91,13 +96,20 @@ jobs:
             region=$(python3 -c "from mlm import coverage as c; print(c.unit('$u')['region'])")
             echo "region=$region" >> "$GITHUB_OUTPUT"
           fi
-          # the next few units that have no sources yet: one scout pass covers all of them, so sources never hold up a run
-          need=$(mlm coverage upcoming --n 12 | awk '$3=="no"{print $2}' | tr '\n' ' ')
+          # the next few units that have no sources yet: one scout pass covers all of them, so sources never hold up a run.
+          # Only units of the current phase (China before the world), so the scout's time goes where the work is.
+          up=$(mlm coverage upcoming --n 12)
+          phase=$(echo "$up" | awk 'NR==1{print $4}')
+          need=$(echo "$up" | awk -v p="$phase" '$3=="no" && $4==p {print $2}' | tr '\n' ' ')
           echo "need=$need" >> "$GITHUB_OUTPUT"
           echo "### Coverage agents: unit '${u:-none}'; scouting: ${need:-nothing}" >> "$GITHUB_STEP_SUMMARY"
 
+      # A failed scout must never hold up the pipeline: units that already have sources still get worked, and the
+      # validation below commits nothing when the scout added nothing. (A scout failure skipped the whole run before.)
       - name: Source scout (only when the unit has no sources yet)
         if: steps.unit.outputs.need != ''
+        id: scout
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           allowed_bots: "github-actions"   # runs this workflow starts itself (dispatch) count as a bot actor
@@ -131,6 +143,8 @@ jobs:
 
       - name: Validate scout output (trusted)
         if: steps.unit.outputs.need != ''
+        id: validate
+        continue-on-error: true
         run: |
           python3 - <<'EOF'
           import yaml, sys
@@ -151,7 +165,12 @@ jobs:
           git diff --stat -- pipeline/mlm/sources.yaml
           [ -z "$(git status --porcelain -- . ':!pipeline/mlm/sources.yaml')" ] || { echo "scout edited other files"; git status --porcelain; exit 1; }
           git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
+          if git diff --quiet -- pipeline/mlm/sources.yaml; then echo "::warning::scout added no sources (outcome: ${{ steps.scout.outcome }})"; exit 0; fi
           git add pipeline/mlm/sources.yaml && git commit -m "Sources for ${{ steps.unit.outputs.need }}(source scout)" && git pull --rebase -q && git push origin HEAD:main
+
+      - name: Discard invalid scout output (the pipeline still runs on the sources already committed)
+        if: steps.validate.outcome == 'failure'
+        run: git checkout -- pipeline/mlm/sources.yaml && git status -sb | head -3
 
       # Restore and save are split so the cache is saved even when a later step fails. With plain actions/cache a
       # failed run discarded every page it had already paid Sonnet to extract, and the next run extracted them again.

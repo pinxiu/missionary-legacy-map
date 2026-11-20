@@ -62,6 +62,7 @@ def main(argv: list[str] | None = None) -> None:
     rpr = sub.add_parser("reprocess", help="Re-read every source and re-file every place on it under all its regions, then re-pin")
     rpr.add_argument("--no-pins", action="store_true", help="skip the LLM + Amap pin pass at the end")
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
+    sub.add_parser("preflight", help="Check the runners' credentials (free); a rejected key opens a runner-blocked issue")
     sub.add_parser("actions-usage", help="Approximate GitHub Actions minutes over 30 days, per workflow (no model)")
     cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
     cp.add_argument("action", choices=["prune"])
@@ -185,6 +186,9 @@ def main(argv: list[str] | None = None) -> None:
         else:
             open("/tmp/decide-summary.txt", "w").write(decisions.decide(Store(), args.issue))
         return
+    if args.cmd == "preflight":
+        from . import preflight
+        raise SystemExit(preflight.run())
     if args.cmd == "coverage":
         from . import coverage
         if args.action == "sync":
@@ -195,8 +199,8 @@ def main(argv: list[str] | None = None) -> None:
         elif args.action == "upcoming":
             from .crawl import load_registry
             have = load_registry()["regions"]
-            for u in coverage.upcoming(args.n):  # "<unit> <region> <yes|no: has sources>"
-                print(u["id"], u["region"], "yes" if u["region"] in have else "no")
+            for u in coverage.upcoming(args.n):  # "<unit> <region> <yes|no: has sources> <phase>"
+                print(u["id"], u["region"], "yes" if u["region"] in have else "no", u.get("phase", ""))
         else:
             from .store import Store
             store = Store()
