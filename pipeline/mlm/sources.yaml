@@ -223,6 +223,67 @@ regions:
         max_pages: 2
         language: zh
         # 湖山堂 also has post-1952 paragraphs; skip them (policy rule 2)
+      - name: Wikipedia (ZH) — Hangzhou heritage sites (广济医院松木场分院旧址, 塘栖耶稣堂)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/广济医院松木场分院旧址
+          - https://zh.wikipedia.org/wiki/塘栖耶稣堂
+        follow: []
+        max_pages: 2
+        language: zh
+        # CMS leprosy hospital at Songmuchang (1914-1930 buildings, chapel), cited to the Hangzhou heritage-list notice
+        # and 宋涛《民国杭州历史遗存》; Northern Presbyterian Tangxi church (1899), cited to 塘栖镇政府 and 塘栖史志
+      - name: Wikipedia (ZH) — 天主教杭州总教区 (Catholic Hangzhou from 1627 to 1952)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/天主教杭州总教区
+        follow: []
+        max_pages: 1
+        language: zh
+        # Yang Tingyun's 1627 church, Lazarist West Chekiang vicariate (1910), archdiocese (1946); cites 杭州市志 and
+        # 郭慕天《浙江天主教》. About 40% is post-1952 (bishops, recent appointments): skip it (policy rule 2)
+      - name: Wikipedia (ZH) — 浙江基督教新教 (Hangzhou missions and churches by society)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/浙江基督教新教
+        follow: []
+        max_pages: 1
+        language: zh
+        # CIM 1866 (崇一堂, 敬一堂), Northern Baptist 民众堂, CMS 信一堂/慕德堂/志水堂, Southern Presbyterian 笕桥堂 etc.;
+        # cites 汤清《中国基督教百年史》 and the Hangzhou Civil Affairs Bureau survey. Skip present-day paragraphs
+      - name: Wikipedia (EN) — Sturton (CMS hospital and leper hospital) and Christ's Church, Tangxi
+        start_urls:
+          - https://en.wikipedia.org/wiki/Stephen_Douglas_Sturton
+          - https://en.wikipedia.org/wiki/Christ%27s_Church,_Tangxi
+        follow: []
+        max_pages: 2
+        language: en
+        # Sturton: CMS Hospital 1921-1952, Hangchow Medical Training College, Leper Hospital, wartime refugee camps;
+        # cited to his 1948 memoir and North-China Herald / SCMP reports
+      - name: Guinness, The Story of the China Inland Mission, vol. I (Morgan & Scott, 1893) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/cu31924011091984/cu31924011091984_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period CIM history (Cornell scan); ch. VIII "Early Days in Hang-chau" (1866-67, Siao-shan out-station). Devotional tone: corroborate
+      - name: Chester, Lights and Shadows of Mission Work in the Far East (1899) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/cu31924022919793/cu31924022919793_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # PCUS (Southern Presbyterian) secretary's 1897 visit report: Hangchow church, girls' boarding school, school exchange with Northern Presbyterians
+      - name: 杭州网 (Hangzhou News Center) — local-history articles on Guangji Hospital and its leper hospital
+        start_urls:
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219_2.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219_3.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2021-08/11/content_8029025.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2017-08/24/content_6636489.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2017-08/24/content_6636489_2.htm
+        follow: []
+        max_pages: 6
+        language: zh
+        kind: news   # 2018 piece by Hangzhou Landscape & Cultural Heritage Bureau staff; others reprint local-history writers.
+        # Opium refuge 1869, Main 1881-1926, Beishan St. leper hospital 1896, Baochu Pagoda sanatorium, Songmuchang 1915, Baoshi Shan inscription. Corroborate
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
