@@ -598,3 +598,16 @@ def test_gates_count_published_records_too(monkeypatch):
     assert not coverage.gates_met({**base, "published": 0})    # nothing at all
     assert not coverage.gates_met({**base, "published": 3, "agreement_value": 0.7})
     assert not coverage.gates_met({**base, "published": 3, "sources": 2})
+
+
+def test_multiword_and_alias_regions_find_their_unit():
+    """Nov 21 2026: 'inner mongolia', 'hong kong', 'xizang' and 'macao' never matched a unit and waited in `unplaced`."""
+    from mlm.load import key_is_placeable, unit_for_place
+    assert unit_for_place("cn", "inner mongolia")["id"] == "CN-NM"
+    assert unit_for_place("cn", "Inner_Mongolia")["id"] == "CN-NM"
+    assert unit_for_place("cn", "hong kong")["id"] == "HK"
+    assert unit_for_place("cn", "xizang")["id"] == "CN-XZ"
+    assert unit_for_place("cn", "macao")["id"] == "MO"
+    assert unit_for_place("cn", "guizhou")["id"] == "CN-GZ"
+    assert key_is_placeable("cn|inner mongolia")
+    assert not key_is_placeable("cn|")
