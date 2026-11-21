@@ -12,8 +12,10 @@ permissions:
   contents: write
   issues: write
 
+# One group per issue: with a single shared group GitHub keeps only one waiting run, so labelling several issues at once
+# cancelled all but the first and last (Nov 21 2026).
 concurrency:
-  group: decide
+  group: decide-${{ github.event.issue.number }}
   cancel-in-progress: false
 
 jobs:
@@ -41,8 +43,14 @@ jobs:
         run: |
           mlm coverage status > /dev/null
           git config user.name "legacy-map-bot"; git config user.email "legacy-map-bot@users.noreply.github.com"
-          git add coverage/rulings.md STATUS.md
-          if ! git diff --cached --quiet; then git commit -m "Decision on #$ISSUE" && git pull --rebase -q && git push; fi
+          # Only rulings are committed here: STATUS.md is rewritten by every coverage run, and committing it from parallel
+          # decisions made the rebases conflict. Retry the push, since other bots push to main too.
+          git checkout -q -- STATUS.md 2>/dev/null || true
+          git add coverage/rulings.md
+          if ! git diff --cached --quiet; then
+            git commit -q -m "Decision on #$ISSUE"
+            for i in 1 2 3 4 5; do git pull --rebase -q && git push -q && break; git rebase --abort 2>/dev/null; sleep $((i * 5)); done
+          fi
       - name: Close issue
         run: |
           gh issue comment "$ISSUE" --body "✅ Applied: $(cat /tmp/decide-summary.txt)."
