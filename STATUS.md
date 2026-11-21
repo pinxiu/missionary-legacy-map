@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-21 10:54 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-21 14:08 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 29 / 45  ·  **Published records:** 857  ·  **Verified, awaiting approval:** 75  ·  **Audited:** 772
+**Units done:** 30 / 45  ·  **Published records:** 857  ·  **Verified, awaiting approval:** 75  ·  **Audited:** 772
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -24,7 +24,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-SC | Sichuan 四川 | done | 31 | 1 | 0 | 97 | 97% | [#16](../../issues/16) |
 | 1 | CN-CQ | Chongqing 重庆 | done | 11 | 2 | 0 | 31 | 85% | [#17](../../issues/17) |
 | 1 | CN-YN | Yunnan 云南 | done | 8 | 7 | 0 | 73 | 56% | [#18](../../issues/18) |
-| 1 | CN-GZ | Guizhou 贵州 | in-progress | 2 | 1 | 0 | 30 | 67% | [#19](../../issues/19) |
+| 1 | CN-GZ | Guizhou 贵州 | done | 2 | 1 | 0 | 30 | 100% | [#19](../../issues/19) |
 | 1 | CN-GX | Guangxi 广西 | done | 15 | 1 | 0 | 28 | 94% | [#20](../../issues/20) |
 | 1 | CN-SX | Shanxi 山西 | done | 25 | 2 | 0 | 49 | 93% | [#21](../../issues/21) |
 | 1 | CN-SN | Shaanxi 陕西 | done | 20 | 2 | 0 | 49 | 91% | [#22](../../issues/22) |
