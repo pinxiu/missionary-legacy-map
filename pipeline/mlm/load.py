@@ -57,12 +57,26 @@ def ensure_region(store: Store, region: str, unit: str | None) -> None:
         notice(f"load: added regions {', '.join(r['slug'] for r in rows)}")
 
 
+# Other names the parser gives first-level regions. Unit regions are slugs ("inner-mongolia"); the parser writes names
+# ("inner mongolia", "xizang"). Until Nov 21 2026 only one-word names matched, so Inner Mongolia, Hong Kong, Macau and
+# part of Tibet sat in `unplaced` with no records.
+REGION_ALIASES = {"xizang": "tibet", "tibet autonomous region": "tibet", "macao": "macau", "nei mongol": "inner-mongolia",
+                  "nei menggu": "inner-mongolia", "hongkong": "hong-kong", "xinjiang uyghur autonomous region": "xinjiang",
+                  "guangxi zhuang autonomous region": "guangxi", "ningxia hui autonomous region": "ningxia"}
+
+
+def region_slug(name: str | None) -> str:
+    """'Inner Mongolia' / 'inner_mongolia' / 'Xizang' -> the unit region slug ('inner-mongolia', 'tibet')."""
+    s = " ".join((name or "").strip().lower().replace("_", " ").replace("-", " ").split())
+    return REGION_ALIASES.get(s) or s.replace(" ", "-")
+
+
 def unit_for_place(country: str | None, province: str | None) -> dict | None:
     """The coverage unit a place belongs to: by first-level region (a China province, a state) or, failing that, by country."""
     from .coverage import units
-    prov, ctry = (province or "").strip().lower(), (country or "").strip().lower()
+    prov, ctry = region_slug(province), (country or "").strip().lower()
     us = units()
-    return (next((u for u in us if prov and u["region"] == prov), None)
+    return (next((u for u in us if prov and (u["region"] == prov or region_slug(u["en"]) == prov)), None)
             or next((u for u in us if ctry and (u["id"].lower() == ctry or u["region"] == ctry)), None))
 
 
