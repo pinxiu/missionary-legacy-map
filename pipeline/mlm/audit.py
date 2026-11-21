@@ -20,10 +20,53 @@ Return JSON only: {"found": true|false, "specific_place": true|false,
 "years": [<every year the text ties to this place>], "notes": "<one line>"}"""
 
 
-def request(name: str, text: str) -> Req:
+MAX_TEXT = 60000
+WINDOW = 6000
+GENERIC = {"mission", "station", "church", "chapel", "cathedral", "hospital", "school", "college", "catholic", "protestant",
+           "residence", "the", "and", "of", "at", "in", "post", "south", "north", "east", "west", "old", "new", "home",
+           "house", "society", "scottish", "swedish", "nestorian", "memorial", "cemetery"}
+
+
+def audit_text(name: str, text: str, anchors: tuple[str, ...] = ()) -> str:
+    """The part of the source the auditor reads. Short pages whole. Long pages (whole archive.org books) used to be cut
+    at 60,000 characters, so a place described on page 300 was "not found" (Nov 2026: Haicheng, Chaoyang and Kweiyang
+    all sat in the cut-off part). Now: the passages around each mention of the place's distinctive name words, and
+    around the record's verified quote (`anchors`), in page order, up to the same length. The auditor still sees no
+    extraction, only source text."""
+    if len(text) <= MAX_TEXT:
+        return text
+    import re
+    flat = re.sub(r"\s+", " ", text)
+    low = flat.lower()
+    words = [w for w in re.findall(r"[^\W\d_]{4,}", name.lower()) if w not in GENERIC]
+    hits: list[int] = []
+    for a in anchors:
+        probe = re.sub(r"\s+", " ", a).strip().lower()[:80]
+        if probe and (i := low.find(probe)) >= 0:
+            hits.append(i)
+    for w in words:
+        hits += [m.start() for m in re.finditer(re.escape(w), low)][:20]
+    spans: list[list[int]] = []
+    for i in sorted(set(hits)):
+        lo, hi = max(0, i - WINDOW), min(len(flat), i + WINDOW)
+        if spans and lo <= spans[-1][1]:
+            spans[-1][1] = max(spans[-1][1], hi)
+        else:
+            spans.append([lo, hi])
+    out, used = [], 0
+    for lo, hi in spans:
+        if used >= MAX_TEXT:
+            break
+        piece = flat[lo:min(hi, lo + MAX_TEXT - used)]
+        out.append(piece)
+        used += len(piece)
+    return "\n[…]\n".join(out) if out else text[:MAX_TEXT]
+
+
+def request(name: str, text: str, anchors: tuple[str, ...] = ()) -> Req:
     from .decisions import rulings_text
     return Req(model=AUDIT_MODEL, max_tokens=1500, system=SYSTEM + rulings_text(), purpose="audit",
-               user=f"Place: {name}\n\n<text>\n{text[:60000]}\n</text>")
+               user=f"Place: {name}\n\n<text>\n{audit_text(name, text, anchors)}\n</text>")
 
 
 def ask(name: str, text: str, llm=None) -> dict:
@@ -41,7 +84,14 @@ def agrees(record: dict, events: list[dict], answer: dict) -> tuple[bool, str]:
     if answer.get("site_type") and answer["site_type"] != record["site_type"] and record["site_type"] != "other":
         return False, f"type {record['site_type']} vs auditor {answer['site_type']}"
     years = {int(y) for y in answer.get("years", []) if str(y).isdigit()}
-    missing = [e["year_start"] for e in events if e.get("year_start") and e["year_start"] not in years]
+
+    def confirmed(e: dict) -> bool:
+        # a range ("seventh or eighth century" = 601-800) is confirmed by any year inside it, or by a text that gives
+        # no exact year; it was failing as "601 not confirmed" (Nov 2026, Qocho)
+        if e.get("year_end") and e["year_end"] != e["year_start"]:
+            return not years or any(e["year_start"] <= y <= e["year_end"] for y in years)
+        return e["year_start"] in years
+    missing = [e["year_start"] for e in events if e.get("year_start") and not confirmed(e)]
     if missing:
         return False, f"years not confirmed: {missing}"
     return True, "ok"
@@ -59,12 +109,12 @@ def run(store, uid: str, regions: list[str], sample: int = 10, llm=None) -> dict
     stats = {"audited": 0, "agree": 0}
     picked = []
     for s in random.sample(sites, min(sample, len(sites))):
-        claims = store.select("claims", select="source_id", subject_id=f"eq.{s['id']}", status="eq.verified")
-        text = next((docs[c["source_id"]] for c in claims if docs.get(c["source_id"])), "")
-        if text:
-            picked.append((s, text))
-    answers = llm.run([request(s["name_en"], text) for s, text in picked])  # one batch for the whole sample
-    for (s, _text), res in zip(picked, answers, strict=True):
+        claims = store.select("claims", select="source_id,excerpt", subject_id=f"eq.{s['id']}", status="eq.verified")
+        src = next((c["source_id"] for c in claims if docs.get(c["source_id"])), None)
+        if src:
+            picked.append((s, docs[src], tuple(c.get("excerpt") or "" for c in claims if c["source_id"] == src)))
+    answers = llm.run([request(s["name_en"], text, anchors) for s, text, anchors in picked])  # one batch for the sample
+    for (s, _text, _a), res in zip(picked, answers, strict=True):
         if res is None:
             continue  # not answered this run; the site stays unaudited and can be sampled again
         try:
@@ -72,7 +122,7 @@ def run(store, uid: str, regions: list[str], sample: int = 10, llm=None) -> dict
         except ValueError as e:
             notice(f"audit: {s['name_en']}: unreadable answer ({e})", "warning")
             continue
-        events = store.select("events", select="year_start", site_id=f"eq.{s['id']}", status="eq.verified")
+        events = store.select("events", select="year_start,year_end", site_id=f"eq.{s['id']}", status="eq.verified")
         ok, why = agrees(s, events, answer)
         store.insert("audits", [{"unit": uid, "subject_kind": "site", "subject_id": s["id"], "agree": ok,
                                  "detail": {"why": why, "answer": answer}, "model": AUDIT_MODEL}])
