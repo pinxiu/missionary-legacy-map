@@ -2392,3 +2392,557 @@ regions:
         follow: []
         max_pages: 1
         language: zh
+  south-asia:
+    name: South Asia 南亚
+    extract_hint: >-
+      South Asia: India (印度; Malabar Coast and Kerala, Cranganore/Kodungallur, Mylapore/San Thome, Goa, Cochin, Calicut,
+      Madras/Chennai, Bombay/Mumbai, Calcutta/Kolkata 加尔各答, Serampore 塞兰坡, Tranquebar 特兰奎巴, Tanjore, Madurai, Delhi,
+      Agra, Lahore, Travancore, Bangalore, Mysore, Nagaland, Shillong), Pakistan (巴基斯坦), Bangladesh (孟加拉国), Sri Lanka
+      (Ceylon 锡兰), Nepal (尼泊尔), Bhutan and the Maldives. Include the Saint Thomas Christians and the Church of the East
+      in Malabar; Portuguese Padroado missions and the Goa Inquisition; Francis Xavier; the Jesuit Madurai mission (de Nobili);
+      Danish-Halle missions (Ziegenbalg, Schwartz); Serampore Trio (William Carey, Marshman, Ward) and Serampore College;
+      CMS, LMS, SPG, Baptist, American Board, Basel, Scottish and Methodist missions; Bishop's College, Calcutta; Christian
+      Medical College, Vellore; Forman Christian College; Ida Scudder; the Mukti Mission (Pandita Ramabai); Sadhu Sundar
+      Singh; indigenous and independent movements; the Mizo and Naga revivals; mission schools, hospitals, presses
+      (Serampore Press), cemeteries (South Park Street Cemetery, Calcutta) and memorials. Historical only, nothing after 1952.
+    keywords: [India, Malabar, Kerala, Cranganore, Kodungallur, Mylapore, San Thome, Goa, Cochin, Calicut, Madras, Bombay,
+               Calcutta, Serampore, Tranquebar, Tanjore, Madurai, Delhi, Agra, Lahore, Travancore, Ceylon, Sri Lanka, Pakistan,
+               Bangladesh, Dacca, Nepal, Saint Thomas Christians, Syrian Christians, Church of the East, Padroado, Goa Inquisition,
+               Francis Xavier, Roberto de Nobili, William Carey, Serampore Trio, Ziegenbalg, Schwartz, Pandita Ramabai,
+               Sadhu Sundar Singh, Ida Scudder, Vellore, 印度, 馬拉巴爾, 马拉巴尔, 喀拉拉, 果阿, 加尔各答, 加爾各答, 塞兰坡,
+               塞蘭坡, 特兰奎巴, 马德拉斯, 孟买, 孟買, 德里, 锡兰, 錫蘭, 斯里兰卡, 斯里蘭卡, 巴基斯坦, 孟加拉, 尼泊尔, 尼泊爾,
+               圣多马基督徒, 聖多馬基督徒, 威廉·凯里, 威廉·克里, 威廉·凱裡, 景教, 方济各·沙勿略, 耶稣会, 耶穌會, 伦敦会, 倫敦會]
+    sources:
+      - name: Wikipedia (EN) — Christianity in India and the Saint Thomas Christians
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_India
+          - https://en.wikipedia.org/wiki/Saint_Thomas_Christians
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Serampore Mission
+        start_urls:
+          - https://en.wikipedia.org/wiki/Serampore_Mission
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Christianity in Sri Lanka, Pakistan and Bangladesh
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Sri_Lanka
+          - https://en.wikipedia.org/wiki/Christianity_in_Pakistan
+          - https://en.wikipedia.org/wiki/Christianity_in_Bangladesh
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Padroado and Goa
+        start_urls:
+          - https://en.wikipedia.org/wiki/Goa_Inquisition
+          - https://en.wikipedia.org/wiki/Padroado
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Christianity in India
+        start_urls:
+          - https://zh.wikipedia.org/wiki/印度基督教
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Saint Thomas Christians
+        start_urls:
+          - https://zh.wikipedia.org/wiki/圣多马基督徒
+        follow: []
+        max_pages: 1
+        language: zh
+  central-asia:
+    name: Central Asia 中亚
+    extract_hint: >-
+      Central Asia: Kazakhstan, Kyrgyzstan, Uzbekistan, Tajikistan, Turkmenistan, Afghanistan (中亚; Merv 木鹿, Samarkand
+      撒马尔罕, Bukhara 布哈拉, Tashkent, Kashgar 喀什, Turfan/Turpan 吐鲁番, Bulayiq, Almaliq 阿力麻里, Balasagun, Suyab,
+      Semirechye/Zhetysu 七河, Issyk-Kul, Herat, Kabul, Khorasan). Include the Church of the East (Nestorian 景教) metropolitanates
+      of Merv, Samarkand and Herat; Syriac inscriptions and tombstones of Semirechye; Turfan Manichaean-Christian finds; Mongol
+      and Timurid era Christians; Franciscan and Dominican envoys; the Russian Orthodox mission in Turkestan; Protestant
+      missions in Kashgar and Turkestan (Swedish Mission, CIM, Hunter and Mildred Cable); German Mennonite and Lutheran
+      settlements; Moravian and Catholic traces; mission schools, hospitals, presses, cemeteries and memorials. Historical
+      only, nothing after 1952.
+    keywords: [Central Asia, Turkestan, Kazakhstan, Kyrgyzstan, Uzbekistan, Tajikistan, Turkmenistan, Afghanistan, Merv,
+               Samarkand, Bukhara, Tashkent, Kashgar, Turfan, Turpan, Almaliq, Balasagun, Suyab, Semirechye, Issyk-Kul, Herat,
+               Kabul, Khorasan, Church of the East, Nestorian, Syriac inscriptions, Manichaean, Mongol Empire, Timurid,
+               Swedish Mission, Hunter, Mildred Cable, 中亚, 中亞, 哈萨克斯坦, 哈薩克斯坦, 吉尔吉斯斯坦, 乌兹别克斯坦,
+               烏茲別克斯坦, 塔吉克斯坦, 土库曼斯坦, 阿富汗, 木鹿, 撒马尔罕, 撒馬爾罕, 布哈拉, 塔什干, 喀什, 喀什噶尔,
+               吐鲁番, 吐魯番, 阿力麻里, 七河, 伊塞克湖, 赫拉特, 喀布尔, 呼罗珊, 景教, 聂斯脱利派, 聶斯脫利派, 东方教会, 東方教會]
+    sources:
+      - name: Wikipedia (EN) — Church of the East
+        start_urls:
+          - https://en.wikipedia.org/wiki/Church_of_the_East
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Christianity in Kazakhstan and Uzbekistan
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Kazakhstan
+          - https://en.wikipedia.org/wiki/Christianity_in_Uzbekistan
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Turfan and Merv
+        start_urls:
+          - https://en.wikipedia.org/wiki/Turfan
+          - https://en.wikipedia.org/wiki/Merv
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Asia
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Central_Asia
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — Church of the East (Nestorianism)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/景教
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Central Asia
+        start_urls:
+          - https://zh.wikipedia.org/wiki/中亚
+        follow: []
+        max_pages: 1
+        language: zh
+  middle-east:
+    name: Middle East and Holy Land 中东与圣地
+    extract_hint: >-
+      Middle East and the Holy Land: Palestine/Israel (Jerusalem 耶路撒冷, Bethlehem 伯利恒, Nazareth 拿撒勒, Jaffa, Haifa,
+      Galilee), Lebanon (Beirut 贝鲁特, Mount Lebanon), Syria (Damascus 大马士革, Antioch 安提阿, Aleppo), Jordan, Iraq (Mosul,
+      Baghdad, Nineveh), Iran/Persia (Urmia 乌尔米亚, Isfahan, Julfa), Turkey/Anatolia (Constantinople 君士坦丁堡, Smyrna,
+      Ephesus 以弗所, Cappadocia), Armenia, Georgia, Cyprus, Arabia and the Gulf (Bahrain, Kuwait, Muscat, Aden). Include
+      the Seven Churches of Asia; early church councils; Church of the East; Maronites, Syriac Orthodox, Armenian, Greek
+      Orthodox, Melkite and Chaldean churches; Crusader-era churches; Franciscan Custody of the Holy Land; Jerusalem
+      Protestant bishopric; American, British and Scandinavian missions; Syrian Protestant College (AUB), Robert College,
+      American Mission to the Nestorians, Urmia; Reformed Church in America Arabian Mission; schools, hospitals, presses,
+      cemeteries and memorials. Historical only, nothing after 1952.
+    keywords: [Holy Land, Palestine, Jerusalem, Bethlehem, Nazareth, Jaffa, Haifa, Galilee, Lebanon, Beirut, Mount Lebanon,
+               Syria, Damascus, Antioch, Aleppo, Jordan, Iraq, Mosul, Baghdad, Nineveh, Persia, Iran, Urmia, Isfahan, Julfa,
+               Turkey, Anatolia, Constantinople, Smyrna, Ephesus, Cappadocia, Armenia, Georgia, Cyprus, Arabia, Bahrain,
+               Kuwait, Muscat, Aden, Maronite, Syriac Orthodox, Chaldean, Melkite, Church of the East, Assyrian, Custody of
+               the Holy Land, Syrian Protestant College, Robert College, Arabian Mission, 中东, 中東, 圣地, 聖地, 巴勒斯坦,
+               耶路撒冷, 伯利恒, 拿撒勒, 黎巴嫩, 贝鲁特, 貝魯特, 叙利亚, 敘利亞, 大马士革, 大馬士革, 安提阿, 伊拉克, 摩苏尔,
+               伊朗, 波斯, 乌尔米亚, 土耳其, 君士坦丁堡, 以弗所, 亚美尼亚, 亞美尼亞, 塞浦路斯, 马龙派, 馬龍派, 迦勒底,
+               贝鲁特美国大学, 叙利亚新教学院, 敘利亞新教學院]
+    sources:
+      - name: Wikipedia (EN) — Christianity in the Middle East
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_the_Middle_East
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Christianity in Lebanon, Iran and Turkey
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Lebanon
+          - https://en.wikipedia.org/wiki/Christianity_in_Iran
+          - https://en.wikipedia.org/wiki/Christianity_in_Turkey
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Holy Land churches and Syrian Protestant College
+        start_urls:
+          - https://en.wikipedia.org/wiki/Church_of_the_Holy_Sepulchre
+          - https://en.wikipedia.org/wiki/Syrian_Protestant_College
+          - https://en.wikipedia.org/wiki/Christianity_in_Jerusalem
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Christianity in Israel and Afghanistan
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Israel
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — American University of Beirut
+        start_urls:
+          - https://zh.wikipedia.org/wiki/贝鲁特美国大学
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Church of the East (Nestorianism)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/景教
+        follow: []
+        max_pages: 1
+        language: zh
+  north-africa:
+    name: North Africa and Ethiopia 北非与埃塞俄比亚
+    extract_hint: >-
+      North Africa and Ethiopia: Egypt (Alexandria 亚历山大, Cairo 开罗, Wadi Natrun, Nitria, Scetis, Sinai, Saint Catherine's
+      Monastery, Upper Egypt, Assiut), Libya (Cyrene, Tripoli), Tunisia (Carthage 迦太基), Algeria (Hippo 希波, Tagaste,
+      Algiers), Morocco, Sudan and Nubia (Dongola, Faras, Old Dongola), Eritrea, and Ethiopia (Aksum 阿克苏姆, Lalibela
+      拉利贝拉, Gondar, Addis Ababa, Lake Tana). Include the Desert Fathers, Coptic Orthodox Church, Catechetical School of
+      Alexandria, Augustine of Hippo, Donatists, Cyprian, Nubian kingdoms (Makuria, Alodia, Nobatia), Ethiopian Orthodox
+      Tewahedo Church, Frumentius, Jesuit mission to Ethiopia (Pedro Paez), Lutheran, CMS and American Presbyterian missions
+      (Assiut College), Franciscans in Morocco, Lavigerie's White Fathers in Algiers; mission schools, hospitals, presses,
+      cemeteries and memorials. Historical only, nothing after 1952.
+    keywords: [Egypt, Alexandria, Cairo, Wadi Natrun, Sinai, Saint Catherine, Assiut, Libya, Cyrene, Tripoli, Tunisia,
+               Carthage, Algeria, Hippo, Tagaste, Algiers, Morocco, Sudan, Nubia, Dongola, Faras, Makuria, Eritrea, Ethiopia,
+               Abyssinia, Aksum, Axum, Lalibela, Gondar, Addis Ababa, Coptic, Desert Fathers, Augustine of Hippo, Donatists,
+               Frumentius, Pedro Paez, White Fathers, Lavigerie, 埃及, 亚历山大, 亞歷山大, 开罗, 開羅, 西奈, 利比亚, 利比亞,
+               突尼斯, 迦太基, 阿尔及利亚, 阿爾及利亞, 希波, 奥古斯丁, 奧古斯丁, 摩洛哥, 苏丹, 蘇丹, 努比亚, 努比亞,
+               埃塞俄比亚, 埃塞俄比亞, 衣索比亞, 阿比西尼亚, 阿克苏姆, 拉利贝拉, 贡德尔, 亚的斯亚贝巴, 科普特, 沙漠教父]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Ethiopia and the Ethiopian Orthodox Church
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Ethiopia
+          - https://en.wikipedia.org/wiki/Ethiopian_Orthodox_Tewahedo_Church
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Egypt and the Coptic Church
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Egypt
+          - https://en.wikipedia.org/wiki/Coptic_Orthodox_Church_of_Alexandria
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Libya, Tunisia, Algeria and Sudan
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Libya
+          - https://en.wikipedia.org/wiki/Christianity_in_Tunisia
+          - https://en.wikipedia.org/wiki/Christianity_in_Algeria
+          - https://en.wikipedia.org/wiki/Christianity_in_Sudan
+        follow: []
+        max_pages: 4
+        language: en
+      - name: Wikipedia (EN) — Christianity in Nubia
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Nubia
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — Ethiopian Orthodox Tewahedo Church
+        start_urls:
+          - https://zh.wikipedia.org/wiki/埃塞俄比亚正教会
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Coptic Orthodox Church of Alexandria
+        start_urls:
+          - https://zh.wikipedia.org/wiki/科普特正教会
+        follow: []
+        max_pages: 1
+        language: zh
+  sub-saharan-africa:
+    name: Sub-Saharan Africa 撒哈拉以南非洲
+    extract_hint: >-
+      Sub-Saharan Africa: West Africa (Sierra Leone/Freetown, Liberia/Monrovia, Ghana/Gold Coast/Cape Coast/Elmina, Nigeria/
+      Badagry/Abeokuta/Lagos/Calabar, Dahomey, Senegal/Gorée), Central Africa (Kongo/Mbanza Kongo, Angola/Luanda, Congo/
+      Léopoldville/Kinshasa, Cameroon), East Africa (Kenya/Mombasa/Rabai, Uganda/Mengo/Namugongo, Tanzania/Zanzibar/Bagamoyo,
+      Rwanda, Malawi/Livingstonia/Blantyre, Zambia, Zimbabwe/Rhodesia, Mozambique, Madagascar/Antananarivo), Southern Africa
+      (Cape Town, Cape Colony, Kuruman, Lovedale, Natal, Basutoland, Botswana, Namibia/South West Africa). Include the early
+      Portuguese missions in Kongo; Samuel Ajayi Crowther and the Niger Mission; Moravians at Genadendal; LMS (Robert Moffat,
+      David Livingstone), CMS, Wesleyan, Basel, Rhenish, Paris Evangelical, Scottish, White Fathers and Holy Ghost Fathers;
+      Uganda Martyrs; Madagascar martyrs; Ethiopianism and African Independent Churches (Kimbangu, Shembe, Harris, Aladura,
+      Zionist churches); mission schools (Fort Hare, Lovedale, Healdtown), hospitals, presses, cemeteries and memorials.
+      Historical only, nothing after 1952.
+    keywords: [Africa, Sierra Leone, Freetown, Liberia, Monrovia, Ghana, Gold Coast, Cape Coast, Elmina, Nigeria, Badagry,
+               Abeokuta, Lagos, Calabar, Dahomey, Senegal, Kongo, Angola, Luanda, Congo, Kinshasa, Cameroon, Kenya, Mombasa,
+               Rabai, Uganda, Namugongo, Tanzania, Zanzibar, Bagamoyo, Rwanda, Malawi, Livingstonia, Blantyre, Zambia,
+               Zimbabwe, Rhodesia, Mozambique, Madagascar, Antananarivo, South Africa, Cape Town, Kuruman, Lovedale, Natal,
+               Basutoland, Botswana, Namibia, Samuel Ajayi Crowther, Livingstone, Robert Moffat, Uganda Martyrs, Simon Kimbangu,
+               African Independent Churches, Ethiopianism, 非洲, 撒哈拉以南非洲, 塞拉利昂, 利比里亚, 利比里亞, 加纳, 迦納,
+               尼日利亚, 奈及利亞, 刚果, 剛果, 安哥拉, 喀麦隆, 肯尼亚, 肯亞, 乌干达, 烏干達, 坦桑尼亚, 坦尚尼亞, 桑给巴尔,
+               马拉维, 馬拉威, 赞比亚, 津巴布韦, 莫桑比克, 马达加斯加, 馬達加斯加, 南非, 开普敦, 開普敦, 戴维·利文斯通,
+               大衛·利文斯通, 罗伯特·莫法特, 乌干达殉道士, 非洲独立教会, 伦敦会, 倫敦會]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Africa
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Africa
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Christianity in Nigeria, Ghana and Kenya
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Nigeria
+          - https://en.wikipedia.org/wiki/Christianity_in_Ghana
+          - https://en.wikipedia.org/wiki/Christianity_in_Kenya
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Christianity in South Africa, Uganda and the Congo
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_South_Africa
+          - https://en.wikipedia.org/wiki/Christianity_in_Uganda
+          - https://en.wikipedia.org/wiki/Christianity_in_the_Democratic_Republic_of_the_Congo
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — David Livingstone and Samuel Ajayi Crowther
+        start_urls:
+          - https://en.wikipedia.org/wiki/David_Livingstone
+          - https://en.wikipedia.org/wiki/Samuel_Ajayi_Crowther
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Uganda Martyrs and Kimbanguism
+        start_urls:
+          - https://en.wikipedia.org/wiki/Uganda_Martyrs
+          - https://en.wikipedia.org/wiki/Kimbanguism
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — David Livingstone
+        start_urls:
+          - https://zh.wikipedia.org/wiki/大卫·利文斯通
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — London Missionary Society
+        start_urls:
+          - https://zh.wikipedia.org/wiki/伦敦会
+        follow: []
+        max_pages: 1
+        language: zh
+  europe:
+    name: Europe 欧洲
+    extract_hint: >-
+      Europe: every country from Iceland to Russia and the Balkans (Rome 罗马, Constantinople, Jerusalem-linked sites in
+      Europe, Canterbury 坎特伯雷, Iona, Lindisfarne, Armagh, Cologne, Trier, Tours, Cluny, Clairvaux, Monte Cassino, Geneva
+      日内瓦, Wittenberg 维滕贝格, Zurich, Strasbourg, Herrnhut 赫仁护特, Halle, Prague, Kiev, Novgorod, Mount Athos, Lisbon,
+      Madrid, Paris, London, Edinburgh, Amsterdam, Copenhagen, Uppsala). Include the early church and catacombs; the
+      conversion of the Franks, Anglo-Saxons, Irish, Slavs, Scandinavia and Rus'; monasticism and cathedral schools; the
+      Reformation, Counter-Reformation, Anabaptists, Huguenots, Pietists, Moravians, Puritans and Quakers; revivals (Welsh
+      1904, Wesleyan); sending-end mission societies and mission colleges that trained missionaries (Basel Mission, Berlin,
+      Rhenish, LMS, CMS, Propaganda Fide, Paris Foreign Missions Society, Bethel); Orthodox, Old Believer and Free church
+      movements; seminaries, presses, hospitals, cemeteries and memorials. Historical only, nothing after 1952.
+    keywords: [Europe, Rome, Constantinople, Canterbury, Iona, Lindisfarne, Armagh, Cologne, Trier, Tours, Cluny, Clairvaux,
+               Monte Cassino, Geneva, Wittenberg, Zurich, Strasbourg, Herrnhut, Halle, Prague, Kiev, Novgorod, Mount Athos,
+               Lisbon, Madrid, Paris, London, Edinburgh, Amsterdam, Copenhagen, Uppsala, Basel Mission, Berlin Mission, Rhenish
+               Mission, Paris Foreign Missions Society, Propaganda Fide, Reformation, Counter-Reformation, Huguenots, Pietism,
+               Moravians, Puritans, Quakers, Anabaptists, Welsh Revival, 欧洲, 歐洲, 罗马, 羅馬, 君士坦丁堡, 坎特伯雷,
+               坎特伯里, 爱奥那, 日内瓦, 日內瓦, 维滕贝格, 維騰貝格, 苏黎世, 蘇黎世, 斯特拉斯堡, 赫仁护特, 布拉格, 基辅,
+               基輔, 诺夫哥罗德, 阿索斯山, 里斯本, 巴黎, 伦敦, 倫敦, 爱丁堡, 愛丁堡, 阿姆斯特丹, 哥本哈根, 乌普萨拉,
+               巴色会, 巴色會, 巴黎外方传教会, 巴黎外方傳教會, 宗教改革, 胡格诺派, 虔敬派, 摩拉维亚弟兄会, 清教徒, 贵格会]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Europe
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Europe
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — History of Christianity and Christianization of Scandinavia
+        start_urls:
+          - https://en.wikipedia.org/wiki/History_of_Christianity
+          - https://en.wikipedia.org/wiki/Christianization_of_Scandinavia
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Moravian Church and the Basel Mission
+        start_urls:
+          - https://en.wikipedia.org/wiki/Moravian_Church
+          - https://en.wikipedia.org/wiki/Basel_Mission
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Missionary societies
+        start_urls:
+          - https://en.wikipedia.org/wiki/London_Missionary_Society
+          - https://en.wikipedia.org/wiki/Church_Mission_Society
+          - https://en.wikipedia.org/wiki/Paris_Foreign_Missions_Society
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — History of Christianity
+        start_urls:
+          - https://zh.wikipedia.org/wiki/基督教历史
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Moravian Church
+        start_urls:
+          - https://zh.wikipedia.org/wiki/摩拉维亚教会
+        follow: []
+        max_pages: 1
+        language: zh
+  north-america:
+    name: North America 北美洲
+    extract_hint: >-
+      North America: the United States and Canada (also Greenland, Bermuda and Saint-Pierre). Include French Jesuit and
+      Recollet missions (Huronia, Sainte-Marie among the Hurons, Quebec 魁北克, Montreal, Kahnawake); Spanish missions of
+      Florida, New Mexico, Texas and California (San Diego, Santa Barbara, San Antonio, Carmel); Puritan New England (Boston,
+      Plymouth, Salem), Eliot's praying towns, Quakers in Philadelphia, Dutch Reformed in New York, Moravians at Bethlehem and
+      Salem; the Great Awakenings, camp meetings (Cane Ridge), Azusa Street 1906; the Black church and slave religion
+      (Richard Allen, AME, Silver Bluff); Mormon, Shaker and Oneida communities; Native American missions (Whitman, Spalding,
+      Marquette); American Board, Presbyterian, Methodist and Baptist foreign mission boards and colleges that sent
+      missionaries abroad (Haystack Prayer Meeting at Williamstown, Student Volunteer Movement at Mount Hermon, Yale, Oberlin,
+      Princeton); Chinese Christian communities in Chinatowns; colleges, hospitals, presses, cemeteries and memorials.
+      Historical only, nothing after 1952.
+    keywords: [North America, United States, Canada, Quebec, Montreal, Huronia, Sainte-Marie among the Hurons, Kahnawake,
+               Florida, St. Augustine, New Mexico, Santa Fe, Texas, San Antonio, California, San Diego, Santa Barbara, Carmel,
+               Boston, Plymouth, Salem, Philadelphia, New York, Bethlehem, Cane Ridge, Azusa Street, Great Awakening, Second
+               Great Awakening, Haystack Prayer Meeting, Student Volunteer Movement, Mount Hermon, Oberlin, Williamstown,
+               Black church, Richard Allen, African Methodist Episcopal, Silver Bluff, Spanish missions, Jesuit Relations,
+               John Eliot, Marcus Whitman, Jacques Marquette, 北美洲, 北美, 美国, 美國, 加拿大, 魁北克, 蒙特利尔, 蒙特婁,
+               佛罗里达, 新墨西哥, 得克萨斯, 加利福尼亚, 波士顿, 波士頓, 费城, 費城, 纽约, 紐約, 大觉醒运动, 大覺醒運動,
+               阿苏萨街, 草垛祷告会, 学生志愿运动, 學生志願運動, 黑人教会, 非裔卫理圣公会, 西班牙传教区, 美国公理会海外宣教部,
+               美部会, 美部會]
+    sources:
+      - name: Wikipedia (EN) — Christianity in the United States and Canada
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_the_United_States
+          - https://en.wikipedia.org/wiki/Christianity_in_Canada
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Spanish missions in North America
+        start_urls:
+          - https://en.wikipedia.org/wiki/Spanish_missions_in_California
+          - https://en.wikipedia.org/wiki/Spanish_missions_in_Florida
+          - https://en.wikipedia.org/wiki/Spanish_missions_in_Texas
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Great Awakening, Black church and Moravians
+        start_urls:
+          - https://en.wikipedia.org/wiki/Great_Awakening
+          - https://en.wikipedia.org/wiki/Black_church
+          - https://en.wikipedia.org/wiki/Moravian_Church
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Sending-end mission movements
+        start_urls:
+          - https://en.wikipedia.org/wiki/Haystack_Prayer_Meeting
+          - https://en.wikipedia.org/wiki/Student_Volunteer_Movement_for_Foreign_Missions
+          - https://en.wikipedia.org/wiki/American_Board_of_Commissioners_for_Foreign_Missions
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (ZH) — Christianity in the United States
+        start_urls:
+          - https://zh.wikipedia.org/wiki/美国基督教
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Great Awakening
+        start_urls:
+          - https://zh.wikipedia.org/wiki/大觉醒运动
+        follow: []
+        max_pages: 1
+        language: zh
+  latin-america:
+    name: Latin America and the Caribbean 拉丁美洲与加勒比
+    extract_hint: >-
+      Latin America and the Caribbean: Mexico (Tenochtitlan/Mexico City 墨西哥城, Tlaxcala, Guadalupe/Tepeyac, Puebla, Oaxaca,
+      Yucatán), Central America (Guatemala/Antigua, Honduras, Nicaragua, Costa Rica, Panama), Caribbean (Hispaniola/Santo
+      Domingo, Cuba/Havana, Haiti, Jamaica, Puerto Rico, Trinidad, Barbados, Moravian missions in the Danish West Indies),
+      South America (Colombia/Cartagena, Peru/Lima/Cusco, Bolivia/Potosí, Chile/Santiago, Argentina/Buenos Aires,
+      Paraguay/Asunción, Uruguay, Brazil/Bahia/Rio de Janeiro/São Paulo, Venezuela, Ecuador/Quito, Guyana/Suriname). Include
+      the first Franciscan, Dominican and Augustinian missions; Bartolomé de las Casas; the Jesuit Reductions (Guaraní
+      missions, San Ignacio Miní, São Miguel das Missões, Chiquitos); Our Lady of Guadalupe; Afro-Caribbean Baptist and
+      Moravian churches; Native Baptists in Jamaica; Protestant missions (Allen Gardiner, Robert Reid Kalley, Ashbel Simonton,
+      Waldensians, Methodists, Presbyterians, Mennonites, Salvation Army); Pentecostal beginnings in Chile (Valparaíso 1909)
+      and Brazil (Belém 1910); mission schools (Mackenzie College), hospitals, presses, cemeteries and memorials.
+      Historical only, nothing after 1952.
+    keywords: [Latin America, Caribbean, Mexico, Mexico City, Tlaxcala, Guadalupe, Tepeyac, Puebla, Oaxaca, Yucatan,
+               Guatemala, Antigua, Honduras, Nicaragua, Costa Rica, Panama, Santo Domingo, Hispaniola, Cuba, Havana, Haiti,
+               Jamaica, Puerto Rico, Trinidad, Barbados, Colombia, Cartagena, Peru, Lima, Cusco, Bolivia, Potosi, Chile,
+               Santiago, Valparaiso, Argentina, Buenos Aires, Paraguay, Asuncion, Uruguay, Brazil, Bahia, Rio de Janeiro,
+               Sao Paulo, Venezuela, Ecuador, Quito, Guyana, Suriname, Jesuit Reductions, Guarani, Bartolome de las Casas,
+               Allen Gardiner, Mackenzie College, 拉丁美洲, 拉美, 加勒比, 墨西哥, 墨西哥城, 瓜达卢佩, 瓜達盧佩, 危地马拉,
+               洪都拉斯, 尼加拉瓜, 哥斯达黎加, 巴拿马, 古巴, 哈瓦那, 海地, 牙买加, 牙買加, 波多黎各, 哥伦比亚, 秘鲁, 利马,
+               玻利维亚, 智利, 阿根廷, 布宜诺斯艾利斯, 巴拉圭, 乌拉圭, 巴西, 委内瑞拉, 厄瓜多尔, 圭亚那, 苏里南, 耶稣会,
+               耶穌會, 瓜拉尼, 拉斯·卡萨斯, 解放神学, 解放神學]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Latin America
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Latin_America
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Jesuit Reductions and Spanish missions in the Americas
+        start_urls:
+          - https://en.wikipedia.org/wiki/Jesuit_Reductions
+          - https://en.wikipedia.org/wiki/Spanish_missions_in_the_Americas
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Brazil and Mexico
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Brazil
+          - https://en.wikipedia.org/wiki/Christianity_in_Mexico
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (EN) — Christianity in Haiti and Jamaica
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Haiti
+          - https://en.wikipedia.org/wiki/Christianity_in_Jamaica
+        follow: []
+        max_pages: 2
+        language: en
+      - name: Wikipedia (ZH) — Society of Jesus
+        start_urls:
+          - https://zh.wikipedia.org/wiki/耶稣会
+        follow: []
+        max_pages: 1
+        language: zh
+      - name: Wikipedia (ZH) — Liberation theology
+        start_urls:
+          - https://zh.wikipedia.org/wiki/解放神学
+        follow: []
+        max_pages: 1
+        language: zh
+  oceania:
+    name: Oceania 大洋洲
+    extract_hint: >-
+      Oceania: Australia (Sydney, Parramatta, Hobart, Melbourne, Adelaide, Perth; Aboriginal missions such as Wellington
+      Valley, Ebenezer, Hermannsburg, Ramahyuk, Lake Tyers; Lutheran German settlers in South Australia), New Zealand (Bay of
+      Islands, Oihi, Paihia, Waitangi, Kerikeri, Samuel Marsden, Selwyn, Pompallier, Kororareka), Papua New Guinea
+      (Port Moresby, Kwato, Rabaul, Finschhafen), Melanesia (Fiji/Levuka/Bau, Solomon Islands, Vanuatu/Erromango/Aneityum,
+      New Caledonia), Polynesia (Tahiti/Matavai Bay, Tonga/Nuku'alofa, Samoa/Apia, Hawaii/Honolulu/Lahaina, Cook Islands/
+      Rarotonga, Marquesas, Tuvalu, Tokelau), Micronesia (Guam, Kiribati, Marshall Islands, Caroline Islands/Pohnpei).
+      Include the Duff voyage of 1796 and LMS Tahiti; John Williams (martyred Erromango 1839); John Geddie; Bishop Patteson
+      and Melanesian Mission (Norfolk Island); Marist and Picpus Fathers; Wesleyan missions (Tonga, Fiji); ABCFM Hawaii
+      (Hiram Bingham, Kawaiahaʻo Church); Father Damien at Kalaupapa; Pacific Islander teachers; cargo movements; mission
+      schools, presses, hospitals, cemeteries and memorials. Historical only, nothing after 1952.
+    keywords: [Oceania, Pacific, Australia, Sydney, Parramatta, Hobart, Melbourne, Adelaide, Perth, Hermannsburg, New Zealand,
+               Bay of Islands, Paihia, Waitangi, Kerikeri, Samuel Marsden, Pompallier, Papua New Guinea, Port Moresby, Kwato,
+               Rabaul, Fiji, Levuka, Solomon Islands, Vanuatu, Erromango, New Caledonia, Tahiti, Tonga, Samoa, Apia, Hawaii,
+               Honolulu, Lahaina, Cook Islands, Rarotonga, Marquesas, Guam, Kiribati, Marshall Islands, Pohnpei, Duff,
+               John Williams, John Geddie, Patteson, Melanesian Mission, Norfolk Island, Hiram Bingham, Father Damien, Kalaupapa,
+               London Missionary Society, 大洋洲, 太平洋岛屿, 澳大利亚, 澳洲, 悉尼, 悉尼, 新西兰, 紐西蘭, 巴布亚新几内亚,
+               斐济, 斐濟, 所罗门群岛, 瓦努阿图, 新喀里多尼亚, 塔希提, 大溪地, 汤加, 湯加, 萨摩亚, 薩摩亞, 夏威夷, 檀香山,
+               库克群岛, 关岛, 關島, 基里巴斯, 马绍尔群岛, 伦敦会, 倫敦會, 约翰·威廉斯, 达米安神父]
+    sources:
+      - name: Wikipedia (EN) — Christianity in Oceania
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Oceania
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (EN) — Christianity in Papua New Guinea, Fiji and Samoa
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Papua_New_Guinea
+          - https://en.wikipedia.org/wiki/Christianity_in_Fiji
+          - https://en.wikipedia.org/wiki/Christianity_in_Samoa
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — Christianity in Australia, New Zealand and Hawaii
+        start_urls:
+          - https://en.wikipedia.org/wiki/Christianity_in_Australia
+          - https://en.wikipedia.org/wiki/Christianity_in_New_Zealand
+          - https://en.wikipedia.org/wiki/Christianity_in_Hawaii
+        follow: []
+        max_pages: 3
+        language: en
+      - name: Wikipedia (EN) — London Missionary Society
+        start_urls:
+          - https://en.wikipedia.org/wiki/London_Missionary_Society
+        follow: []
+        max_pages: 1
+        language: en
+      - name: Wikipedia (ZH) — London Missionary Society
+        start_urls:
+          - https://zh.wikipedia.org/wiki/伦敦会
+        follow: []
+        max_pages: 1
+        language: zh
