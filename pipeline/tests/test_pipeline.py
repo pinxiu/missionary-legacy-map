@@ -364,3 +364,24 @@ def test_locate_matches_names_and_converts_amap():
     pick, agree = locate.best([far, near])
     assert pick["source"] == "osm" and agree
     assert locate.best([]) == (None, False)
+
+
+def test_audit_reads_the_passage_of_a_long_book():
+    """Nov 2026: Haicheng sat past the 60,000-character cut of a 1.1 MB book, so the auditor 'did not find' it."""
+    from mlm.audit import MAX_TEXT, audit_text
+    book = "Preface and contents. " * 5000 + "Mr. Macintyre also removed to Haicheng, from which centre he worked." + " filler" * 20000
+    seen = audit_text("Scottish mission, Haicheng", book)
+    assert "removed to Haicheng" in seen and len(seen) <= MAX_TEXT + 100
+    quoted = audit_text("Some other name", book, ("Mr. Macintyre also removed to Haicheng",))
+    assert "removed to Haicheng" in quoted
+    assert audit_text("x", "short page") == "short page"
+
+
+def test_audit_year_ranges():
+    from mlm.audit import agrees
+    rec = {"site_type": "church"}
+    century = [{"year_start": 601, "year_end": 800}]
+    assert agrees(rec, century, {"found": True, "site_type": "church", "years": []})[0]
+    assert agrees(rec, century, {"found": True, "site_type": "church", "years": [700]})[0]
+    assert not agrees(rec, century, {"found": True, "site_type": "church", "years": [1900]})[0]
+    assert not agrees(rec, [{"year_start": 1885, "year_end": 1885}], {"found": True, "site_type": "church", "years": []})[0]
