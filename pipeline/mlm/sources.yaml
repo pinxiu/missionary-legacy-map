@@ -223,6 +223,60 @@ regions:
         max_pages: 2
         language: zh
         # 湖山堂 also has post-1952 paragraphs; skip them (policy rule 2)
+      - name: Presbyterian Historical Society — Hangchow finding aids (Lautenschlager papers, China secretaries' records)
+        start_urls:
+          - https://pcusa.org/historical-society/collections/research-tools/guides-archival-collections/rg-235
+          - https://pcusa.org/historical-society/collections/research-tools/guides-archival-collections/rg-129
+        follow: []
+        max_pages: 2
+        language: en
+        kind: archive   # RG 235: Hangchow Christian College faculty 1922-37; RG 129: Central China Mission station dates
+      - name: Bird, The Yangtze Valley and Beyond (John Murray, 1899) — Internet Archive
+        start_urls:
+          - https://archive.org/stream/yangtzevalleybe00bird/yangtzevalleybe00bird_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # period travel account (Smithsonian scan); opening chapters describe Hangchow and the CMS Mission Hospital she visited
+      - name: "Taylor, Hudson Taylor and the China Inland Mission — The Growth of a Work of God (1918), Internet Archive"
+        start_urls:
+          - https://archive.org/stream/hudsontaylorchin00tayl/hudsontaylorchin00tayl_djvu.txt
+        follow: []
+        max_pages: 1
+        language: en
+        kind: book   # Princeton Theological Seminary scan; CIM's first base at Hang-chow 1866-68 (New Lane), drawn from letters; family biography, corroborate
+      - name: 杭州网 (Hangzhou.com.cn) — archive-based features on 之江大学 and 广济医院
+        start_urls:
+          - https://hznews.hangzhou.com.cn/kejiao/content/2014-09/14/content_5443260.htm
+          - https://hznews.hangzhou.com.cn/kejiao/content/2014-09/14/content_5443260_2.htm
+          - https://hznews.hangzhou.com.cn/kejiao/content/2014-09/14/content_5443260_3.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219_2.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219_3.htm
+          - https://hznews.hangzhou.com.cn/wghz/content/2018-02/05/content_6792219_4.htm
+        follow: []
+        max_pages: 7
+        language: zh
+        kind: institution
+        # 2014: 都市快报 x 浙江省档案馆 "档案时空" column on the 之江大学 fonds (709 files, 1915-1954);
+        # 2018: by staff of 杭州市园林文物局 on 广济医院 and its 松木场分院旧址. Skip present-day remarks (policy rule 2)
+      - name: Wikipedia (EN) — Hangzhou-born and Hangzhou-buried figures (J. Leighton Stuart, Prospero Intorcetta)
+        start_urls:
+          - https://en.wikipedia.org/wiki/John_Leighton_Stuart
+          - https://en.wikipedia.org/wiki/Prospero_Intorcetta
+        follow: []
+        max_pages: 2
+        language: en
+        # Stuart: born Hangzhou 1876, parents' Southern Presbyterian mission and Hangzhou School for Girls; use only pre-1952 history
+      - name: Wikipedia (ZH) — 王令赓 (之江大学), 李之藻 (杭州开教), 浙江基督教新教 (Hangzhou churches by mission)
+        start_urls:
+          - https://zh.wikipedia.org/wiki/王令赓
+          - https://zh.wikipedia.org/wiki/李之藻
+          - https://zh.wikipedia.org/wiki/浙江基督教新教
+        follow: []
+        max_pages: 3
+        language: zh
+        # 浙江基督教新教 lists pre-1952 Hangzhou churches by mission (信一堂, 慕德堂, 民众堂 …); skip its present-day statistics (policy rule 2)
 
   zhejiang:
     # Province-wide crawl (coverage unit CN-ZJ). Each extracted site is assigned to its city (prefecture) by the extractor.
