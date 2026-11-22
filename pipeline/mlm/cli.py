@@ -322,7 +322,10 @@ def entry() -> None:
         main()
     except SystemExit:
         raise
-    except Exception:
+    except Exception as e:
+        from . import preflight
+        if preflight.report_spend_limit(str(e)):  # spend limit: one clear error and a runner-blocked issue, no traceback
+            sys.exit(1)
         tb = traceback.format_exc()
         if os.environ.get("GITHUB_ACTIONS"):
             print("::error::" + tb[-1500:].replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A"))

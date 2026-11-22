@@ -43,3 +43,21 @@ def test_run_exit_code(monkeypatch):
     assert preflight.run() == 1
     monkeypatch.setattr(preflight, "problems", lambda: [])
     assert preflight.run() == 0
+
+
+def test_spend_limit_message():
+    msg = "Error code: 400 - {'message': 'You have reached your specified API usage limits. You will regain access on 2026-12-01 at 00:00 UTC.'}"
+    assert preflight.spend_limit_until(msg) == "2026-12-01T00:00:00Z"
+    assert preflight.spend_limit_until("invalid x-api-key") is None
+
+
+def test_spend_block_until_reset(monkeypatch):
+    import datetime as dt
+    import subprocess
+    monkeypatch.setenv("GH_TOKEN", "x")
+    body = "blocked <!-- blocked-until: 2026-12-01T00:00:00Z -->"
+    monkeypatch.setattr(preflight, "_gh", lambda *a: subprocess.CompletedProcess(a, 0, body, ""))
+    before = dt.datetime(2026, 11, 22, tzinfo=dt.timezone.utc)
+    after = dt.datetime(2026, 12, 1, 0, 1, tzinfo=dt.timezone.utc)
+    assert "2026-12-01" in preflight.check_spend_block(before)
+    assert preflight.check_spend_block(after) is None
