@@ -23,7 +23,7 @@ from .config import notice
 
 # Bump when the parser prompt or schema changes in a way that should re-read pages.
 # 1 = prompt scoped to the unit being worked on; 2 = every place on the page, worldwide.
-PARSER_VERSION = 2
+PARSER_VERSION = 3  # v3: smaller pieces, bigger answers, 'record every site and dated fact'
 
 
 def normalize_text(text: str) -> str:

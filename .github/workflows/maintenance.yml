@@ -7,7 +7,7 @@ on:
       task:
         description: What to run
         type: choice
-        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, ohm-index, reprocess, publish-agreed, photos-test, photos, verify-recheck-dry-run, verify-recheck]
+        options: [dedupe-dry-run, dedupe, refresh-site, regeocode-jiangsu, regeocode-shanghai, regeocode-fujian, regeocode-guangdong, pool-backfill, locate-dry-run, locate-apply, ohm-probe, amap-check, ohm-planet-check, ohm-planet-list, ohm-planet-files, ohm-planet-guess, pins-dry-run, pins-apply, ohm-planet-dry-run, ohm-planet-apply, ohm-index, reprocess, publish-agreed, photos-test, photos, verify-recheck-dry-run, verify-recheck, translate-backfill-dry-run, translate-backfill]
         default: dedupe-dry-run
 
 permissions:
@@ -17,13 +17,13 @@ permissions:
 concurrency:
   # never alongside the worker, except the quick publish-agreed (idempotent database writes), which must not wait hours behind it
   # or replace a queued heavy task: only one run can wait per group
-  group: ${{ (inputs.task == 'publish-agreed' || startsWith(inputs.task, 'photos')) && 'maintenance-quick' || 'coverage-agents' }}
+  group: ${{ (inputs.task == 'publish-agreed' || startsWith(inputs.task, 'photos') || startsWith(inputs.task, 'translate')) && 'maintenance-quick' || 'coverage-agents' }}
   cancel-in-progress: false
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 330
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
@@ -44,6 +44,10 @@ jobs:
         run: mlm photos --apply --limit 60
       - if: inputs.task == 'photos'
         run: mlm photos --apply
+      - if: inputs.task == 'translate-backfill-dry-run'
+        run: mlm translate-backfill --dry-run
+      - if: inputs.task == 'translate-backfill'
+        run: mlm translate-backfill   # stored records with English but no Chinese; names marked translated (译)
       - if: inputs.task == 'dedupe-dry-run'
         run: mlm dedupe --dry-run
       - if: inputs.task == 'dedupe'
@@ -155,6 +159,8 @@ jobs:
       - if: inputs.task == 'publish-agreed'
         run: mlm coverage publish-agreed   # publish verified records the auditor already agreed with (no new audit)
       - if: inputs.task == 'reprocess'
+        env:
+          MLM_BATCH_WAIT_MIN: "150"   # a full re-read is thousands of batched pieces; results not back yet come next run
         run: mlm reprocess   # every source re-read, every place re-filed under all its regions, then re-pinned (LLM + Amap)
       - if: inputs.task == 'pins-dry-run'
         run: |

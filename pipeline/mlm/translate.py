@@ -254,3 +254,79 @@ def run(pool) -> dict:
     notice(f"translate: {stats} {how}")
     llm.report()
     return stats
+
+
+# ---------------------------------------------------------------- backfill of stored records
+
+# (table, English field, Chinese field, kind, whether the field is a name)
+RECORD_FIELDS = [
+    ("sites", "name_en", "name_zh", "place name", True),
+    ("sites", "summary", "summary_zh", "description", False),
+    ("sites", "current_status", "current_status_zh", "current use", False),
+    ("events", "description", "description_zh", "event description", False),
+    ("persons", "name_en", "name_zh", "person name", True),
+    ("persons", "mission_society", "mission_society_zh", "mission society", False),
+]
+LIVE = "in.(pending,verified,approved,conflict)"  # rejected records stay private and are not translated
+
+
+def missing_records(store) -> list[dict]:
+    """Every stored, non-rejected record field that has English but no Chinese."""
+    out = []
+    for table, en, zh, kind, is_name in RECORD_FIELDS:
+        cols = f"id,{en},{zh}" + (",name_en" if en != "name_en" and table != "events" else "") \
+            + (",region" if table == "sites" else "") + (",birth_year,death_year" if table == "persons" else "")
+        for r in store.select_all(table, select=cols, status=LIVE):
+            if (r.get(en) or "").strip() and not (r.get(zh) or "").strip():
+                out.append({"table": table, "id": r["id"], "en": en, "zh": zh, "kind": kind, "is_name": is_name,
+                            "text": r[en].strip(), "context": r.get("name_en") if en != "name_en" else "",
+                            "city": r.get("region"), "birth": r.get("birth_year"), "death": r.get("death_year")})
+    return out
+
+
+def backfill(store, llm=None, dry_run: bool = False) -> dict:
+    """Fill the Chinese of records that were stored before translation ran, or whose translation was never answered.
+    Same order as for new pages: the glossary, Wikidata for people, then the model. Names written here are marked
+    'translated' (shown with 译); a source-cited Chinese name is never overwritten, since only empty fields are filled."""
+    llm = llm or shared()
+    gloss = glossary(store)
+    todo = missing_records(store)
+    stats = {"missing": len(todo), "glossary": 0, "wikidata": 0, "model": 0, "unanswered": 0, "written": 0}
+    found: list[tuple[dict, str]] = []
+    wanted: list[dict] = []
+    for it in todo:
+        hit = None
+        if it["kind"] in ("place name", "person name", "mission society"):
+            hit = from_glossary(gloss, it["text"], it["birth"], it["death"], it["city"] if it["kind"] == "place name" else None)
+            if hit:
+                stats["glossary"] += 1
+        if not hit and it["kind"] == "person name" and WIKIDATA:
+            wk = item_key("wikidata", [it["text"], it["birth"], it["death"]])
+            known = llm.cache.get_many([wk]).get(wk)
+            hit = known["v"] if known is not None else wikidata_person(it["text"], it["birth"], it["death"])
+            if known is None:
+                llm.cache.put_many({wk: {"v": hit}}, model="wikidata", purpose="translate")
+            if hit:
+                stats["wikidata"] += 1
+        if hit:
+            found.append((it, hit))
+        else:
+            wanted.append(it)
+    items = [{"kind": w["kind"], "text": w["text"], "context": w["context"] or ""} for w in wanted]
+    answers = llm.per_item("translate", items, lambda it: [SYSTEM, it], 60, _request, _parse) if items else []
+    for it, zh in zip(wanted, answers, strict=True):
+        if zh:
+            found.append((it, zh))
+            stats["model"] += 1
+        else:
+            stats["unanswered"] += 1
+    if not dry_run:
+        for it, zh in found:
+            values = {it["zh"]: zh}
+            if it["is_name"]:
+                values["name_zh_status"] = "translated"
+            store.update(it["table"], {"id": it["id"]}, values)
+            stats["written"] += 1
+    notice(f"translate backfill: {stats}")
+    llm.report()
+    return stats

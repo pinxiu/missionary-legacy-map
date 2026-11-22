@@ -62,6 +62,8 @@ def main(argv: list[str] | None = None) -> None:
     rpr = sub.add_parser("reprocess", help="Re-read every source and re-file every place on it under all its regions, then re-pin")
     rpr.add_argument("--no-pins", action="store_true", help="skip the LLM + Amap pin pass at the end")
     sub.add_parser("refresh-site", help="Tell the live map to reload its data now (after publishing)")
+    tb = sub.add_parser("translate-backfill", help="Fill missing Chinese on stored records (glossary, Wikidata, then the model)")
+    tb.add_argument("--dry-run", action="store_true")
     sub.add_parser("preflight", help="Check the runners' credentials (free); a rejected key opens a runner-blocked issue")
     sub.add_parser("actions-usage", help="Approximate GitHub Actions minutes over 30 days, per workflow (no model)")
     cp = sub.add_parser("cache", help="Model-result cache maintenance (no model calls)")
@@ -185,6 +187,15 @@ def main(argv: list[str] | None = None) -> None:
             decisions.sync(Store())
         else:
             open("/tmp/decide-summary.txt", "w").write(decisions.decide(Store(), args.issue))
+        return
+    if args.cmd == "translate-backfill":
+        from . import translate
+        from .site import refresh
+        from .store import Store
+        store = Store()
+        translate.backfill(store, dry_run=args.dry_run)
+        if not args.dry_run:
+            refresh(store)
         return
     if args.cmd == "preflight":
         from . import preflight

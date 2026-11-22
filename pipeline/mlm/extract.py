@@ -32,6 +32,10 @@ Rules:
   residence, press, orphanage or mission compound. Never make a site out of a city or region ("Taizhou"), a person's work
   in an area, a meeting, a conference, a movement or an anniversary. Record those as events on the specific place where they
   happened, or leave them out if the text names no such place.
+- Be complete. A page often describes many sites and many dated facts: record EACH site as its own record, and EACH
+  dated fact about a site (founded, opened, rebuilt, moved, handed to another mission, destroyed, a school or hospital
+  started there, a person's arrival or death there) as its own event, with its own excerpt. Do not stop at the page's main
+  subject or after the first few: a place mentioned in one sentence still counts if the text says what was there.
 - Record places as written (place_text), including historical romanizations such as "Hangchow" or "Kwang-Chi".
 - Sources may be English or Chinese. Fill name_zh (and summary_zh / description_zh) only with Simplified Chinese
   actually written in the text (convert Traditional characters to Simplified). Leave them empty otherwise.
@@ -48,12 +52,17 @@ Rules:
 - Always respond by calling the record_extraction tool exactly once, with empty lists if nothing qualifies."""
 
 MAX_CHARS = 60_000
+# Pieces of a long page. Up to parser v2 a piece was ~58,000 characters with an 8,000-token answer, so a dense survey
+# (dozens of stations per chapter) ran out of room: 625,000 characters gave 3 sites. Smaller pieces and a bigger answer
+# budget let every place on the page be recorded.
+CHUNK_CHARS = 20_000
 CHUNK_OVERLAP = 1_500
+EXTRACT_MAX_TOKENS = 16_000
 
 
-def chunks(text: str, size: int = MAX_CHARS - 2_000, overlap: int = CHUNK_OVERLAP) -> list[str]:
+def chunks(text: str, size: int = CHUNK_CHARS, overlap: int = CHUNK_OVERLAP) -> list[str]:
     """A long page (e.g. a whole book) as overlapping pieces that each fit the model, split at line breaks where possible."""
-    if len(text) <= MAX_CHARS:
+    if len(text) <= size + overlap:
         return [text]
     out, start = [], 0
     while start < len(text):
@@ -114,7 +123,7 @@ def system_prompt() -> str:
 
 def request(page: dict, system: str = SYSTEM, model: str = EXTRACT_MODEL) -> Req:
     schema = Extraction.model_json_schema()
-    return Req(model=model, system=system, max_tokens=8000, purpose="extract",
+    return Req(model=model, system=system, max_tokens=EXTRACT_MAX_TOKENS, purpose="extract",
                tools=[{"name": "record_extraction", "description": "Record the extracted records.", "input_schema": schema}],
                user=f"Source URL: {page['url']}\nTitle: {page['title']}\n\n<text>\n{page['text'][:MAX_CHARS]}\n</text>")
 
