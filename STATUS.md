@@ -1,9 +1,9 @@
 # Coverage status
 
-_Updated 2026-11-21 23:21 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-22 04:36 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 34 / 45  ·  **Published records:** 887  ·  **Verified, awaiting approval:** 72  ·  **Audited:** 797
+**Units done:** 34 / 45  ·  **Published records:** 889  ·  **Verified, awaiting approval:** 70  ·  **Audited:** 799
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
@@ -12,8 +12,8 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-SH | Shanghai 上海 | done | 78 | 2 | 1 | 231 | 94% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 94 | 3 | 2 | 193 | 93% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 72 | 4 | 0 | 171 | 91% | [#6](../../issues/6) |
-| 1 | CN-SD | Shandong 山东 | done | 73 | 2 | 0 | 161 | 98% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 70 | 7 | 0 | 140 | 88% | [#8](../../issues/8) |
+| 1 | CN-SD | Shandong 山东 | done | 74 | 1 | 0 | 161 | 98% | [#7](../../issues/7) |
+| 1 | CN-BJ | Beijing 北京 | done | 71 | 6 | 0 | 140 | 88% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 19 | 4 | 0 | 58 | 83% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | done | 18 | 5 | 0 | 54 | 76% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | done | 8 | 3 | 0 | 43 | 73% | [#11](../../issues/11) |
@@ -25,7 +25,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-CQ | Chongqing 重庆 | done | 11 | 2 | 0 | 31 | 85% | [#17](../../issues/17) |
 | 1 | CN-YN | Yunnan 云南 | done | 8 | 7 | 0 | 74 | 56% | [#18](../../issues/18) |
 | 1 | CN-GZ | Guizhou 贵州 | done | 3 | 0 | 0 | 30 | 100% | [#19](../../issues/19) |
-| 1 | CN-GX | Guangxi 广西 | done | 15 | 1 | 0 | 28 | 94% | [#20](../../issues/20) |
+| 1 | CN-GX | Guangxi 广西 | done | 15 | 1 | 0 | 30 | 94% | [#20](../../issues/20) |
 | 1 | CN-SX | Shanxi 山西 | done | 25 | 2 | 0 | 51 | 93% | [#21](../../issues/21) |
 | 1 | CN-SN | Shaanxi 陕西 | done | 20 | 2 | 0 | 49 | 91% | [#22](../../issues/22) |
 | 1 | CN-GS | Gansu 甘肃 | done | 3 | 0 | 0 | 36 | 100% | [#23](../../issues/23) |
