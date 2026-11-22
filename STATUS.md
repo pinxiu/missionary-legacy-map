@@ -1,19 +1,19 @@
 # Coverage status
 
-_Updated 2026-11-22 06:00 UTC by the status job. Correctness over speed: records are published only after
+_Updated 2026-11-22 11:37 UTC by the status job. Correctness over speed: records are published only after
 the verifier, an independent audit, and the owner's approval of the unit._
 
-**Units done:** 34 / 45  ·  **Published records:** 889  ·  **Verified, awaiting approval:** 70  ·  **Audited:** 799
+**Units done:** 34 / 45  ·  **Published records:** 889  ·  **Verified, awaiting approval:** 77  ·  **Audited:** 799
 
 | Phase | Unit | Name | State | Published | Verified | Pending | Rejected | Audit agreement | Issue |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | CN-ZJ | Zhejiang 浙江 | done | 89 | 9 | 0 | 314 | 88% | [#2](../../issues/2) |
-| 1 | CN-JS | Jiangsu 江苏 | done | 60 | 3 | 0 | 172 | 92% | [#3](../../issues/3) |
+| 1 | CN-JS | Jiangsu 江苏 | done | 60 | 4 | 0 | 172 | 92% | [#3](../../issues/3) |
 | 1 | CN-SH | Shanghai 上海 | done | 78 | 2 | 1 | 231 | 94% | [#4](../../issues/4) |
 | 1 | CN-FJ | Fujian 福建 | done | 94 | 3 | 2 | 193 | 93% | [#5](../../issues/5) |
 | 1 | CN-GD | Guangdong 广东 | done | 72 | 4 | 0 | 171 | 91% | [#6](../../issues/6) |
 | 1 | CN-SD | Shandong 山东 | done | 74 | 1 | 0 | 161 | 98% | [#7](../../issues/7) |
-| 1 | CN-BJ | Beijing 北京 | done | 71 | 6 | 0 | 140 | 88% | [#8](../../issues/8) |
+| 1 | CN-BJ | Beijing 北京 | done | 71 | 7 | 0 | 140 | 88% | [#8](../../issues/8) |
 | 1 | CN-TJ | Tianjin 天津 | done | 19 | 4 | 0 | 58 | 83% | [#9](../../issues/9) |
 | 1 | CN-HE | Hebei 河北 | done | 18 | 5 | 0 | 54 | 76% | [#10](../../issues/10) |
 | 1 | CN-HA | Henan 河南 | done | 8 | 3 | 0 | 43 | 73% | [#11](../../issues/11) |
@@ -38,7 +38,7 @@ the verifier, an independent audit, and the owner's approval of the unit._
 | 1 | CN-XJ | Xinjiang 新疆 | done | 6 | 0 | 0 | 16 | 100% | [#30](../../issues/30) |
 | 1 | CN-XZ | Tibet 西藏 | done | 1 | 0 | 0 | 9 | 100% | [#31](../../issues/31) |
 | 1 | CN-HI | Hainan 海南 | done | 4 | 0 | 0 | 8 | 100% | [#32](../../issues/32) |
-| 1 | HK | Hong Kong 香港 | done | 37 | 2 | 0 | 98 | 95% | [#33](../../issues/33) |
+| 1 | HK | Hong Kong 香港 | done | 37 | 7 | 0 | 101 | 95% | [#33](../../issues/33) |
 | 1 | MO | Macau 澳门 | done | 23 | 1 | 0 | 40 | 96% | [#34](../../issues/34) |
 | 1 | TW | Taiwan 台湾 | done | 35 | 2 | 0 | 81 | 95% | [#35](../../issues/35) |
 | 2 | W-EAS | East Asia (Korea, Japan, Mongolia) 东亚（朝鲜半岛、日本、蒙古） | in-progress | 0 | 0 | 0 | 0 | — | [#36](../../issues/36) |
